@@ -19,9 +19,9 @@ export default function Home() {
   }
 
   return (
-    <div className="flex flex-col bg-gradient-to-br from-blue-50 to-white dark:from-gray-900 dark:to-gray-800 py-16">
-      <div className="flex items-start justify-center">
-        <div className="text-center p-8 max-w-2xl">
+    <div className="min-h-[calc(100vh-4rem)] bg-gradient-to-br from-blue-50 to-white dark:from-gray-900 dark:to-gray-800">
+      <div className="flex items-start justify-center pt-32">
+        <div className="text-center p-8 max-w-2xl mx-auto">
           <h1 className="text-4xl font-extrabold text-gray-900 dark:text-white mb-6">
             Welcome to DriveEasy
           </h1>
