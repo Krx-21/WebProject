@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useDarkMode } from '@/contexts/DarkModeContext';
@@ -10,8 +10,10 @@ export default function Navbar() {
   const { user, logout } = useAuth();
   const { darkMode, toggleDarkMode } = useDarkMode();
   const pathname: string | null = usePathname();
+  const router = useRouter();
   const [scrolled, setScrolled] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   
   useEffect(() => {
     if (user?.role === 'admin') {
@@ -48,8 +50,13 @@ export default function Navbar() {
     return pathname === path || pathname.startsWith(path + '/');
   };
 
+  const handleLogout = async () => {
+    await logout();
+    router.push('/');
+  };
+
   return (
-    <header className={`fixed w-full z-50 transition-all duration-300 ${
+    <nav className={`fixed w-full z-50 transition-all duration-300 ${
       scrolled ? 'bg-white/90 dark:bg-gray-900/90 backdrop-blur-md shadow-lg' : 
                 'bg-white dark:bg-gray-900'
     }`}>
@@ -130,7 +137,7 @@ export default function Navbar() {
                   Dashboard
                 </Link>
                 <button 
-                  onClick={logout}
+                  onClick={handleLogout}
                   className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
                 >
                   Sign Out
@@ -153,8 +160,61 @@ export default function Navbar() {
               </div>
             )}
           </div>
+          
+          <div className="-mr-2 flex items-center sm:hidden">
+            <button
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
+            >
+              <span className="sr-only">Open main menu</span>
+              <svg className={`${isMenuOpen ? 'hidden' : 'block'} h-6 w-6`} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+              <svg className={`${isMenuOpen ? 'block' : 'hidden'} h-6 w-6`} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
-    </header>
+
+      <div className={`${isMenuOpen ? 'block' : 'hidden'} sm:hidden`}>
+        <div className="pt-2 pb-3 space-y-1">
+          <Link href="/" className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-50 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800">
+            Home
+          </Link>
+          {user && (
+            <Link href="/dashboard" className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-50 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800">
+              Dashboard
+            </Link>
+          )}
+        </div>
+        <div className="pt-4 pb-3 border-t border-gray-200 dark:border-gray-700">
+          {user ? (
+            <div className="space-y-1">
+              <div className="px-4 py-2">
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-300">{user.name}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">{user.email}</p>
+              </div>
+              <button
+                onClick={handleLogout}
+                className="block w-full text-left pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-red-600 hover:text-red-800 hover:bg-gray-50 hover:border-red-300 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-gray-800"
+              >
+                Logout
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-1">
+              <Link href="/login" className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-50 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800">
+                Login
+              </Link>
+              <Link href="/register" className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-blue-600 hover:text-blue-800 hover:bg-gray-50 hover:border-blue-300 dark:text-blue-400 dark:hover:text-blue-300 dark:hover:bg-gray-800">
+                Register
+              </Link>
+            </div>
+          )}
+        </div>
+      </div>
+    </nav>
   );
 }

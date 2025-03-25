@@ -113,88 +113,76 @@ export default function RcpManagement({ providers, refreshProviders, setError }:
       </div>
 
       {showForm && (
-        <div className="bg-gray-50 rounded-lg p-6 mb-6 border border-gray-200">
-          <h3 className="text-lg font-semibold mb-4">
-            {editingProvider ? 'Edit Provider' : 'Add New Provider'}
-          </h3>
-          
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full">
+            <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
+              {editingProvider ? 'Edit Provider' : 'Add New Provider'}
+            </h2>
+            <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-1">
-                  Provider Name
-                </label>
+                <label className="block mb-1 text-gray-700 dark:text-gray-300">Provider Name</label>
                 <input
                   type="text"
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
+                  className="w-full p-2 border rounded text-gray-800 dark:text-gray-300 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600"
                   required
-                  className="w-full p-2 border border-gray-300 rounded"
                 />
               </div>
               
               <div>
-                <label className="block text-sm font-medium mb-1">
-                  Phone Number
-                </label>
-                <input
-                  type="text"
-                  name="tel"
-                  value={formData.tel}
-                  onChange={handleChange}
-                  className="w-full p-2 border border-gray-300 rounded"
-                />
-              </div>
-              
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium mb-1">
-                  Address
-                </label>
-                <input
-                  type="text"
+                <label className="block mb-1 text-gray-700 dark:text-gray-300">Address</label>
+                <textarea
                   name="address"
                   value={formData.address}
                   onChange={handleChange}
+                  className="w-full p-2 border rounded text-gray-800 dark:text-gray-300 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600"
                   required
-                  className="w-full p-2 border border-gray-300 rounded"
                 />
               </div>
               
               <div>
-                <label className="block text-sm font-medium mb-1">
-                  Province
-                </label>
+                <label className="block mb-1 text-gray-700 dark:text-gray-300">Province</label>
                 <input
                   type="text"
                   name="province"
                   value={formData.province}
                   onChange={handleChange}
-                  className="w-full p-2 border border-gray-300 rounded"
+                  className="w-full p-2 border rounded text-gray-800 dark:text-gray-300 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600"
                 />
               </div>
-            </div>
-            
-            <div className="flex justify-end space-x-3 mt-6">
-              <button
-                type="button"
-                onClick={() => {
-                  setShowForm(false);
-                  resetForm();
-                }}
-                className="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
-              >
-                {isSubmitting ? 'Saving...' : editingProvider ? 'Update Provider' : 'Add Provider'}
-              </button>
-            </div>
-          </form>
+              
+              <div>
+                <label className="block mb-1 text-gray-700 dark:text-gray-300">Contact Number</label>
+                <input
+                  type="tel"
+                  name="tel"
+                  value={formData.tel}
+                  onChange={handleChange}
+                  className="w-full p-2 border rounded text-gray-800 dark:text-gray-300 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600"
+                />
+              </div>
+              
+              <div className="flex justify-end space-x-3 mt-6">
+                <button
+                  type="button"
+                  onClick={() => setShowForm(false)}
+                  className="px-4 py-2 text-gray-700 bg-gray-100 rounded hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
+                  disabled={isSubmitting}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? 'Saving...' : (editingProvider ? 'Update' : 'Create')}
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
 
