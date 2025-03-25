@@ -26,7 +26,6 @@ export default function BookingList({
   onDelete, 
   showUser = false 
 }: BookingListProps) {
-  // Empty state
   if (!Array.isArray(bookings) || bookings.length === 0) {
     return (
       <div className="bg-gray-100 dark:bg-gray-700 p-8 rounded-lg text-center">
@@ -39,14 +38,12 @@ export default function BookingList({
     );
   }
 
-  // Debug logs to see what's coming in
   console.log('Providers in BookingList:', providers);
   console.log('Bookings in BookingList:', bookings);
   
   const getProviderName = (providerId: string): string => {
     if (!providerId) return 'Unknown provider';
     
-    // ตรวจสอบว่า providerId มีรูปแบบถูกต้องหรือไม่
     console.log('Looking for provider with ID:', providerId);
     
     const provider = providers.find(p => {
@@ -60,11 +57,9 @@ export default function BookingList({
   const getProviderAddress = (providerId: string): string => {
     if (!providerId) return 'Unknown location';
     
-    // เพิ่มการตรวจสอบที่ละเอียดมากขึ้น
     const provider = providers.find(p => p._id === providerId);
     
     if (provider) {
-      // สร้างที่อยู่แบบเต็มรูปแบบถ้ามีข้อมูล
       const addressParts = [
         provider.address,
         provider.district,
@@ -93,20 +88,49 @@ export default function BookingList({
   return (
     <div className="space-y-4">
       {bookings.map((booking: Booking) => {
-        // ตรวจสอบโครงสร้างข้อมูลของ booking
         console.log('Processing booking:', booking);
         
-        // ตรวจสอบว่า providerId อยู่ที่ไหนในข้อมูล
-        const bookingProviderId = booking.providerId || 
-                                (booking.rentalCarProvider && booking.rentalCarProvider._id);
+        let bookingProviderId = '';
+        let providerInfo: any = null;
         
-        console.log('Booking provider ID:', bookingProviderId);
+        // ตรวจสอบ providerId จากหลายแหล่งที่เป็นไปได้
+        if (booking.providerId) {
+          bookingProviderId = booking.providerId;
+        } else if (booking.rentalCarProvider && booking.rentalCarProvider._id) {
+          bookingProviderId = booking.rentalCarProvider._id;
+        } else if ((booking as any).provider && typeof (booking as any).provider === 'string') {
+          // ใช้ type assertion เพื่อเข้าถึง property ที่อาจไม่ได้ประกาศใน type
+          bookingProviderId = (booking as any).provider;
+        } else if ((booking as any).provider && typeof (booking as any).provider === 'object' && (booking as any).provider._id) {
+          bookingProviderId = (booking as any).provider._id;
+        }
         
-        // ค้นหาข้อมูล provider จากทั้งสองแหล่ง
-        const providerInfo = booking.rentalCarProvider || 
-                           (bookingProviderId ? providers.find(p => p._id === bookingProviderId) : null);
+        console.log('Extracted providerId:', bookingProviderId);
+        
+        // ค้นหาข้อมูล provider
+        if (booking.rentalCarProvider) {
+          providerInfo = booking.rentalCarProvider;
+        } else if ((booking as any).provider && typeof (booking as any).provider === 'object') {
+          providerInfo = (booking as any).provider;
+        } else if (bookingProviderId) {
+          providerInfo = providers.find(p => p._id === bookingProviderId);
+        }
         
         console.log('Provider info found:', providerInfo);
+        
+        // สร้างข้อมูลที่อยู่
+        let addressDisplay = 'Unknown location';
+        if (providerInfo && providerInfo.address) {
+          const addressParts = [
+            providerInfo.address,
+            providerInfo.district,
+            providerInfo.province
+          ].filter(Boolean);
+          
+          addressDisplay = addressParts.join(', ');
+        } else if (bookingProviderId) {
+          addressDisplay = getProviderAddress(bookingProviderId);
+        }
         
         return (
           <div 
@@ -133,12 +157,10 @@ export default function BookingList({
             <div className="mb-4">
               <span className="text-sm text-gray-500 dark:text-gray-400 block mb-1">Provider:</span>
               <p className="font-medium text-gray-900 dark:text-white">
-                {providerInfo?.name || getProviderName(bookingProviderId || '')}
+                {providerInfo?.name || getProviderName(bookingProviderId)}
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                {providerInfo?.address ? 
-                  [providerInfo.address, providerInfo.province].filter(Boolean).join(', ') : 
-                  getProviderAddress(bookingProviderId || '')}
+                {addressDisplay}
               </p>
             </div>
 
