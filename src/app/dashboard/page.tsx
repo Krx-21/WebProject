@@ -49,36 +49,35 @@ export default function Dashboard() {
     checkAuth();
   }, [mounted, user, router]);
 
+  const loadData = async () => {
+    try {
+      setIsLoading(true);
+      const [bookingsResponse, providersResponse] = await Promise.all([
+        getUserBookings(),
+        getAllRcps()
+      ]);
+
+      if (bookingsResponse.success) {
+        setBookings(bookingsResponse.data as Booking[]);
+      } else {
+        setError(bookingsResponse.error || 'Failed to load bookings');
+      }
+
+      if (providersResponse.success) {
+        setProviders(providersResponse.data);
+      } else {
+        setError(providersResponse.error || 'Failed to load providers');
+      }
+    } catch (err) {
+      console.error('Error loading data:', err);
+      setError('Failed to load data');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (!mounted || !user) return;
-
-    const loadData = async () => {
-      try {
-        setIsLoading(true);
-        const [bookingsResponse, providersResponse] = await Promise.all([
-          getUserBookings(),
-          getAllRcps()
-        ]);
-
-        if (bookingsResponse.success) {
-          setBookings(bookingsResponse.data as Booking[]);
-        } else {
-          setError(bookingsResponse.error || 'Failed to load bookings');
-        }
-
-        if (providersResponse.success) {
-          setProviders(providersResponse.data);
-        } else {
-          setError(providersResponse.error || 'Failed to load providers');
-        }
-      } catch (err) {
-        console.error('Error loading data:', err);
-        setError('Failed to load data');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     loadData();
   }, [mounted, user]);
 
@@ -93,7 +92,7 @@ export default function Dashboard() {
       });
 
       if (response.success) {
-        setBookings(prev => [...prev, response.data as Booking]);
+        await loadData();
         setShowForm(false);
       } else {
         setError(response.error || 'Failed to create booking');
@@ -121,9 +120,7 @@ export default function Dashboard() {
       });
 
       if (response.success) {
-        setBookings(prev => prev.map(booking => 
-          booking._id === updatedBooking._id ? response.data as Booking : booking
-        ));
+        await loadData();
         setEditingBooking(null);
       } else {
         throw new Error(response.error || 'Failed to update booking');
@@ -140,7 +137,7 @@ export default function Dashboard() {
     try {
       const response = await deleteBooking(id);
       if (response.success) {
-        setBookings(prev => prev.filter(booking => booking._id !== id));
+        await loadData();
       } else {
         throw new Error(response.error || 'Failed to delete booking');
       }
@@ -151,17 +148,7 @@ export default function Dashboard() {
   };
 
   const refreshProviders = async () => {
-    try {
-      const response = await getAllRcps();
-      if (response.success) {
-        setProviders(response.data);
-      } else {
-        setError(response.error || 'Failed to refresh providers');
-      }
-    } catch (err) {
-      console.error('Error refreshing providers:', err);
-      setError('Failed to refresh providers');
-    }
+    await loadData();
   };
 
   if (!mounted) {
