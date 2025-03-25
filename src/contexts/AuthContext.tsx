@@ -99,15 +99,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const logout = () => {
+  const logout = async () => {
     try {
-      apiLogout();
+      await apiLogout();
+      setUser(null); 
+      localStorage.removeItem('user'); 
+      setError(null);
+      
+      router.refresh();
+      
+      router.push('/login');
     } catch (err) {
       console.error('Logout error:', err);
-    } finally {
-      setUser(null);
-      localStorage.removeItem('user');
-      router.push('/login');
     }
   };
 

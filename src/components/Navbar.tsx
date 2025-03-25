@@ -9,29 +9,26 @@ import { useDarkMode } from '@/contexts/DarkModeContext';
 export default function Navbar() {
   const { user, logout } = useAuth();
   const { darkMode, toggleDarkMode } = useDarkMode();
-  const pathname: string | null = usePathname();
+  const pathname = usePathname();
   const router = useRouter();
+  
   const [scrolled, setScrolled] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  
-  useEffect(() => {
-    if (user?.role === 'admin') {
-      setIsAdmin(true);
-    } else {
-      try {
-        const userStr = localStorage.getItem('user');
-        if (userStr) {
-          const userData = JSON.parse(userStr);
-          setIsAdmin(userData?.role === 'admin');
-        }
-      } catch (err) {
-        console.error('Error checking admin status:', err);
-      }
-    }
 
+  // เพิ่ม useEffect เพื่อตรวจสอบการเปลี่ยนแปลงของ user
+  useEffect(() => {
+    if (user) {
+      setIsAdmin(user.role === 'admin');
+    } else {
+      setIsAdmin(false);
+      setIsDropdownOpen(false);
+    }
+  }, [user]);
+
+  useEffect(() => {
     const handleScroll = () => {
       const offset = window.scrollY;
       if (offset > 50) {
@@ -62,8 +59,8 @@ export default function Navbar() {
   };
 
   const handleLogout = async () => {
+    setIsDropdownOpen(false); 
     await logout();
-    setIsDropdownOpen(false);
     router.push('/');
   };
 
