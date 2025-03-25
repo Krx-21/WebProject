@@ -63,7 +63,6 @@ export default function RcpDetail() {
     }
   }, []);
 
-  // Check user authentication
   useEffect(() => {
     const checkAuth = () => {
       const userStr = localStorage.getItem('user');
@@ -83,7 +82,6 @@ export default function RcpDetail() {
     checkAuth();
   }, []);
 
-  // Fetch RCP details and data
   useEffect(() => {
     const fetchData = async () => {
       if (!id) return;
@@ -121,14 +119,12 @@ export default function RcpDetail() {
            (booking.rentalCarProvider && booking.rentalCarProvider._id === id);
   });
   
-  // Handle booking deletion
   const handleDeleteBooking = async (bookingId: string) => {
     try {
       setIsSubmitting(true);
       const response = await deleteBooking(bookingId);
       
       if (response.success) {
-        // Update the bookings list after deletion
         setBookings(bookings.filter((booking: any) => booking._id !== bookingId));
       } else {
         setError(response.error || 'Failed to delete booking');
@@ -140,12 +136,10 @@ export default function RcpDetail() {
     }
   };
   
-  // Handle booking update
   const handleEditBooking = (booking: Booking) => {
     setEditingBooking(booking);
   };
   
-  // Handle form submission for editing
   const handleUpdateBooking = async (updatedData: any) => {
     if (!editingBooking) return;
     
@@ -154,7 +148,6 @@ export default function RcpDetail() {
       const response = await updateBooking(editingBooking._id, updatedData);
       
       if (response.success) {
-        // Update the bookings list with the updated booking
         setBookings(bookings.map((booking: any) => 
           booking._id === editingBooking._id ? response.data : booking
         ));
@@ -327,18 +320,6 @@ export default function RcpDetail() {
                     Manage Provider
                   </Link>
                 )}
-                
-                {user && (
-                  <Link 
-                    href={`/booking/new?provider=${rcp._id}`}
-                    className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors flex items-center"
-                  >
-                    <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                    </svg>
-                    Book Now
-                  </Link>
-                )}
               </div>
               
               <button
@@ -375,12 +356,6 @@ export default function RcpDetail() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                 </svg>
                 <p className="text-gray-600 dark:text-gray-300">You don't have any bookings with this provider yet.</p>
-                <Link 
-                  href={`/booking/new?provider=${rcp._id}`}
-                  className="mt-4 inline-block px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-                >
-                  Make Your First Booking
-                </Link>
               </div>
             )}
           </div>
