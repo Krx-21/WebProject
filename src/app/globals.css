@@ -1,0 +1,312 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --primary: #3b82f6;
+    --primary-light: #93c5fd;
+    --primary-dark: #1d4ed8;
+    --background-light: #ffffff;
+    --background-dark: #0f172a;
+    --text-light: #0f172a;
+    --text-dark: #f8fafc;
+    --accent-gray: #f1f5f9;
+  }
+
+  .dark {
+    --background: var(--background-dark);
+    --text: var(--text-dark);
+  }
+
+  .light {
+    --background: var(--background-light);
+    --text: var(--text-light);
+  }
+
+  body {
+    @apply bg-white text-gray-900 dark:bg-gray-900 dark:text-white;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+@layer components {
+  /* Layout Components */
+  .main-layout {
+    @apply min-h-screen flex flex-col bg-white dark:bg-gray-900 
+           transition-colors duration-300;
+  }
+
+  .container-base {
+    @apply container mx-auto px-4 py-8;
+  }
+
+  /* Common Components */
+  .card-base {
+    @apply bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 
+    border border-gray-200 dark:border-gray-700 transition-colors duration-200;
+  }
+
+  .card-premium {
+    @apply bg-white dark:bg-gray-800 rounded-xl shadow-xl 
+           border border-gray-100 dark:border-gray-700
+           backdrop-blur-sm transition-all duration-300
+           hover:shadow-blue-100/20 dark:hover:shadow-blue-900/20;
+  }
+
+  .input-base {
+    @apply w-full px-3 py-2 bg-white dark:bg-gray-700 
+    border border-gray-300 dark:border-gray-600 rounded-md 
+    text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 
+    focus:ring-blue-500 dark:focus:ring-blue-400 transition-colors duration-200;
+  }
+
+  /* Button Styles */
+  .btn-base {
+    @apply px-4 py-2 rounded-md font-medium transition-all duration-300 
+    shadow-sm hover:shadow-md transform hover:-translate-y-0.5;
+  }
+
+  .btn-primary {
+    @apply px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700
+           hover:from-blue-700 hover:to-blue-800
+           text-white font-medium rounded-lg shadow-md
+           transform transition duration-300 hover:-translate-y-0.5
+           hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500;
+  }
+
+  .btn-secondary {
+    @apply px-6 py-3 bg-white dark:bg-gray-800 text-gray-800 dark:text-white
+           font-medium rounded-lg border border-gray-200 dark:border-gray-700
+           shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700
+           transform transition duration-300 hover:-translate-y-0.5
+           focus:outline-none focus:ring-2 focus:ring-gray-300;
+  }
+
+  .btn-outline {
+    @apply px-6 py-3 bg-transparent border-2 border-blue-600 dark:border-blue-500
+           text-blue-600 dark:text-blue-400 font-medium rounded-lg
+           hover:bg-blue-50 dark:hover:bg-blue-900/20
+           transform transition duration-300 hover:-translate-y-0.5
+           focus:outline-none focus:ring-2 focus:ring-blue-500;
+  }
+
+  .btn-ghost {
+    @apply btn-base text-gray-700 dark:text-gray-300
+    hover:bg-gray-100 dark:hover:bg-gray-800;
+  }
+
+  .btn-lg {
+    @apply px-8 py-3 text-lg;
+  }
+
+  .btn-sm {
+    @apply px-3 py-1 text-sm;
+  }
+
+  /* Form Elements */
+  .form-label {
+    @apply block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1;
+  }
+
+  .form-input {
+    @apply input-base;
+  }
+
+  .form-select {
+    @apply input-base;
+  }
+
+  /* Error Messages */
+  .error-message {
+    @apply bg-red-100 dark:bg-red-900/30 border-l-4 border-red-500 
+    text-red-700 dark:text-red-400 p-4 mb-6 rounded;
+  }
+
+  /* Primary Button */
+  .btn-primary {
+    @apply px-4 py-2 rounded-md font-medium
+    bg-gradient-to-r from-indigo-600 to-blue-600 
+    hover:from-indigo-700 hover:to-blue-700
+    dark:from-indigo-500 dark:to-blue-500 
+    dark:hover:from-indigo-600 dark:hover:to-blue-600
+    text-white shadow-md hover:shadow-lg
+    transform transition-all duration-300 hover:-translate-y-0.5;
+  }
+
+  /* Outline Button in Hero */
+  .hero-buttons .btn-outline {
+    @apply px-4 py-2 rounded-md font-medium
+    border-2 border-white text-white
+    hover:bg-white/20 backdrop-blur-sm
+    transform transition-all duration-300 hover:-translate-y-0.5
+    shadow-md hover:shadow-lg;
+  }
+
+  /* Provider Button */
+  .btn-provider {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background-color: #4f46e5; 
+    color: white;
+    font-weight: 500;
+    border-radius: 0.375rem;
+    transition: all 0.2s;
+    text-align: center;
+  }
+
+  .btn-provider:hover {
+    background-color: #4338ca;
+    transform: translateY(-1px);
+  }
+
+  /* Dark mode support */
+  .dark .btn-provider {
+    background-color: #6366f1;
+  }
+
+  .dark .btn-provider:hover {
+    background-color: #818cf8;
+  }
+
+  /* Navigation */
+  .nav-link {
+    @apply px-4 py-2 text-gray-700 dark:text-gray-200 font-medium
+           hover:text-blue-600 dark:hover:text-blue-400
+           transition-colors duration-300;
+  }
+
+  .nav-link-active {
+    @apply text-blue-600 dark:text-blue-400 font-semibold;
+  }
+
+  /* Status pills */
+  .status-pill {
+    @apply px-3 py-1 rounded-full text-xs font-semibold tracking-wider;
+  }
+  
+  .status-primary {
+    @apply bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300;
+  }
+  
+  .status-success {
+    @apply bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300;
+  }
+  
+  .status-warning {
+    @apply bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-300;
+  }
+  
+  .status-danger {
+    @apply bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300;
+  }
+}
+
+:root {
+  --max-width: 1100px;
+  --border-radius: 12px;
+  --font-mono: ui-monospace, Menlo, Monaco, "Cascadia Mono", "Segoe UI Mono",
+    "Roboto Mono", "Oxygen Mono", "Ubuntu Monospace", "Source Code Pro",
+    "Fira Mono", "Droid Sans Mono", "Courier New", monospace;
+
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 245, 247, 250;
+  --background-end-rgb: 240, 242, 245;
+
+  --primary-glow: conic-gradient(
+    from 180deg at 50% 50%,
+    #16abff33 0deg,
+    #0885ff33 55deg,
+    #54d6ff33 120deg,
+    #0071ff33 160deg,
+    transparent 360deg
+  );
+  --secondary-glow: radial-gradient(
+    rgba(255, 255, 255, 1),
+    rgba(255, 255, 255, 0)
+  );
+
+  --tile-start-rgb: 239, 245, 249;
+  --tile-end-rgb: 228, 232, 233;
+  --tile-border: conic-gradient(
+    #00000080,
+    #00000040,
+    #00000030,
+    #00000020,
+    #00000010,
+    #00000010,
+    #00000080
+  );
+
+  --callout-rgb: 238, 240, 241;
+  --callout-border-rgb: 172, 175, 176;
+  --card-rgb: 180, 185, 188;
+  --card-border-rgb: 131, 134, 135;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --foreground-rgb: 255, 255, 255;
+    --background-start-rgb: 0, 0, 0;
+    --background-end-rgb: 0, 0, 0;
+
+    --primary-glow: radial-gradient(rgba(1, 65, 255, 0.4), rgba(1, 65, 255, 0));
+    --secondary-glow: linear-gradient(
+      to bottom right,
+      rgba(1, 65, 255, 0),
+      rgba(1, 65, 255, 0),
+      rgba(1, 65, 255, 0.3)
+    );
+
+    --tile-start-rgb: 2, 13, 46;
+    --tile-end-rgb: 2, 5, 19;
+    --tile-border: conic-gradient(
+      #ffffff80,
+      #ffffff40,
+      #ffffff30,
+      #ffffff20,
+      #ffffff10,
+      #ffffff10,
+      #ffffff80
+    );
+
+    --callout-rgb: 20, 20, 20;
+    --callout-border-rgb: 108, 108, 108;
+    --card-rgb: 100, 100, 100;
+    --card-border-rgb: 200, 200, 200;
+  }
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: linear-gradient(
+      to bottom,
+      rgb(var(--background-start-rgb)),
+      rgb(var(--background-end-rgb))
+    )
+    fixed;
+  margin-top: 0;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+@media (prefers-color-scheme: dark) {
+  html {
+    color-scheme: dark;
+  }
+}
