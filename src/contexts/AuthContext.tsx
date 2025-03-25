@@ -3,20 +3,32 @@ import { createContext, useContext, useState, useEffect, ReactNode } from 'react
 import { login as apiLogin, register as apiRegister, getCurrentUser, logout as apiLogout } from '@/services/auth.service';
 import { useRouter } from 'next/navigation';
 
+// เพิ่ม interface User ตามข้อมูลที่ได้รับจาก API
+interface User {
+  _id: string;
+  name: string;
+  email: string;
+  role: string;
+  telephoneNumber?: string;
+  createdAt?: string;
+  token?: string;
+}
+
 interface AuthContextType {
-  user: any;
-  setUser: (user: any) => void;
+  user: User | null;
+  setUser: (user: User | null) => void;
   login: (credentials: any) => Promise<any>;
   register: (userData: any) => Promise<any>;
   logout: () => void;
   loading: boolean;
   error: string | null;
+  updateUserData: (newData: Partial<User>) => void;
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
@@ -99,8 +111,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const updateUserData = (newData: Partial<User>) => {
+    setUser((prevUser: User | null) => {
+      if (!prevUser) return null;
+      const updatedUser = { ...prevUser, ...newData };
+      
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+      
+      return updatedUser;
+    });
+  };
+
+  const value = {
+    user,
+    setUser,
+    login,
+    logout,
+    register,
+    loading,
+    error,
+    updateUserData
+  };
+
   return (
-    <AuthContext.Provider value={{ user, setUser, login, register, logout, loading, error }}>
+    <AuthContext.Provider value={value}>
       {!loading && children}
     </AuthContext.Provider>
   );
