@@ -39,19 +39,42 @@ export default function BookingList({
     );
   }
 
+  // Debug logs to see what's coming in
   console.log('Providers in BookingList:', providers);
   console.log('Bookings in BookingList:', bookings);
   
   const getProviderName = (providerId: string): string => {
     if (!providerId) return 'Unknown provider';
-    const provider = providers.find(p => p._id === providerId);
+    
+    // ตรวจสอบว่า providerId มีรูปแบบถูกต้องหรือไม่
+    console.log('Looking for provider with ID:', providerId);
+    
+    const provider = providers.find(p => {
+      console.log('Comparing with provider:', p._id);
+      return p._id === providerId;
+    });
+    
     return provider ? provider.name : 'Unknown provider';
   };
 
   const getProviderAddress = (providerId: string): string => {
     if (!providerId) return 'Unknown location';
+    
+    // เพิ่มการตรวจสอบที่ละเอียดมากขึ้น
     const provider = providers.find(p => p._id === providerId);
-    return provider ? provider.address : 'Unknown location';
+    
+    if (provider) {
+      // สร้างที่อยู่แบบเต็มรูปแบบถ้ามีข้อมูล
+      const addressParts = [
+        provider.address,
+        provider.district,
+        provider.province
+      ].filter(Boolean);
+      
+      return addressParts.join(', ');
+    }
+    
+    return 'Unknown location';
   };
 
   const formatDate = (dateString: string): string => {
@@ -70,9 +93,20 @@ export default function BookingList({
   return (
     <div className="space-y-4">
       {bookings.map((booking: Booking) => {
-        // Get provider info either from the booking object or the providers array
+        // ตรวจสอบโครงสร้างข้อมูลของ booking
+        console.log('Processing booking:', booking);
+        
+        // ตรวจสอบว่า providerId อยู่ที่ไหนในข้อมูล
+        const bookingProviderId = booking.providerId || 
+                                (booking.rentalCarProvider && booking.rentalCarProvider._id);
+        
+        console.log('Booking provider ID:', bookingProviderId);
+        
+        // ค้นหาข้อมูล provider จากทั้งสองแหล่ง
         const providerInfo = booking.rentalCarProvider || 
-                           providers.find(p => p._id === booking.providerId);
+                           (bookingProviderId ? providers.find(p => p._id === bookingProviderId) : null);
+        
+        console.log('Provider info found:', providerInfo);
         
         return (
           <div 
@@ -83,7 +117,10 @@ export default function BookingList({
               <div className="mb-4">
                 <span className="text-sm text-gray-500 dark:text-gray-400 block mb-1">Customer:</span>
                 <p className="font-medium text-gray-900 dark:text-white">
-                  {typeof booking.user === 'string' ? booking.user : 'Unknown user'}
+                  {typeof booking.user === 'string' ? booking.user : 
+                   (booking.user && typeof booking.user === 'object' ? 
+                     (booking.user as any).name || (booking.user as any).email || 'Unknown user' : 
+                     'Unknown user')}
                 </p>
               </div>
             )}
@@ -96,10 +133,12 @@ export default function BookingList({
             <div className="mb-4">
               <span className="text-sm text-gray-500 dark:text-gray-400 block mb-1">Provider:</span>
               <p className="font-medium text-gray-900 dark:text-white">
-                {providerInfo?.name || getProviderName(booking.providerId || '')}
+                {providerInfo?.name || getProviderName(bookingProviderId || '')}
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                {providerInfo?.address || getProviderAddress(booking.providerId || '')}
+                {providerInfo?.address ? 
+                  [providerInfo.address, providerInfo.province].filter(Boolean).join(', ') : 
+                  getProviderAddress(bookingProviderId || '')}
               </p>
             </div>
 
