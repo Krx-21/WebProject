@@ -19,17 +19,17 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] bg-gradient-to-br from-blue-50 to-white dark:from-gray-900 dark:to-gray-800">
-      <div className="flex items-start justify-center pt-32">
-        <div className="text-center p-8 max-w-2xl mx-auto">
-          <h1 className="text-4xl font-extrabold text-gray-900 dark:text-white mb-6">
+    <div className="min-h-[calc(100vh-16rem)] bg-gradient-to-br from-blue-50 to-white dark:from-gray-900 dark:to-gray-800 pb-8">
+      <div className="flex items-start justify-center pt-24">
+        <div className="text-center p-6 max-w-2xl mx-auto">
+          <h1 className="text-4xl font-extrabold text-gray-900 dark:text-white mb-4">
             Welcome to DriveEasy
           </h1>
-          <p className="text-xl text-gray-600 dark:text-gray-300 mb-8">
+          <p className="text-xl text-gray-600 dark:text-gray-300 mb-6">
             Your premium car rental booking platform. Book your rental car with ease.
           </p>
           {user ? (
-            <div className="space-y-6">
+            <div className="space-y-4">
               <p className="text-lg text-gray-700 dark:text-gray-200">
                 Welcome back, {user.name}! Ready to book your next car?
               </p>
@@ -43,7 +43,7 @@ export default function Home() {
               </div>
             </div>
           ) : (
-            <div className="space-y-6">
+            <div className="space-y-4">
               <div className="flex justify-center space-x-4">
                 <Link
                   href="/login"
