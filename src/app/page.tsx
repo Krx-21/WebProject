@@ -1,9 +1,9 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function Home() {
   const { user, logout } = useAuth();
@@ -14,19 +14,13 @@ export default function Home() {
     setMounted(true);
   }, []);
 
-  const handleLogout = async () => {
-    await logout();
-    router.push('/');
-  };
-
   if (!mounted) {
     return null; 
   }
 
   return (
-    // ลบ min-h-screen ออกและปรับ padding
     <div className="flex flex-col bg-gradient-to-br from-blue-50 to-white dark:from-gray-900 dark:to-gray-800 py-16">
-      <div className="flex items-start justify-center"> {/* ลบ flex-1 ออก */}
+      <div className="flex items-start justify-center">
         <div className="text-center p-8 max-w-2xl">
           <h1 className="text-4xl font-extrabold text-gray-900 dark:text-white mb-6">
             Welcome to DriveEasy
