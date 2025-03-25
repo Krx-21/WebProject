@@ -24,15 +24,15 @@ export default function About() {
       name: "Kritchaya Chaowajareun",
       id: "6733007821",
       discord: "_snezh21",
-      image: "/team/member1.png", // ถ้ามีรูป ให้ใส่path ที่ถูกต้อง
-      role: "Frontend Developer"
+      image: "/team/member1.png", 
+      role: "Full Stack Developer"
     },
     {
       name: "Wiritpol Poonnak",
       id: "6733244121",
       discord: "n330",
       image: "/team/member2.png",
-      role: "Backend Developer"
+      role: "Full Stack Developer"
     },
     {
       name: "Watchirawit Srisoonthornkasem",
