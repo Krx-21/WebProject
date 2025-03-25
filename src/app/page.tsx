@@ -46,12 +46,6 @@ export default function Home() {
               >
                 Go to Dashboard
               </Link>
-              <button
-                onClick={handleLogout}
-                className="inline-block px-6 py-3 text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 dark:text-gray-300 dark:bg-gray-800 dark:hover:bg-gray-700 transition-colors duration-200"
-              >
-                Logout
-              </button>
             </div>
           </>
         ) : (
