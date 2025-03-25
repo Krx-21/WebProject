@@ -94,7 +94,7 @@ export default function RcpManagement({ providers, refreshProviders, setError }:
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-semibold">Rental Car Providers</h2>
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Rental Car Providers</h2>
         
         {!showForm && (
           <button
@@ -105,9 +105,9 @@ export default function RcpManagement({ providers, refreshProviders, setError }:
             className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 flex items-center"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
+              <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
             </svg>
-            Add New Provider
+            Add Provider
           </button>
         )}
       </div>
@@ -186,66 +186,42 @@ export default function RcpManagement({ providers, refreshProviders, setError }:
         </div>
       )}
 
-      <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Name
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Address
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Contact
-              </th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {providers.length === 0 ? (
-              <tr>
-                <td colSpan={4} className="px-6 py-4 text-center text-gray-500">
-                  No providers found
-                </td>
-              </tr>
-            ) : (
-              providers.map((provider) => (
-                <tr key={provider._id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    {provider.name}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    <div>{provider.address}</div>
-                    <div className="text-xs text-gray-400">
-                      {[provider.district, provider.province, provider.postalcode].filter(Boolean).join(', ')}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {provider.tel || 'N/A'}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <button
-                      onClick={() => handleEdit(provider)}
-                      className="text-blue-500 hover:text-blue-700 mr-3"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDelete(provider._id)}
-                      className="text-red-500 hover:text-red-700"
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+      {providers.length === 0 ? (
+        <div className="text-center p-8 bg-gray-50 dark:bg-gray-800 rounded-lg">
+          <p className="text-gray-700 dark:text-gray-300">No providers found.</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {providers.map((provider) => (
+            <div key={provider._id} className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow border border-gray-200 dark:border-gray-700">
+              <div className="flex justify-between">
+                <h3 className="font-semibold text-lg text-gray-900 dark:text-white">{provider.name}</h3>
+                <div className="flex space-x-2">
+                  <button 
+                    onClick={() => handleEdit(provider)}
+                    className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                  >
+                    Edit
+                  </button>
+                  <button 
+                    onClick={() => handleDelete(provider._id)}
+                    className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+              <p className="text-gray-600 dark:text-gray-400 mt-2">{provider.address}</p>
+              {provider.province && (
+                <p className="text-gray-600 dark:text-gray-400">{provider.province}</p>
+              )}
+              {provider.tel && (
+                <p className="text-gray-600 dark:text-gray-400 mt-1">Tel: {provider.tel}</p>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
