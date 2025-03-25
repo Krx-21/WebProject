@@ -4,8 +4,17 @@ const API_URL = 'https://backend-delta-tawny-40.vercel.app/api/v1';
 
 export const getUserProfile = async () => {
   try {
-    // ใช้ token จาก localStorage เพื่อดึงข้อมูลโปรไฟล์
-    const token = localStorage.getItem('token');
+    const userStr = localStorage.getItem('user');
+    if (!userStr) {
+      return {
+        success: false,
+        error: 'No user data found'
+      };
+    }
+    
+    const user = JSON.parse(userStr);
+    const token = user.token;
+    
     if (!token) {
       return {
         success: false,
@@ -13,7 +22,7 @@ export const getUserProfile = async () => {
       };
     }
 
-    const response = await axios.get(`${API_URL}/me`, {
+    const response = await axios.get(`${API_URL}/auth/me`, {
       headers: {
         Authorization: `Bearer ${token}`
       }
@@ -34,7 +43,17 @@ export const getUserProfile = async () => {
 
 export const updateUserProfile = async (userData: any) => {
   try {
-    const token = localStorage.getItem('token');
+    const userStr = localStorage.getItem('user');
+    if (!userStr) {
+      return {
+        success: false,
+        error: 'No user data found'
+      };
+    }
+    
+    const user = JSON.parse(userStr);
+    const token = user.token;
+    
     if (!token) {
       return {
         success: false,
@@ -42,7 +61,7 @@ export const updateUserProfile = async (userData: any) => {
       };
     }
 
-    const response = await axios.put(`${API_URL}/users/updatedetails`, userData, {
+    const response = await axios.put(`${API_URL}/auth/updatedetails`, userData, {
       headers: {
         Authorization: `Bearer ${token}`
       }
