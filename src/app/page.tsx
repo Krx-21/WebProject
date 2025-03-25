@@ -24,8 +24,9 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-blue-50 to-white dark:from-gray-900 dark:to-gray-800">
-      <div className="flex-1 flex items-start justify-center pt-32"> {/* Changed from items-center to items-start and added pt-32 */}
+    // ลบ min-h-screen ออกและปรับ padding
+    <div className="flex flex-col bg-gradient-to-br from-blue-50 to-white dark:from-gray-900 dark:to-gray-800 py-16">
+      <div className="flex items-start justify-center"> {/* ลบ flex-1 ออก */}
         <div className="text-center p-8 max-w-2xl">
           <h1 className="text-4xl font-extrabold text-gray-900 dark:text-white mb-6">
             Welcome to DriveEasy
@@ -65,7 +66,6 @@ export default function Home() {
               </div>
             </div>
           )}
-          <hr className="my-8 border-gray-200 dark:border-gray-700" />
         </div>
       </div>
     </div>

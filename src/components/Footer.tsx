@@ -43,36 +43,14 @@ export default function Footer() {
             </div>
           </div>
           
-          <div>
-            <h3 className="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wider">Quick Links</h3>
-            <ul className="mt-4 space-y-2">
-              <li>
-                <Link href="/about" className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 text-sm">
-                  About Us
-                </Link>
-              </li>
-              <li>
-                <Link href="/rcps" className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 text-sm">
-                  Car Providers
-                </Link>
-              </li>
-              <li>
-                <Link href="/dashboard" className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 text-sm">
-                  My Dashboard
-                </Link>
-              </li>
-              <li>
-                <Link href="/contact" className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 text-sm">
-                  Contact
-                </Link>
-              </li>
-            </ul>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            {/* ลบส่วนของ Contact ออก */}
           </div>
         </div>
         
         <div className="mt-12 pt-8 border-t border-gray-200 dark:border-gray-800">
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            &copy; {new Date().getFullYear()} DriveEasy. All rights reserved.
+            &copy; {new Date().getFullYear()} DriveEasy.
           </p>
         </div>
       </div>
