@@ -20,7 +20,7 @@ export default function Home() {
   };
 
   if (!mounted) {
-    return null; // หรือแสดง loading state
+    return null; 
   }
 
   return (

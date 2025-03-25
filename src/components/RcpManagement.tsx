@@ -17,16 +17,20 @@ export default function RcpManagement({ providers, refreshProviders, setError }:
   const [formData, setFormData] = useState({
     name: '',
     address: '',
-    tel: '',
-    province: ''
+    district: '',  
+    province: '',
+    postalcode: '', 
+    tel: ''
   });
 
   const resetForm = () => {
     setFormData({
       name: '',
       address: '',
-      tel: '',
-      province: ''
+      district: '',  
+      province: '',
+      postalcode: '',
+      tel: ''
     });
     setEditingProvider(null);
   };
@@ -41,8 +45,10 @@ export default function RcpManagement({ providers, refreshProviders, setError }:
     setFormData({
       name: provider.name,
       address: provider.address,
-      tel: provider.tel || '',
-      province: provider.province || ''
+      district: provider.district || '', 
+      province: provider.province || '',
+      postalcode: provider.postalcode || '', 
+      tel: provider.tel || ''
     });
     setShowForm(true);
   };
@@ -143,11 +149,33 @@ export default function RcpManagement({ providers, refreshProviders, setError }:
               </div>
               
               <div>
+                <label className="block mb-1 text-gray-700 dark:text-gray-300">District</label>
+                <input
+                  type="text"
+                  name="district"
+                  value={formData.district}
+                  onChange={handleChange}
+                  className="w-full p-2 border rounded text-gray-800 dark:text-gray-300 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600"
+                />
+              </div>
+              
+              <div>
                 <label className="block mb-1 text-gray-700 dark:text-gray-300">Province</label>
                 <input
                   type="text"
                   name="province"
                   value={formData.province}
+                  onChange={handleChange}
+                  className="w-full p-2 border rounded text-gray-800 dark:text-gray-300 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600"
+                />
+              </div>
+
+              <div>
+                <label className="block mb-1 text-gray-700 dark:text-gray-300">Postal Code</label>
+                <input
+                  type="text"
+                  name="postalcode"
+                  value={formData.postalcode}
                   onChange={handleChange}
                   className="w-full p-2 border rounded text-gray-800 dark:text-gray-300 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600"
                 />
@@ -212,8 +240,14 @@ export default function RcpManagement({ providers, refreshProviders, setError }:
                 </div>
               </div>
               <p className="text-gray-600 dark:text-gray-400 mt-2">{provider.address}</p>
+              {provider.district && (
+                <p className="text-gray-600 dark:text-gray-400">District: {provider.district}</p>
+              )}
               {provider.province && (
-                <p className="text-gray-600 dark:text-gray-400">{provider.province}</p>
+                <p className="text-gray-600 dark:text-gray-400">Province: {provider.province}</p>
+              )}
+              {provider.postalcode && (
+                <p className="text-gray-600 dark:text-gray-400">Postal Code: {provider.postalcode}</p>
               )}
               {provider.tel && (
                 <p className="text-gray-600 dark:text-gray-400 mt-1">Tel: {provider.tel}</p>

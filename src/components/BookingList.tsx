@@ -93,13 +93,11 @@ export default function BookingList({
         let bookingProviderId = '';
         let providerInfo: any = null;
         
-        // ตรวจสอบ providerId จากหลายแหล่งที่เป็นไปได้
         if (booking.providerId) {
           bookingProviderId = booking.providerId;
         } else if (booking.rentalCarProvider && booking.rentalCarProvider._id) {
           bookingProviderId = booking.rentalCarProvider._id;
         } else if ((booking as any).provider && typeof (booking as any).provider === 'string') {
-          // ใช้ type assertion เพื่อเข้าถึง property ที่อาจไม่ได้ประกาศใน type
           bookingProviderId = (booking as any).provider;
         } else if ((booking as any).provider && typeof (booking as any).provider === 'object' && (booking as any).provider._id) {
           bookingProviderId = (booking as any).provider._id;
@@ -107,7 +105,6 @@ export default function BookingList({
         
         console.log('Extracted providerId:', bookingProviderId);
         
-        // ค้นหาข้อมูล provider
         if (booking.rentalCarProvider) {
           providerInfo = booking.rentalCarProvider;
         } else if ((booking as any).provider && typeof (booking as any).provider === 'object') {
@@ -118,7 +115,6 @@ export default function BookingList({
         
         console.log('Provider info found:', providerInfo);
         
-        // สร้างข้อมูลที่อยู่
         let addressDisplay = 'Unknown location';
         if (providerInfo && providerInfo.address) {
           const addressParts = [
