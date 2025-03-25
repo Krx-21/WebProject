@@ -92,23 +92,23 @@ export default function BookingForm({ onSubmit, onCancel, isSubmitting = false, 
       )}
       
       <div>
-        <label className="block mb-1">Rental Date</label>
+        <label className="block mb-1 text-gray-700 dark:text-gray-300">Rental Date</label>
         <input 
           type="date"
           value={date}
           onChange={(e) => setDate(e.target.value)}
           min={new Date().toISOString().split('T')[0]}
-          className="w-full p-2 border rounded"
+          className="w-full p-2 border rounded text-gray-800 dark:text-gray-300 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600"
           required
         />
       </div>
 
       <div>
-        <label className="block mb-1">Car Rental Provider</label>
+        <label className="block mb-1 text-gray-700 dark:text-gray-300">Car Rental Provider</label>
         <select
           value={providerId}
           onChange={(e) => setProviderId(e.target.value)}
-          className="w-full p-2 border rounded"
+          className="w-full p-2 border rounded text-gray-800 dark:text-gray-300 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600"
           required
         >
           <option value="">Select a provider</option>
@@ -120,21 +120,21 @@ export default function BookingForm({ onSubmit, onCancel, isSubmitting = false, 
         </select>
       </div>
 
-      <div className="flex justify-end space-x-3">
+      <div className="flex justify-end space-x-2 mt-4">
         <button
           type="button"
           onClick={onCancel}
-          className="px-4 py-2 text-gray-700 bg-gray-100 rounded"
           disabled={isSubmitting}
+          className="px-4 py-2 text-gray-700 bg-gray-100 rounded hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
         >
           Cancel
         </button>
         <button
           type="submit"
-          className="px-4 py-2 text-white bg-blue-600 rounded disabled:opacity-50"
           disabled={isSubmitting}
+          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
         >
-          {isSubmitting ? 'Booking...' : 'Book Car'}
+          {isSubmitting ? 'Saving...' : 'Submit'}
         </button>
       </div>
     </form>
