@@ -113,7 +113,7 @@ export default function About() {
           </p>
           <div className="flex justify-center space-x-4">
             <a
-              href="https://github.com/your-repo"
+              href="https://github.com/N330s/frontendProjectCedt"
               target="_blank"
               rel="noopener noreferrer"
               className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400"
