@@ -1,7 +1,6 @@
 'use client'
 import React, { useEffect, useRef, useState } from 'react';
 import 'air-datepicker/air-datepicker.css';
-import { useSession } from 'next-auth/react';
 import toast from 'react-hot-toast';
 import { TextField } from '@mui/material';
 
@@ -10,8 +9,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { getUserProfile } from '@/services/user.service';
 
 
-export default function EditCommentModal({ onClose, commentId, carID, name , img , posted , oldComment}:{onClose:Function, commentId:string, carID:string, name:string, img:string, posted:Function, oldComment:string }) {
-    const { data: session } = useSession();    
+export default function EditCommentModal({ onClose, commentId, carID, name , img , posted , oldComment}:{onClose:Function, commentId:string, carID:string, name:string, img:string, posted:Function, oldComment:string }) {   
     const [comment ,setComment] = useState("")
     
     const router = useRouter();

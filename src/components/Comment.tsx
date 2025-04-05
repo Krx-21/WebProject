@@ -1,12 +1,11 @@
 'use client'
 import { useEffect, useState } from "react";
-import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
-import CommentModal from "@/components/Comment/CommentModal";
+import CommentModal from "@/components/CommentModal";
 import { getUserProfile } from '@/services/user.service';
 import getComments from "@/libs/getComments";
-import EditCommentModal from "@/components/Comment/EditCommentModal";
+import EditCommentModal from "@/components/EditCommentModal";
 import { useAuth } from "@/contexts/AuthContext";
 
 interface CommentItem {
