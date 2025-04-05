@@ -102,15 +102,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = async () => {
     try {
       await apiLogout();
-      setUser(null); 
-      localStorage.removeItem('user'); 
-      setError(null);
-      
-      router.refresh();
-      
-      router.push('/login');
     } catch (err) {
       console.error('Logout error:', err);
+      // Continue with logout even if API call fails
+    } finally {
+      // Always clear user data and redirect
+      setUser(null);
+      localStorage.removeItem('user');
+      setError(null);
+      router.refresh();
+      router.push('/login');
     }
   };
 

@@ -1,4 +1,6 @@
-const BASE_URL = 'https://backend-delta-tawny-40.vercel.app/api/v1';
+const BASE_URL = process.env.NODE_ENV === 'development' 
+  ? '/api/v1' 
+  : 'https://backend-delta-tawny-40.vercel.app/api/v1';
 
 interface LoginCredentials {
   email: string;
@@ -29,15 +31,22 @@ export const register = async (userData: RegisterData) => {
   try {
     const response = await fetch(`${BASE_URL}/auth/register`, {
       method: 'POST',
+      credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
+        'Accept': 'application/json',
       },
       body: JSON.stringify(userData),
     });
     
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => null);
+      throw new Error(errorData?.message || `HTTP error! status: ${response.status}`);
+    }
+
     const data = await response.json();
 
-    if (!response.ok) {
+    if (!data.success) {
       throw new Error(data.message || 'Registration failed');
     }
 
@@ -57,16 +66,27 @@ export const login = async (credentials: LoginCredentials) => {
     
     const response = await fetch(`${BASE_URL}/auth/login`, {
       method: 'POST',
+      credentials: 'include',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
       },
-      body: JSON.stringify(credentials)
+      body: JSON.stringify(credentials),
+      mode: 'cors'
     });
+
+    console.log('Login response status:', response.status);
+    
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => null);
+      console.error('Login error response:', errorData);
+      throw new Error(errorData?.message || `HTTP error! status: ${response.status}`);
+    }
 
     const data = await response.json();
     console.log('Login API response:', data);
 
-    if (!response.ok) {
+    if (!data.success) {
       throw new Error(data.message || 'Login failed');
     }
 
@@ -75,13 +95,10 @@ export const login = async (credentials: LoginCredentials) => {
       token: data.token
     };
 
-    // ตรวจสอบว่า role อยู่ตรงไหนในข้อมูลที่ server ส่งกลับมา
     if (data.role) {
-      // กรณี API ส่ง role มาที่ data.role
       userData.role = data.role;
       console.log('Found role in data.role:', data.role);
     } else if (data.data?.role) {
-      // กรณี API ส่ง role มาที่ data.data.role
       userData.role = data.data.role;
       console.log('Found role in data.data.role:', data.data.role);
     } else {
@@ -122,15 +139,30 @@ export const getCurrentUser = () => {
 
 export const logout = async () => {
   try {
-    await fetch(`${BASE_URL}/auth/logout`, {
+    const response = await fetch(`${BASE_URL}/auth/logout`, {
       method: 'GET',
       credentials: 'include',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
     });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => null);
+      throw new Error(errorData?.message || `HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    if (!data.success) {
+      throw new Error(data.message || 'Failed to logout');
+    }
     
     localStorage.removeItem('user');
     return { success: true };
   } catch (error) {
     console.error('Logout error:', error);
+    localStorage.removeItem('user');
     throw error;
   }
 };
