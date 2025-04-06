@@ -14,16 +14,18 @@ export default function Navbar() {
   
   const [scrolled, setScrolled] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isProvider, setIsProvider] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // เพิ่ม useEffect เพื่อตรวจสอบการเปลี่ยนแปลงของ user
   useEffect(() => {
     if (user) {
       setIsAdmin(user.role === 'admin');
+      setIsProvider(user.role === 'provider');
     } else {
       setIsAdmin(false);
+      setIsProvider(false);
       setIsDropdownOpen(false);
     }
   }, [user]);
@@ -90,7 +92,7 @@ export default function Navbar() {
             </Link>
           </div>
 
-          <nav className="hidden md:flex space-x-8 items-center">
+          <div className="hidden md:flex items-center space-x-6">
             <Link 
               href="/" 
               className={`nav-link ${isActive('/') && !isActive('/rcps') && !isActive('/dashboard') ? 'nav-link-active' : ''}`}
@@ -117,7 +119,7 @@ export default function Navbar() {
                 Manage Providers
               </Link>
             )}
-            {isAdmin && (
+            {(isAdmin || isProvider) && (
               <Link 
                 href="/admin/promotions" 
                 className={`nav-link ${isActive('/admin/promotions') ? 'nav-link-active' : ''}`}
@@ -131,7 +133,7 @@ export default function Navbar() {
             >
               About
             </Link>
-          </nav>
+          </div>
 
           <div className="flex items-center space-x-4">
             {/* Dark Mode Toggle Button */}
@@ -169,6 +171,7 @@ export default function Navbar() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
                     </svg>
                   </button>
+                  
                   {isDropdownOpen && (
                     <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-10">
                       <Link 
@@ -206,8 +209,9 @@ export default function Navbar() {
               </div>
             )}
           </div>
-          
-          <div className="-mr-2 flex items-center sm:hidden">
+
+          {/* Mobile menu button */}
+          <div className="md:hidden">
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
@@ -224,67 +228,35 @@ export default function Navbar() {
         </div>
       </div>
 
-      <div className={`${isMenuOpen ? 'block' : 'hidden'} sm:hidden`}>
-        <div className="pt-2 pb-3 space-y-1">
-          <Link href="/" className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-50 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800">
-            Home
-          </Link>
-          <Link href="/rcps" className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-50 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800">
-            Car Providers
-          </Link>
-          <Link href="/promotions" className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-50 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800">
-            Promotions
-          </Link>
-          {isAdmin && (
-            <Link href="/dashboard?tab=providers" className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-50 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800">
-              Manage Providers
+      {/* Mobile menu */}
+      {isMenuOpen && (
+        <div className="md:hidden">
+          <div className="pt-2 pb-3 space-y-1">
+            <Link href="/" className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-50 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800">
+              Home
             </Link>
-          )}
-          {isAdmin && (
-            <Link href="/admin/promotions" className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-50 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800">
-              Manage Promotions
+            <Link href="/rcps" className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-50 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800">
+              Car Providers
             </Link>
-          )}
-          {user && (
-            <Link href="/dashboard" className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-50 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800">
-              Dashboard
+            <Link href="/promotions" className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-50 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800">
+              Promotions
             </Link>
-          )}
-          {user && (
-            <Link href="/profile" className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-50 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800">
-              My Profile
-            </Link>
-          )}
-          <Link href="/about" className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-50 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800">
-            About
-          </Link>
-        </div>
-        <div className="pt-4 pb-3 border-t border-gray-200 dark:border-gray-700">
-          {user ? (
-            <div className="space-y-1">
-              <div className="px-4 py-2">
-                <p className="text-sm font-medium text-gray-700 dark:text-gray-300">{user.name}</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">{user.email}</p>
-              </div>
-              <button
-                onClick={handleLogout}
-                className="block w-full text-left pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-red-600 hover:text-red-800 hover:bg-gray-50 hover:border-red-300 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-gray-800"
-              >
-                Logout
-              </button>
-            </div>
-          ) : (
-            <div className="space-y-1">
-              <Link href="/login" className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-50 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800">
-                Login
+            {isAdmin && (
+              <Link href="/dashboard?tab=providers" className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-50 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800">
+                Manage Providers
               </Link>
-              <Link href="/register" className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-blue-600 hover:text-blue-800 hover:bg-gray-50 hover:border-blue-300 dark:text-blue-400 dark:hover:text-blue-300 dark:hover:bg-gray-800">
-                Register
+            )}
+            {(isAdmin || isProvider) && (
+              <Link href="/admin/promotions" className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-50 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800">
+                Manage Promotions
               </Link>
-            </div>
-          )}
+            )}
+            <Link href="/about" className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-50 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800">
+              About
+            </Link>
+          </div>
         </div>
-      </div>
+      )}
     </nav>
   );
 }
