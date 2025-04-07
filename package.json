@@ -17,6 +17,7 @@
     "@radix-ui/react-label": "^2.1.2",
     "@radix-ui/react-slot": "^1.1.2",
     "@tailwindcss/postcss": "^4.0.14",
+    "air-datepicker": "^3.5.3",
     "axios": "^1.8.4",
     "bootstrap": "^5.3.3",
     "date-fns": "^4.1.0",
