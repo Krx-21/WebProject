@@ -9,4 +9,7 @@ export const API_ENDPOINTS = {
     delete: (id: string) => `${API_URL}/api/v1/promotions/${id}`,
   },
   // Add other API endpoints here as needed
+  cars: {
+    getAll: `${API_URL}/api/v1/cars`,
+  }
 }; 
