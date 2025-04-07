@@ -5,17 +5,8 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { API_ENDPOINTS } from '@/config/api';
 import { getCurrentUser } from '@/services/auth.service';
-
-interface Promotion {
-  _id: string;
-  title: string;
-  description: string;
-  discountPercentage: number;
-  maxDiscountAmount: number;
-  minPurchaseAmount: number;
-  startDate: string;
-  endDate: string;
-}
+import LoadingSpinner from '@/components/LoadingSpinner';
+import { Promotion } from '@/types/promotion';
 
 export default function PromotionsPage() {
   const router = useRouter();
@@ -31,12 +22,11 @@ export default function PromotionsPage() {
       return;
     }
 
-    // Check if user has either admin or provider role
     if (user.role === 'admin' || user.role === 'provider') {
       setUserRole(user.role);
       fetchPromotions();
     } else {
-      router.push('/'); // Redirect to home if not authorized
+      router.push('/');
     }
   }, [router]);
 
@@ -138,7 +128,11 @@ export default function PromotionsPage() {
   };
 
   if (loading) {
-    return <div className="flex justify-center items-center min-h-screen">Loading...</div>;
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <LoadingSpinner size="lg" />
+      </div>
+    );
   }
 
   if (error) {
@@ -216,4 +210,4 @@ export default function PromotionsPage() {
       </div>
     </div>
   );
-} 
+}
