@@ -145,68 +145,132 @@ export default function PromotionsPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold">Manage Promotions</h1>
-        <Button onClick={() => router.push('/admin/promotions/new')}>
-          Create New Promotion
-        </Button>
-      </div>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 px-4 py-8">
+      <div className="container-base max-w-7xl mx-auto">
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-primary via-blue-600 to-blue-700 bg-clip-text text-transparent">
+            Manage Promotions
+          </h1>
+          <Button 
+            onClick={() => router.push('/admin/promotions/new')}
+            className="btn-primary hover:scale-105 transition-transform duration-200"
+          >
+            Create New Promotion
+          </Button>
+        </div>
 
-      <div className="grid gap-6">
-        {promotions.map((promotion) => {
-          const status = getPromotionStatus(promotion.startDate, promotion.endDate);
-          return (
-            <div
-              key={promotion._id}
-              className="border rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow"
-            >
-              <div className="flex justify-between items-start">
-                <div>
-                  <h2 className="text-xl font-semibold mb-2">{promotion.title}</h2>
-                  <p className="text-gray-600 mb-4">{promotion.description}</p>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div>
-                      <p className="text-sm text-gray-500">Discount</p>
-                      <p className="font-medium">{promotion.discountPercentage}%</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-500">Max Discount</p>
-                      <p className="font-medium">${promotion.maxDiscountAmount}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-500">Min Purchase</p>
-                      <p className="font-medium">${promotion.minPurchaseAmount}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-500">Status</p>
-                      <p className={`font-medium ${status.color}`}>
-                        {status.status}
+        <div className="grid gap-8">
+          {promotions.map((promotion) => {
+            const status = getPromotionStatus(promotion.startDate, promotion.endDate);
+            return (
+              <div
+                key={promotion._id}
+                className="card-premium group hover:scale-[1.01] transition-all duration-200
+                         bg-white dark:bg-gray-800 border border-gray-200 
+                         dark:border-gray-700 rounded-xl shadow-lg hover:shadow-xl
+                         p-6 relative overflow-hidden"
+              >
+                {/* Status Badge */}
+                <div className={`absolute top-4 right-4 px-3 py-1 rounded-full text-sm font-medium
+                              ${status.status === 'Active' ? 'bg-green-100 text-green-700 dark:bg-green-900/30' :
+                                status.status === 'Upcoming' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30' :
+                                  'bg-red-100 text-red-700 dark:bg-red-900/30'}`}>
+                  {status.status}
+                </div>
+
+                <div className="flex flex-col lg:flex-row gap-6">
+                  <div className="space-y-6 flex-1">
+                    {/* Title and Description */}
+                    <div className="space-y-3">
+                      <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
+                        {promotion.title}
+                      </h2>
+                      <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+                        {promotion.description}
                       </p>
                     </div>
+
+                    {/* Promotion Details Grid */}
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      <div className="bg-gradient-to-br from-blue-50 to-blue-100/50 
+                                  dark:from-blue-900/20 dark:to-blue-800/20 
+                                  p-4 rounded-lg backdrop-blur-sm">
+                        <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">
+                          Discount
+                        </p>
+                        <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                          {promotion.discountPercentage}%
+                        </p>
+                      </div>
+                      <div className="bg-gradient-to-br from-green-50 to-green-100/50 
+                                  dark:from-green-900/20 dark:to-green-800/20 
+                                  p-4 rounded-lg backdrop-blur-sm">
+                        <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">
+                          Max Discount
+                        </p>
+                        <p className="text-2xl font-bold text-green-600 dark:text-green-400">
+                          ${promotion.maxDiscountAmount}
+                        </p>
+                      </div>
+                      <div className="bg-gradient-to-br from-purple-50 to-purple-100/50 
+                                  dark:from-purple-900/20 dark:to-purple-800/20 
+                                  p-4 rounded-lg backdrop-blur-sm">
+                        <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">
+                          Min Purchase
+                        </p>
+                        <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+                          ${promotion.minPurchaseAmount}
+                        </p>
+                      </div>
+                      <div className="bg-gradient-to-br from-gray-50 to-gray-100/50 
+                                  dark:from-gray-900/20 dark:to-gray-800/20 
+                                  p-4 rounded-lg backdrop-blur-sm">
+                        <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">
+                          Valid Period
+                        </p>
+                        <p className="text-sm font-medium text-gray-800 dark:text-gray-200">
+                          {formatDate(promotion.startDate)} - {formatDate(promotion.endDate)}
+                        </p>
+                      </div>
+                    </div>
                   </div>
-                  <div className="mt-4 text-sm text-gray-500">
-                    <p>Valid from {formatDate(promotion.startDate)} to {formatDate(promotion.endDate)}</p>
+
+                  {/* Actions */}
+                  <div className="flex lg:flex-col gap-3 justify-end">
+                    <Button
+                      variant="outline"
+                      onClick={() => router.push(`/admin/promotions/${promotion._id}/edit`)}
+                      className="flex-1 lg:flex-none px-6 py-2 border-2 border-blue-500 
+                                text-blue-600 dark:text-blue-400 dark:border-blue-400 
+                                hover:bg-blue-50 dark:hover:bg-blue-900/20
+                                hover:border-blue-600 dark:hover:border-blue-300
+                                transition-all duration-200"
+                    >
+                      Edit
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      onClick={() => handleDelete(promotion._id)}
+                      className="flex-1 lg:flex-none px-6 py-2 bg-red-500 hover:bg-red-600 
+                                dark:bg-red-600/90 dark:hover:bg-red-500 
+                                text-white shadow-sm hover:shadow-md 
+                                transition-all duration-200"
+                    >
+                      Delete
+                    </Button>
                   </div>
-                </div>
-                <div className="flex space-x-2">
-                  <Button
-                    variant="outline"
-                    onClick={() => router.push(`/admin/promotions/${promotion._id}/edit`)}
-                  >
-                    Edit
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    onClick={() => handleDelete(promotion._id)}
-                  >
-                    Delete
-                  </Button>
                 </div>
               </div>
+            );
+          })}
+
+          {promotions.length === 0 && (
+            <div className="card-base text-center py-12 bg-white dark:bg-gray-800
+                           border border-gray-200 dark:border-gray-700">
+              <p className="text-gray-500 dark:text-gray-400">No promotions found</p>
             </div>
-          );
-        })}
+          )}
+        </div>
       </div>
     </div>
   );
