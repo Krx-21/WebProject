@@ -10,10 +10,10 @@ export const API_ENDPOINTS = {
   },
   // Add other API endpoints here as needed
   comments: {
-    getAll: (carId: string) => `${API_URL}/api/v1/comments/${carId}/comments/`,
-    create: (carId: string) => `${API_URL}/api/v1/comments/${carId}/comments/`,
-    update: (carId:string, commentId: string) => `${API_URL}/api/v1/comments/${carId}/comments/${commentId}`,
-    delete: (carId:string, commentId: string) => `${API_URL}/api/v1/comments/${carId}/comments/${commentId}`
+    getAll: (carId: string) => `${API_URL}/api/v1/cars/${carId}/comments/`,
+    create: (carId: string) => `${API_URL}/api/v1/cars/${carId}/comments/`,
+    update: (carId:string, commentId: string) => `${API_URL}/api/v1comments/${commentId}`,
+    delete: (carId:string, commentId: string) => `${API_URL}/api/v1/comments/${commentId}`
   },
   cars: {
     getAll: `${API_URL}/api/v1/cars`,
