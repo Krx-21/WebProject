@@ -16,7 +16,7 @@ export default function EditPromotionPage() {
     const fetchPromotion = async () => {
       try {
         const response = await fetch(API_ENDPOINTS.promotions.getOne(params.id as string), {
-          credentials: 'include',
+          //credentials: 'include',
           headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json',

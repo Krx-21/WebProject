@@ -43,7 +43,7 @@ export default function PromotionsPage() {
           'Authorization': `Bearer ${user.token}`,
           'Accept': 'application/json'
         },
-        credentials: 'include'
+        //credentials: 'include'
       });
 
       if (!response.ok) {
@@ -192,7 +192,7 @@ export default function PromotionsPage() {
                 <div className="flex space-x-2">
                   <Button
                     variant="outline"
-                    onClick={() => router.push(`/admin/promotions/${promotion._id}`)}
+                    onClick={() => router.push(`/admin/promotions/${promotion._id}/edit`)}
                   >
                     Edit
                   </Button>
