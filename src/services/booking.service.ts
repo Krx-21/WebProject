@@ -1,4 +1,4 @@
-const BASE_URL = 'https://backend-delta-tawny-40.vercel.app/api/v1';
+const BASE_URL = 'http://localhost:5000/api/v1';
 
 interface BookingData {
   date: string;
@@ -40,7 +40,7 @@ export const createBooking = async (rcpId: string, bookingData: BookingData) => 
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`
       },
-      credentials: 'include',
+      // credentials: 'include',
       body: JSON.stringify(bookingData),
     });
 
@@ -99,7 +99,7 @@ export const getUserBookings = async () => {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`
       },
-      credentials: 'include'
+      // credentials: 'include'
     });
 
     if (!response.ok) {

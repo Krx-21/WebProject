@@ -38,18 +38,18 @@ export default function CommentSection({ cid }: { cid: string }) {
 
     const router = useRouter();
     const { user } = useAuth();
-    const [mounted, setMounted] = useState(false);
+    // const [mounted, setMounted] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState('');
     // const [userInfo, setUserInfo] = useState();
     const [userProfile, setUserProfile] = useState<UseerItem | null>(null);
 
-    useEffect(() => {
-        setMounted(true);
-    }, []);
+    // useEffect(() => {
+    //     setMounted(true);
+    // }, []);
 
     useEffect(() => {
-        if (!mounted) return;
+        // if (!mounted) return;
 
         const checkAuth = () => {
             if (!user) {
@@ -59,10 +59,10 @@ export default function CommentSection({ cid }: { cid: string }) {
         };
 
         checkAuth();
-    }, [mounted, user, router ,isCommentPosted]);
+    }, [ user, router ,isCommentPosted]);
 
     useEffect(() => {
-        if (!mounted || !user) return;
+        if ( !user) return;
         const fetchData = async () => {
             try {
                 setIsLoading(true);
@@ -80,9 +80,9 @@ export default function CommentSection({ cid }: { cid: string }) {
             
         }
         fetchData();
-    }, [user, mounted ,isCommentPosted]);
+    }, [user ,isCommentPosted]);
 
-    if (!mounted || isLoading) {
+    if ( isLoading) {
         console.log('no mount !!!')
         return (
             <div className="flex justify-center items-center min-h-screen bg-gray-50 dark:bg-gray-900">
