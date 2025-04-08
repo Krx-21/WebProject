@@ -38,28 +38,8 @@ export default function CommentSection({ cid }: { cid: string }) {
 
     const router = useRouter();
     const { user } = useAuth();
-    // const [mounted, setMounted] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState('');
-    // const [userInfo, setUserInfo] = useState();
     const [userProfile, setUserProfile] = useState<UseerItem | null>(null);
-
-    // useEffect(() => {
-    //     setMounted(true);
-    // }, []);
-
-    useEffect(() => {
-        // if (!mounted) return;
-
-        const checkAuth = () => {
-            if (!user) {
-                router.push('/login');
-                return;
-            }
-        };
-
-        checkAuth();
-    }, [ user, router ,isCommentPosted]);
 
     useEffect(() => {
         if ( !user) return;
@@ -80,7 +60,7 @@ export default function CommentSection({ cid }: { cid: string }) {
             
         }
         fetchData();
-    }, [user ,isCommentPosted]);
+    }, [isCommentPosted]);
 
     if ( isLoading) {
         console.log('no mount !!!')

@@ -11,38 +11,7 @@ import { createComments } from '@/services/comment.service';
 export default function CommentModal({ isOpen, onClose , name, cid , posted }:{isOpen:boolean,onClose:Function, name:string , cid :string , posted:Function }) {
     const [comment ,setComment] = useState("")
     
-    // const router = useRouter();
-    // const { user } = useAuth();
-    // const [mounted, setMounted] = useState(false);
-    // const [isLoading, setIsLoading] = useState(true);
-    // const [error, setError] = useState('');
-    // const [userInfo, setUserInfo] = useState({
-    //     name: '',
-    //     role: ''
-    // });
-    // const [userProfile, setUserProfile] = useState<any>(null);
-
-    // useEffect(() => {
-    //     setMounted(true);
-    // }, []);
-
-    // useEffect(() => {
-    //     if (!mounted) return;
-
-    //     const checkAuth = () => {
-    //         if (!user) {
-    //         router.push('/login');
-    //         return;
-    //         }
-    //     };
-
-    //     checkAuth();
-    // }, [mounted, user, router]);
-
-    // useEffect(() => {
-    //     if (!mounted || !user) return;
-    // }, [user, mounted]);
-
+    
     const  handlePost = async () => {
         try {
             const response = await createComments(cid , comment);
