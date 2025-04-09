@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Image from 'next/image';
 
 interface TeamMember {
   name: string;
@@ -24,21 +25,63 @@ export default function About() {
       name: "Kritchaya Chaowajareun",
       id: "6733007821",
       discord: "_snezh21",
-      image: "/team/member1.png", 
+      image: "/team/Kritchaya.png",
       role: "Full Stack Developer"
     },
     {
-      name: "Wiritpol Poonnak",
-      id: "6733244121",
-      discord: "n330",
-      image: "/team/member2.png",
+      name: "Pokpong Sukjai",
+      id: "6733131921",
+      discord: "dekdee1653",
+      image: "/team/Pokpong.png",
+      role: "Full Stack Developer"
+    },
+    {
+      name: "Sohara Mahamad",
+      id: "6733053621", 
+      discord: "60sec._",
+      image: "/team/Sohara.png",
+      role: "Full Stack Developer"
+    },
+    {
+      name: "Tarmeesee Daoh",
+      id: "6733076021",
+      discord: "tatada5294",
+      image: "/team/Tarmeesee.png",
+      role: "Full Stack Developer"
+    },
+    {
+      name: "Thanpisit Naowapradit",
+      id: "6733105621",
+      discord: "ethanw1nter",
+      image: "/team/Thanpisit.png",
+      role: "Full Stack Developer"
+    },
+    {
+      name: "Tripob Pongpanich",
+      id: "6733077721",
+      discord: "taiwmj",
+      image: "/team/Tripob.png",
       role: "Full Stack Developer"
     },
     {
       name: "Watchirawit Srisoonthornkasem",
       id: "6733225221",
       discord: "ebuueaelwhwaaneynyaakepnhwaanaic",
-      image: "/team/member3.png",
+      image: "/team/Watchirawit.png",
+      role: "Full Stack Developer"
+    },
+    {
+      name: "Wiritpol Poonnak",
+      id: "6733244121",
+      discord: "n330",
+      image: "/team/Wiritpol.png",
+      role: "Full Stack Developer"
+    },
+    {
+      name: "Worapob Pongpanich",
+      id: "6733228121",
+      discord: "sunnnn2428",
+      image: "/team/Worapob.png",
       role: "Full Stack Developer"
     }
   ];
@@ -58,27 +101,29 @@ export default function About() {
         </div>
 
         {/* Team Section */}
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-7xl mx-auto">
           <h2 className="text-2xl font-semibold text-gray-900 dark:text-white text-center mb-12">
             Meet Our Team
           </h2>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {teamMembers.map((member, index) => (
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-8">
+            {teamMembers.map((member) => (
               <div 
                 key={member.id}
-                className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden transform transition-all duration-300 hover:-translate-y-2"
+                className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden transform transition-all duration-300 hover:-translate-y-2 h-[650px]"
               >
-                <div className="aspect-w-16 aspect-h-9 bg-gradient-to-r from-blue-500 to-purple-600">
-                  <div className="flex items-center justify-center h-48">
-                    {/* ถ้าไม่มีรูป ใช้ตัวอักษรย่อแทน */}
-                    <span className="text-4xl font-bold text-white">
-                      {member.name.charAt(0)}
-                    </span>
-                  </div>
+                <div className="aspect-w-16 aspect-h-9 relative h-[420px]">
+                  <Image
+                    src={member.image}
+                    alt={member.name}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 33vw"
+                    priority
+                    className="object-cover rounded-t-xl"
+                  />
                 </div>
                 
-                <div className="p-6">
+                <div className="p-8">
                   <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
                     {member.name}
                   </h3>
@@ -113,7 +158,7 @@ export default function About() {
           </p>
           <div className="flex justify-center space-x-4">
             <a
-              href="https://github.com/N330s/frontendProjectCedt"
+              href="https://github.com/Krx-21/WebProject"
               target="_blank"
               rel="noopener noreferrer"
               className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400"
