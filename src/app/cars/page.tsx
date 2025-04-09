@@ -1,6 +1,22 @@
 import { API_ENDPOINTS } from "@/config/api";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import Link from "next/link";
 
-interface CarDetails {
+interface ProviderProps {
+    _id: string,
+    name: string,
+    address: string,
+    district: string,
+    province: string,
+    postalCode: string,
+    tel: string,
+    region: string,
+    user: string,
+    __v: number,
+    id: string,
+}
+
+interface CarProps {
     _id: string,
     brand: string,
     model: string,
@@ -10,7 +26,7 @@ interface CarDetails {
     seatingCapacity: number,
     year: number,
     pricePerDay: number,
-    provider: string,
+    provider: ProviderProps,
     carDescription: string,
     postedDate: string,
     __v: number,
@@ -29,11 +45,21 @@ export default async function CarsPage () {
     <div className="flex flex-col gap-4">
       <h1 className="text-2xl font-bold">Cars</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {data.map((car: CarDetails) => (
-          <div key={car.id} className="border p-4 rounded-md shadow-md">
-            <h2 className="text-xl font-semibold">{car.model}</h2>
-            <p>{car.carDescription}</p>
-          </div>
+        {data.map((car: CarProps) => (
+          
+          <Link href={`/cars/${car.id}`} key={car.id}>
+          <Card key={car.id} className="hover:shadow-lg transition-shadow">
+            <CardHeader>
+              <CardTitle className="text-xl">
+                <p>Brand: {car.brand}</p> 
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p>Model: {car.model}</p>
+              <p>Provider: {car.provider.name}</p>
+            </CardContent>
+          </Card>
+          </Link>
         ))}
       </div>
     </div>
