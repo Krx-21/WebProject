@@ -3,104 +3,24 @@ import React, { useEffect, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 import { TextField } from '@mui/material';
 
-import { useRouter } from 'next/router';
-import { useAuth } from '@/contexts/AuthContext';
-import { getUserProfile } from '@/services/user.service';
+// import { useRouter } from 'next/router';
+// import { useAuth } from '@/contexts/AuthContext';
+// import { getUserProfile } from '@/services/user.service';
+import { createComments } from '@/services/comment.service';
 
-export default function CommentModal({ isOpen, onClose, carID , name, posted }:{isOpen:boolean,onClose:Function, carID:string, name:string, posted:Function }) {
+export default function CommentModal({ isOpen, onClose , name, cid , posted }:{isOpen:boolean,onClose:Function, name:string , cid :string , posted:Function }) {
     const [comment ,setComment] = useState("")
     
-    const router = useRouter();
-    const { user } = useAuth();
-    const [mounted, setMounted] = useState(false);
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState('');
-    const [userInfo, setUserInfo] = useState({
-        name: '',
-        role: ''
-    });
-    const [userProfile, setUserProfile] = useState<any>(null);
-
-    useEffect(() => {
-        setMounted(true);
-    }, []);
-
-    useEffect(() => {
-        if (!mounted) return;
-
-        const checkAuth = () => {
-            if (!user) {
-            router.push('/login');
-            return;
-            }
-        };
-
-        checkAuth();
-        }, [mounted, user, router]);
-
-        useEffect(() => {
-        const loadUserProfile = async () => {
-            if (!user) return;
-
-            try {
-            setIsLoading(true);
-            const response = await getUserProfile();
-
-            if (response.success) {
-                console.log('Profile data received:', response.data);
-                setUserProfile(response.data);
-                
-                setUserInfo({
-                    name: response.data.name || user.name || '',
-                    role: response.data.role || user.role || ''
-                });
-            } else {
-                // ถ้าไม่สามารถดึงข้อมูลจาก API ได้ ให้ใช้ข้อมูลจาก Auth Context แทน
-                setUserInfo({
-                    name: response.data.name || user.name || '',
-                    role: response.data.role || user.role || ''
-                });
-                setError('Could not load full profile data. Basic information is displayed.');
-            }
-            } catch (err) {
-            console.error('Error loading profile:', err);
-            setError('Failed to load profile data');
-            } finally {
-            setIsLoading(false);
-            }
-        };
-
-        if (mounted && user) {
-            loadUserProfile();
-        }
-    }, [user, mounted]);
-
-    // post comment
+    
     const  handlePost = async () => {
         try {
-            // fetch api
-            const response = await fetch(`http://localhost:5000/api/v1/cars/${carID}/comments/` ,{
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    authorization: `Bearer ${user?.token}`,
-                },
-                body: JSON.stringify({
-                    comment: comment,
-                    nameUser: user?.name,
-                    imagesUser: ""
-
-                }), 
-            })
-
-            // if response.ok posted comment
-            if(response.ok) posted();
+            const response = await createComments(cid , comment);
+            if(response.success) posted();
         }catch (e) {
             toast.error('failed to comment')
         }
     }
 
-    // check if !isOpen didn't show comment model
     if (!isOpen) return null;
 
     return (

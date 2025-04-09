@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'https://backend-delta-tawny-40.vercel.app/api/v1';
+const API_URL = 'http://localhost:5000/api/v1';
 
 export const getUserProfile = async () => {
   try {

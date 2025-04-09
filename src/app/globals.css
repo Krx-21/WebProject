@@ -200,6 +200,39 @@
   .status-danger {
     @apply bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300;
   }
+
+  /* DatePicker Custom Styles */
+  .react-datepicker {
+    @apply bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 shadow-lg;
+  }
+
+  .react-datepicker__header {
+    @apply bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600;
+  }
+
+  .react-datepicker__current-month {
+    @apply text-gray-800 dark:text-gray-200;
+  }
+
+  .react-datepicker__day {
+    @apply text-gray-800 dark:text-gray-200 hover:bg-blue-100 dark:hover:bg-blue-900/30;
+  }
+
+  .react-datepicker__day--selected {
+    @apply bg-blue-500 text-white hover:bg-blue-600;
+  }
+
+  .react-datepicker__day--disabled {
+    @apply text-gray-400 dark:text-gray-600;
+  }
+
+  .react-datepicker__navigation-icon {
+    @apply before:border-gray-600 dark:before:border-gray-400;
+  }
+
+  .react-datepicker__day-name {
+    @apply text-gray-600 dark:text-gray-400;
+  }
 }
 
 :root {

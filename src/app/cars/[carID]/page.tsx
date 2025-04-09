@@ -2,42 +2,13 @@
 import { useEffect, useState } from 'react';
 import { API_ENDPOINTS } from '@/config/api';
 import { useParams } from 'next/navigation';
+import { Car } from '@/types/Car';
 
-interface ProviderProps {
-  _id: string,
-  name: string,
-  address: string,
-  district: string,
-  province: string,
-  postalCode: string,
-  tel: string,
-  region: string,
-  user: string,
-  __v: number,
-  id: string,
-}
-
-interface CarProps {
-  _id: string,
-  brand: string,
-  model: string,
-  type: string,
-  topSpeed: number,
-  fuelType: string,
-  seatingCapacity: number,
-  year: number,
-  pricePerDay: number,
-  provider: ProviderProps,
-  carDescription: string,
-  postedDate: string,
-  __v: number,
-  id: string,
-}
 
 export default function CarsProviderPage() {
   const params = useParams();
   const carID = params.carID;
-  const [carDetails, setCarDetails] = useState<CarProps | null>(null);
+  const [carDetails, setCarDetails] = useState<Car | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -106,7 +77,7 @@ export default function CarsProviderPage() {
           <p>Postal Code: {carDetails.provider.postalCode}</p>
           <p>Phone: {carDetails.provider.tel}</p>
           <p>Region: {carDetails.provider.region}</p>
-          {/* You can add more details here based on your CarProps interface */}
+          {/* You can add more details here based on your Car interface */}
         </>
       )}
     </main>
