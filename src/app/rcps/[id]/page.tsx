@@ -8,6 +8,7 @@ import BookingList from '@/components/BookingList';
 import EditBookingModal from '@/components/EditBookingModal';
 import { Booking } from '@/types/booking';
 import Link from 'next/link';
+import ProvidersCars from '@/components/ProvidersCars';
 
 export default function RcpDetail() {
   const params = useParams<{ id: string }>();
@@ -334,7 +335,7 @@ export default function RcpDetail() {
             </div>
           </div>
         </div>
-
+<ProvidersCars providerId={id} />
         {/* User's bookings section */}
         {user && (
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 transition-colors duration-200">
