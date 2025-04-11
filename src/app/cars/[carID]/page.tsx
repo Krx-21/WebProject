@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { API_ENDPOINTS } from '@/config/api';
 import { useParams } from 'next/navigation';
+import Link from 'next/link';
 import { Car } from '@/types/Car';
 
 
@@ -54,32 +55,100 @@ export default function CarsProviderPage() {
   }
 
   return (
-    <main>
-      <div>Details</div>
-      <div>Details</div>
-      {carDetails && (
-        <>
-          <p>Brand: {carDetails.brand}</p>
-          <p>Model: {carDetails.model}</p>
-          <p>Type: {carDetails.type}</p>
-          <p>Top Speed: {carDetails.topSpeed}</p>
-          <p>Fuel Type: {carDetails.fuelType}</p>
-          <p>Seating Capacity: {carDetails.seatingCapacity}</p>
-          <p>Year: {carDetails.year}</p>
-          <p>Price Per Day: {carDetails.pricePerDay}</p>
-          <p>Car Description: {carDetails.carDescription}</p>
-          <p>Posted Date: {carDetails.postedDate}</p>
-          <h1>Provider</h1>
-          <p>Name: {carDetails.provider.name}</p>
-          <p>Address: {carDetails.provider.address}</p>
-          <p>District: {carDetails.provider.district}</p>
-          <p>Province: {carDetails.provider.province}</p>
-          <p>Postal Code: {carDetails.provider.postalCode}</p>
-          <p>Phone: {carDetails.provider.tel}</p>
-          <p>Region: {carDetails.provider.region}</p>
-          {/* You can add more details here based on your Car interface */}
-        </>
-      )}
+    <main className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12 px-4">
+      <div className="container-base max-w-7xl mx-auto">
+        {carDetails && (
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
+            {/* Header Section */}
+            <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-700 via-slate-800 to-slate-900 
+                dark:from-slate-200 dark:via-slate-300 dark:to-slate-400
+                bg-clip-text text-transparent">
+                {carDetails.brand} {carDetails.model}
+              </h1>
+              <p className="mt-2 text-gray-600 dark:text-gray-400">
+                {carDetails.carDescription}
+              </p>
+            </div>
+
+            {/* Car Details Section */}
+            <div className="grid md:grid-cols-2 gap-6 p-6">
+              <div className="space-y-4">
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+                  Car Information
+                </h2>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Type</p>
+                    <p className="text-gray-900 dark:text-white">{carDetails.type}</p>
+                  </div>
+                  <div className="space-y-2">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Year</p>
+                    <p className="text-gray-900 dark:text-white">{carDetails.year}</p>
+                  </div>
+                  <div className="space-y-2">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Fuel Type</p>
+                    <p className="text-gray-900 dark:text-white">{carDetails.fuelType}</p>
+                  </div>
+                  <div className="space-y-2">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Top Speed</p>
+                    <p className="text-gray-900 dark:text-white">{carDetails.topSpeed} km/h</p>
+                  </div>
+                  <div className="space-y-2">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Seating Capacity</p>
+                    <p className="text-gray-900 dark:text-white">{carDetails.seatingCapacity} seats</p>
+                  </div>
+                  <div className="space-y-2">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Price Per Day</p>
+                    <p className="text-gray-900 dark:text-white">฿{carDetails.pricePerDay}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Provider Information */}
+              <div className="space-y-4">
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+                  Provider Information
+                </h2>
+                <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4 space-y-3">
+                  <div className="space-y-1">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Name</p>
+                    <p className="text-gray-900 dark:text-white">{carDetails.provider.name}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Address</p>
+                    <p className="text-gray-900 dark:text-white">
+                      {carDetails.provider.address}, {carDetails.provider.district},
+                      {carDetails.provider.province} {carDetails.provider.postalCode}
+                    </p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Contact</p>
+                    <p className="text-gray-900 dark:text-white">{carDetails.provider.tel}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Region</p>
+                    <p className="text-gray-900 dark:text-white">{carDetails.provider.region}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="p-6 bg-gray-50 dark:bg-gray-800/50 border-t border-gray-200 dark:border-gray-700">
+              <Link 
+                href="/cars"
+                className="inline-flex items-center text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+              >
+                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                Back to Cars
+              </Link>
+            </div>
+          </div>
+        )}
+      </div>
     </main>
   );
 }

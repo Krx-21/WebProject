@@ -135,77 +135,109 @@ export default function PromotionsPage() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 px-4 py-8">
       <div className="container-base max-w-7xl mx-auto">
+        {/* Header Section */}
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-primary via-blue-600 to-blue-700 bg-clip-text text-transparent">
-            Manage Cars
-          </h1>
+          <div>
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-blue-800
+              dark:from-blue-400 dark:to-blue-600 bg-clip-text text-transparent">
+              Manage Cars
+            </h1>
+            <p className="text-gray-600 dark:text-gray-400 mt-2">
+              Add, edit, and manage your car listings
+            </p>
+          </div>
+          
           <Button 
             onClick={() => router.push('/admin/cars/new')}
-            className="btn-primary hover:scale-105 transition-transform duration-200"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5
+              rounded-lg shadow-sm hover:shadow-md transition-all duration-200
+              flex items-center gap-2"
           >
-            Create New Car
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"/>
+            </svg>
+            Add New Car
           </Button>
         </div>
 
-        <div className="grid gap-8">
-          {cars.map((car: Car) => {
-            return (
-              <div
-                key={car._id}
-                className="card-premium group hover:scale-[1.01] transition-all duration-200
-                         bg-white dark:bg-gray-800 border border-gray-200 
-                         dark:border-gray-700 rounded-xl shadow-lg hover:shadow-xl
-                         p-6 relative overflow-hidden"
-              >
-                <p>Brand: {car.brand}</p>
-                <p>Model: {car.model}</p>
-                <p>Type: {car.type}</p>
-                <p>Top Speed: {car.topSpeed}</p>
-                <p>Fuel Type: {car.fuelType}</p>
-                <p>Seating Capacity: {car.seatingCapacity}</p>
-                <p>Year: {car.year}</p>
-                <p>Price Per Day: {car.pricePerDay}</p>
-                <p>Car Description: {car.carDescription}</p>
-                <p>Posted Date: {car.postedDate}</p>
-                <p>Provider Name: {car.provider.name}</p>
-                
-                <div className="flex flex-col lg:flex-row gap-6">
-                  
-
-                  {/* Actions */}
-                  <div className="flex lg:flex-col gap-3 justify-end">
+        {/* Cars Grid */}
+        <div className="grid gap-6">
+          {cars.map((car) => (
+            <div
+              key={car._id}
+              className="bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg
+                border border-gray-200 dark:border-gray-700
+                transition-all duration-200 hover:scale-[1.01]"
+            >
+              <div className="p-6">
+                <div className="flex justify-between items-start">
+                  <div className="space-y-1">
+                    <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+                      {car.brand} {car.model}
+                    </h2>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      Provider: {car.provider.name}
+                    </p>
+                  </div>
+                  <div className="flex gap-3">
                     <Button
                       variant="outline"
                       onClick={() => router.push(`/admin/cars/${car._id}/edit`)}
-                      className="flex-1 lg:flex-none px-6 py-2 border-2 border-blue-500 
-                                text-blue-600 dark:text-blue-400 dark:border-blue-400 
-                                hover:bg-blue-50 dark:hover:bg-blue-900/20
-                                hover:border-blue-600 dark:hover:border-blue-300
-                                transition-all duration-200"
+                      className="px-4 py-2 border-2 border-blue-500 text-blue-600 
+                        dark:text-blue-400 dark:border-blue-400 rounded-lg
+                        hover:bg-blue-50 dark:hover:bg-blue-900/20
+                        transition-all duration-200"
                     >
                       Edit
                     </Button>
                     <Button
                       variant="destructive"
                       onClick={() => handleDelete(car._id)}
-                      className="flex-1 lg:flex-none px-6 py-2 bg-red-500 hover:bg-red-600 
-                                dark:bg-red-600/90 dark:hover:bg-red-500 
-                                text-white shadow-sm hover:shadow-md 
-                                transition-all duration-200"
+                      className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white
+                        rounded-lg shadow-sm hover:shadow-md
+                        transition-all duration-200"
                     >
                       Delete
                     </Button>
                   </div>
-                
+                </div>
+
+                <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div>
+                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Type</p>
+                    <p className="text-gray-900 dark:text-gray-100">{car.type}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Year</p>
+                    <p className="text-gray-900 dark:text-gray-100">{car.year}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Fuel Type</p>
+                    <p className="text-gray-900 dark:text-gray-100">{car.fuelType}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Price/Day</p>
+                    <p className="text-gray-900 dark:text-gray-100">฿{car.pricePerDay}</p>
+                  </div>
+                </div>
+
+                <div className="mt-4">
+                  <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Description</p>
+                  <p className="text-gray-700 dark:text-gray-300 line-clamp-2">{car.carDescription}</p>
                 </div>
               </div>
-            );
-          })}
+            </div>
+          ))}
 
           {cars.length === 0 && (
-            <div className="card-base text-center py-12 bg-white dark:bg-gray-800
-                           border border-gray-200 dark:border-gray-700">
-              <p className="text-gray-500 dark:text-gray-400">No Cars found</p>
+            <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-xl
+              border border-gray-200 dark:border-gray-700">
+              <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" 
+                  d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" 
+                />
+              </svg>
+              <p className="mt-4 text-gray-500 dark:text-gray-400">No cars found</p>
             </div>
           )}
         </div>

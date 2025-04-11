@@ -10,13 +10,24 @@ import { getCurrentUser } from '@/services/auth.service';
 type CarType = 'Sedan' | 'SUV' | 'Hatchback' | 'Truck' | 'Convertible' | 'Van';
 type FuelType = 'Petrol' | 'Diesel' | 'Electric' | 'Hybrid';
 
+interface ValidationErrors {
+  brand?: string;
+  model?: string;
+  topSpeed?: string;
+  year?: string;
+  pricePerDay?: string;
+  seatingCapacity?: string;
+  provider?: string;
+}
+
 export default function NewCarPage() {
   const router = useRouter();
   const [provider, setProvider] = useState<Provider | null>(null);
-  
+
   const [providers, setProviders] = useState<Provider[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
   const [formData, setFormData] = useState<Omit<Car, '_id' | '__v' | 'id' | 'postedDate'> & { type: CarType; fuelType: FuelType }>({
     brand: '',
     model: '',
@@ -26,7 +37,7 @@ export default function NewCarPage() {
     seatingCapacity: 1,
     year: new Date().getFullYear(),
     pricePerDay: 0,
-    provider: provider? provider : { _id: "", name: "", address: "", district: "", province: "", postalCode: "", tel: "", region: "", user: "", __v: 0, id: "" },
+    provider: provider ? provider : { _id: "", name: "", address: "", district: "", province: "", postalCode: "", tel: "", region: "", user: "", __v: 0, id: "" },
     carDescription: '',
   });
   const user = getCurrentUser();
@@ -34,7 +45,7 @@ export default function NewCarPage() {
     router.push('/login');
     return;
   }
-  
+
   // ตอนนี้ provider ไม่สามารถสร้าง car ของตัวเองได้เพราะ role ที่เป็น provider ยังไม่ได้อยู่ใน provider list
   // provider จะ get ข้อมูลของตัวเองไม่ได้ (บัญชี id ของ provider ที่เป็น model กับ user id มันคนละอันกัน)
   // provider จะต้องสร้าง car ผ่าน admin เท่านั้น
@@ -54,7 +65,7 @@ export default function NewCarPage() {
   //                 throw new Error(`Failed to fetch provider id ${user._id}`);
   //               }
   //               const data = await response.json();
-                
+
   //               setProvider(data.data);
   //               setFormData(prev => ({ ...prev, provider: data.data }));
   //             } catch (err: any) {
@@ -62,7 +73,7 @@ export default function NewCarPage() {
   //               setError(err.message);
   //             }
   //           };
-      
+
   //           fetchProvider();
   //         }, []);
   // } else if (user.role === 'admin') {
@@ -83,7 +94,7 @@ export default function NewCarPage() {
   //         setError(err.message);
   //       }
   //     };
-  
+
   //     fetchProviders();
   //   }, []);
   //   if (providers.length === 0) {
@@ -96,27 +107,46 @@ export default function NewCarPage() {
   if (user.role !== 'admin') {
     router.push('/');
   }
-    useEffect(() => {
-      const fetchProviders = async () => {
-        try {
-          const response = await fetch(API_ENDPOINTS.rentalCarProviders.getAll);
-          if (!response.ok) {
-            throw new Error('Failed to fetch providers');
-          }
-          const data = await response.json();
-          setProviders(data.data);
-          if (data.data.length > 0) {
-            setFormData(prev => ({ ...prev, provider: data.data[0] }));
-          }
-        } catch (err: any) {
-          console.error('Error fetching providers:', err);
-          setError(err.message);
+  useEffect(() => {
+    const fetchProviders = async () => {
+      try {
+        const response = await fetch(API_ENDPOINTS.rentalCarProviders.getAll);
+        if (!response.ok) {
+          throw new Error('Failed to fetch providers');
         }
-      };
-  
-      fetchProviders();
-    }, []);
+        const data = await response.json();
+        setProviders(data.data);
+        if (data.data.length > 0) {
+          setFormData(prev => ({ ...prev, provider: data.data[0] }));
+        }
+      } catch (err: any) {
+        console.error('Error fetching providers:', err);
+        setError(err.message);
+      }
+    };
 
+    fetchProviders();
+  }, []);
+
+  if (providers.length === 0) {
+    return (
+      <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex items-center justify-center">
+        <div className="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg text-center">
+          <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          <h3 className="mt-2 text-lg font-medium text-gray-900 dark:text-gray-100">No Providers Available</h3>
+          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Please add a provider before creating a car.</p>
+          <button
+            onClick={() => router.push('/admin/providers/new')}
+            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-200"
+          >
+            Add New Provider
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
@@ -139,10 +169,50 @@ export default function NewCarPage() {
     }
   };
 
+  const validateForm = () => {
+    const errors: ValidationErrors = {};
+
+    if (!formData.brand.trim()) {
+      errors.brand = 'Brand is required';
+    }
+
+    if (!formData.model.trim()) {
+      errors.model = 'Model is required';
+    }
+
+    if (formData.topSpeed <= 0) {
+      errors.topSpeed = 'Top speed must be greater than 0';
+    }
+
+    if (formData.year < 1900 || formData.year > new Date().getFullYear()) {
+      errors.year = 'Invalid year';
+    }
+
+    if (formData.pricePerDay <= 0) {
+      errors.pricePerDay = 'Price must be greater than 0';
+    }
+
+    if (formData.seatingCapacity < 1) {
+      errors.seatingCapacity = 'Seating capacity must be at least 1';
+    }
+
+    if (!formData.provider._id) {
+      errors.provider = 'Provider is required';
+    }
+
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     setError(null);
+
+    if (!validateForm()) {
+      return;
+    }
+
+    setLoading(true);
     const providerId = formData.provider._id;
     try {
       const response = await fetch(API_ENDPOINTS.cars.create(providerId), {
@@ -150,7 +220,6 @@ export default function NewCarPage() {
         headers: {
           'Authorization': `Bearer ${user.token}`,
           'Content-Type': 'application/json',
-          // Include any authorization headers if needed
         },
         body: JSON.stringify(formData),
       });
@@ -160,7 +229,7 @@ export default function NewCarPage() {
         throw new Error(errorData?.message || 'Failed to create car');
       }
 
-      router.push('/cars');
+      router.push('/admin/cars');
     } catch (err: any) {
       console.error('Error creating car:', err);
       setError(err.message);
@@ -200,13 +269,29 @@ export default function NewCarPage() {
                   <label htmlFor="brand" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                     Brand
                   </label>
-                  <input type="text" id="brand" name="brand" value={formData.brand} onChange={handleChange} required className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-900 dark:text-gray-100" />
+                  <input type="text" id="brand" name="brand" value={formData.brand} onChange={handleChange} required className="mt-1 block w-full rounded-md
+  bg-white dark:bg-gray-800 
+  border-gray-300 dark:border-gray-600
+  text-gray-900 dark:text-gray-100
+  placeholder-gray-500 dark:placeholder-gray-400
+  focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
+  dark:focus:ring-blue-400 dark:focus:border-blue-400
+  transition-colors duration-200" />
+                  {validationErrors.brand && <p className="text-red-500 text-sm">{validationErrors.brand}</p>}
                 </div>
                 <div>
                   <label htmlFor="model" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                     Model
                   </label>
-                  <input type="text" id="model" name="model" value={formData.model} onChange={handleChange} required className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-900 dark:text-gray-100" />
+                  <input type="text" id="model" name="model" value={formData.model} onChange={handleChange} required className="mt-1 block w-full rounded-md
+  bg-white dark:bg-gray-800 
+  border-gray-300 dark:border-gray-600
+  text-gray-900 dark:text-gray-100
+  placeholder-gray-500 dark:placeholder-gray-400
+  focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
+  dark:focus:ring-blue-400 dark:focus:border-blue-400
+  transition-colors duration-200" />
+                  {validationErrors.model && <p className="text-red-500 text-sm">{validationErrors.model}</p>}
                 </div>
               </div>
 
@@ -220,7 +305,13 @@ export default function NewCarPage() {
                     name="type"
                     value={formData.type}
                     onChange={handleChange}
-                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-900 dark:text-gray-100"
+                    className="mt-1 block w-full rounded-md
+  bg-white dark:bg-gray-800 
+  border-gray-300 dark:border-gray-600
+  text-gray-900 dark:text-gray-100
+  focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
+  dark:focus:ring-blue-400 dark:focus:border-blue-400
+  transition-colors duration-200"
                   >
                     <option value="Sedan">Sedan</option>
                     <option value="SUV">SUV</option>
@@ -234,7 +325,15 @@ export default function NewCarPage() {
                   <label htmlFor="topSpeed" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                     Top Speed
                   </label>
-                  <input type="number" id="topSpeed" name="topSpeed" value={formData.topSpeed} onChange={handleChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-900 dark:text-gray-100" />
+                  <input type="number" id="topSpeed" name="topSpeed" value={formData.topSpeed} onChange={handleChange} className="mt-1 block w-full rounded-md
+  bg-white dark:bg-gray-800 
+  border-gray-300 dark:border-gray-600
+  text-gray-900 dark:text-gray-100
+  placeholder-gray-500 dark:placeholder-gray-400
+  focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
+  dark:focus:ring-blue-400 dark:focus:border-blue-400
+  transition-colors duration-200" />
+                  {validationErrors.topSpeed && <p className="text-red-500 text-sm">{validationErrors.topSpeed}</p>}
                 </div>
               </div>
 
@@ -248,7 +347,13 @@ export default function NewCarPage() {
                     name="fuelType"
                     value={formData.fuelType}
                     onChange={handleChange}
-                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-900 dark:text-gray-100"
+                    className="mt-1 block w-full rounded-md
+  bg-white dark:bg-gray-800 
+  border-gray-300 dark:border-gray-600
+  text-gray-900 dark:text-gray-100
+  focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
+  dark:focus:ring-blue-400 dark:focus:border-blue-400
+  transition-colors duration-200"
                   >
                     <option value="Petrol">Petrol</option>
                     <option value="Diesel">Diesel</option>
@@ -260,7 +365,15 @@ export default function NewCarPage() {
                   <label htmlFor="seatingCapacity" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                     Seating Capacity
                   </label>
-                  <input type="number" id="seatingCapacity" name="seatingCapacity" value={formData.seatingCapacity} onChange={handleChange} min="1" required className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-900 dark:text-gray-100" />
+                  <input type="number" id="seatingCapacity" name="seatingCapacity" value={formData.seatingCapacity} onChange={handleChange} min="1" required className="mt-1 block w-full rounded-md
+  bg-white dark:bg-gray-800 
+  border-gray-300 dark:border-gray-600
+  text-gray-900 dark:text-gray-100
+  placeholder-gray-500 dark:placeholder-gray-400
+  focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
+  dark:focus:ring-blue-400 dark:focus:border-blue-400
+  transition-colors duration-200" />
+                  {validationErrors.seatingCapacity && <p className="text-red-500 text-sm">{validationErrors.seatingCapacity}</p>}
                 </div>
               </div>
 
@@ -269,38 +382,61 @@ export default function NewCarPage() {
                   <label htmlFor="year" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                     Year
                   </label>
-                  <input type="number" id="year" name="year" value={formData.year} onChange={handleChange} min="1900" max={new Date().getFullYear()} required className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-900 dark:text-gray-100" />
+                  <input type="number" id="year" name="year" value={formData.year} onChange={handleChange} min="1900" max={new Date().getFullYear()} required className="mt-1 block w-full rounded-md
+  bg-white dark:bg-gray-800 
+  border-gray-300 dark:border-gray-600
+  text-gray-900 dark:text-gray-100
+  placeholder-gray-500 dark:placeholder-gray-400
+  focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
+  dark:focus:ring-blue-400 dark:focus:border-blue-400
+  transition-colors duration-200" />
+                  {validationErrors.year && <p className="text-red-500 text-sm">{validationErrors.year}</p>}
                 </div>
                 <div>
                   <label htmlFor="pricePerDay" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                     Price Per Day
                   </label>
-                  <input type="number" id="pricePerDay" name="pricePerDay" value={formData.pricePerDay} onChange={handleChange} min="0" required className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-900 dark:text-gray-100" />
+                  <input type="number" id="pricePerDay" name="pricePerDay" value={formData.pricePerDay} onChange={handleChange} min="0" required className="mt-1 block w-full rounded-md
+  bg-white dark:bg-gray-800 
+  border-gray-300 dark:border-gray-600
+  text-gray-900 dark:text-gray-100
+  placeholder-gray-500 dark:placeholder-gray-400
+  focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
+  dark:focus:ring-blue-400 dark:focus:border-blue-400
+  transition-colors duration-200" />
+                  {validationErrors.pricePerDay && <p className="text-red-500 text-sm">{validationErrors.pricePerDay}</p>}
                 </div>
               </div>
               {
                 user.role === 'admin' && (
-<div>
-                <label htmlFor="provider" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Provider
-                </label>
-                <select
-                  id="provider"
-                  name="provider"
-                  value={formData.provider._id}
-                  onChange={handleProviderChange}
-                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-900 dark:text-gray-100"
-                >
-                  {providers.map(provider => (
-                    <option key={provider._id} value={provider._id}>
-                      {provider.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
+                  <div>
+                    <label htmlFor="provider" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                      Provider
+                    </label>
+                    <select
+                      id="provider"
+                      name="provider"
+                      value={formData.provider._id}
+                      onChange={handleProviderChange}
+                      className="mt-1 block w-full rounded-md
+  bg-white dark:bg-gray-800 
+  border-gray-300 dark:border-gray-600
+  text-gray-900 dark:text-gray-100
+  focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
+  dark:focus:ring-blue-400 dark:focus:border-blue-400
+  transition-colors duration-200"
+                    >
+                      {providers.map(provider => (
+                        <option key={provider._id} value={provider._id}>
+                          {provider.name}
+                        </option>
+                      ))}
+                    </select>
+                    {validationErrors.provider && <p className="text-red-500 text-sm">{validationErrors.provider}</p>}
+                  </div>
                 )
               }
-              
+
 
               <div>
                 <label htmlFor="carDescription" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -312,7 +448,15 @@ export default function NewCarPage() {
                   value={formData.carDescription}
                   onChange={handleChange}
                   rows={4}
-                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-900 dark:text-gray-100"
+                  className="mt-1 block w-full rounded-md
+  bg-white dark:bg-gray-800 
+  border-gray-300 dark:border-gray-600
+  text-gray-900 dark:text-gray-100
+  placeholder-gray-500 dark:placeholder-gray-400
+  focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
+  dark:focus:ring-blue-400 dark:focus:border-blue-400
+  transition-colors duration-200
+  resize-none"
                 ></textarea>
               </div>
 
@@ -329,6 +473,19 @@ export default function NewCarPage() {
           </div>
         </div>
       </div>
+      {loading && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl">
+            <div className="flex items-center space-x-3">
+              <svg className="animate-spin h-5 w-5 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              <span className="text-gray-700 dark:text-gray-300">Creating car...</span>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
