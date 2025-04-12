@@ -4,6 +4,7 @@ import { API_ENDPOINTS } from '@/config/api';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { Car } from '@/types/Car';
+import CommentSection from '@/components/Comment';
 
 
 export default function CarsProviderPage() {
@@ -149,6 +150,7 @@ export default function CarsProviderPage() {
           </div>
         )}
       </div>
+      <CommentSection cid={carID as string} />
     </main>
   );
 }
