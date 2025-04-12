@@ -1,20 +1,17 @@
 'use client'
 import React, { useEffect, useRef, useState } from 'react';
-import toast from 'react-hot-toast';
+import toast, { Toaster }  from 'react-hot-toast';
 import { TextField } from '@mui/material';
-
-// import { useRouter } from 'next/router';
-// import { useAuth } from '@/contexts/AuthContext';
-// import { getUserProfile } from '@/services/user.service';
 import { createComments } from '@/services/comment.service';
 
 export default function CommentModal({ isOpen, onClose , name, cid , posted }:{isOpen:boolean,onClose:Function, name:string , cid :string , posted:Function }) {
-    const [comment ,setComment] = useState("")
+    const [comment ,setComment] = useState("");
+    const [rating, setRating] = useState(0);
     
     
     const  handlePost = async () => {
         try {
-            const response = await createComments(cid , comment);
+            const response = await createComments(cid , comment, rating);
             if(response.success) posted();
         }catch (e) {
             toast.error('failed to comment')
@@ -24,9 +21,9 @@ export default function CommentModal({ isOpen, onClose , name, cid , posted }:{i
     if (!isOpen) return null;
 
     return (
-        <div
-        className="fixed inset-0 bg-black/30 flex items-center justify-center z-50"
-        >
+        
+        <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
+            <Toaster />
             <div
                 className="bg-white p-6 rounded-3xl shadow-xl w-[90%] "
             >
@@ -42,7 +39,7 @@ export default function CommentModal({ isOpen, onClose , name, cid , posted }:{i
                     <TextField
                         id="comment"
                         name="Comment"
-                        label="comment here"
+                        label="Your Comment"
                         variant="standard"
                         required
                         value={comment}
@@ -51,26 +48,48 @@ export default function CommentModal({ isOpen, onClose , name, cid , posted }:{i
                     />
                 </div>
 
+                <div className="w-full mt-4">
+                    <p className="text-black mb-2">Rating:</p>
+                    <div className="flex gap-1 text-2xl">
+                        {[...Array(5)].map((_, i) => (
+                            <span
+                                key={i}
+                                className={`cursor-pointer ${i < rating ? 'text-yellow-400' : 'text-gray-300'}`}
+                                onClick={() => setRating(i + 1)} 
+                            >
+                                ★
+                            </span>
+                        ))}
+                    </div>
+                </div>
 
-                <div className='w-full flex flex-row gap-3 mt-4 justify-end pr-5'>
+
+                <div className="w-full flex flex-row gap-4 mt-6 justify-end pr-6">
                     <button
-                        className="w-[5%] bg-white text-black py-2 border-2 rounded-full hover:bg-slate-300"
-                            onClick={() => {
-                                onClose();
-                            }}
+                        className="px-5 py-2 bg-gray-200 text-gray-800 border border-gray-400 rounded-full hover:bg-gray-300 transition-all duration-200"
+                        onClick={() => {
+                            onClose();
+                        }}
                     >
-                        cancel
+                        Cancel
                     </button>
-                     <button
-                        className="w-[5%] bg-white text-black py-2 border-2 rounded-full hover:bg-slate-300"
-                            onClick={() => {
-                                if(!comment)return;
-                                handlePost();
-                                onClose();
-
-                            }}
+                    <button
+                        className="px-5 py-2 bg-blue-600 text-white border border-blue-700 rounded-full hover:bg-blue-700 transition-all duration-200"
+                        onClick={() => {
+                            if (!comment || rating === 0) {
+                                if (!comment) {
+                                    toast.error('Please enter a comment');
+                                }
+                                if (rating === 0) {
+                                    toast.error('Please select a rating');
+                                }
+                                return;
+                            }
+                            handlePost();
+                            onClose();
+                        }}
                     >
-                        post
+                        Comment
                     </button>
                 </div>
                 

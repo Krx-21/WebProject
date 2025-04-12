@@ -18,7 +18,8 @@ interface CommentItem {
     } ,
     car: string,
     comment: string,
-    createAt: string
+    rating: number,
+    createdAt: string
 }
 interface UseerItem {
     _id:string,
@@ -40,6 +41,18 @@ export default function CommentSection({ cid }: { cid: string }) {
     const { user } = useAuth();
     const [isLoading, setIsLoading] = useState(true);
     const [userProfile, setUserProfile] = useState<UseerItem | null>(null);
+
+    // format Date
+    const formatDate = (isoDate: string) => {
+        const date = new Date(isoDate);
+        return date.toLocaleString('th-TH', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+        });
+    };
 
     useEffect(() => {
         if ( !user) return;
@@ -90,9 +103,19 @@ export default function CommentSection({ cid }: { cid: string }) {
 
     return (
         <div className="mt-10">
-            <div className="ml-2 text-xl font-semibold">Comments</div>
+
             <div className="rounded-md flex flex-col bg-slate-100 pt-2">
-                <div className="flex justify-end mr-3">
+                <div className="flex items-center justify-between px-4 py-4">
+                    <div className="flex items-center text-3xl font-semibold">
+                        Comments
+                        {comments.length > 0 && (
+                            <span className="ml-4 text-xl text-blue-800 px-4 py-2 bg-blue-100 border border-blue-400 rounded-md">
+                            Rating: {(
+                                    comments.reduce((sum, comment) => sum + (Number(comment.rating) || 0), 0) / comments.length
+                                ).toFixed(1)} ★
+                            </span>
+                        )}
+                    </div>
                     <button
                         className="px-6 py-3 rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition duration-300"
                         onClick={() => {
@@ -112,15 +135,24 @@ export default function CommentSection({ cid }: { cid: string }) {
                             <div className="flex flex-row relative">
                                 <div className="size-10 rounded-full inline border-2 border-red-300 bg-slate-100"/>
                                 <div className="flex flex-col pl-3">
-                                    <p className="text-black">{comment.user.name || 'unknow'}</p>
-                                    <p className="text-xs text-black">{comment.createAt}</p>
+                                    <div className="flex items-center space-x-2">
+                                        <p className="text-black font-semibold">{comment.user.name || 'Unknown'}</p>
+                                        <div className="flex text-xl">
+                                        {[...Array(5)].map((_, i) => (
+                                            <span key={i} className={i < comment.rating ? 'text-yellow-400' : 'text-gray-300'}>
+                                            ★
+                                            </span>
+                                        ))}
+                                        </div>
+                                    </div>
+                                    <p className="text-xs text-gray-500">{formatDate(comment.createdAt) || 'Unknown time'}</p>
                                 </div>
                                 <div className="flex flex-row gap-1 pt-1 absolute right-2"
                                     onClick={() => {
                                         if ((userProfile?.role !== 'admin') && (userProfile?._id  !== comment.user._id)) return;
                                         setOpenDropdown(openDropdown === comment._id ? null : comment._id);
                                     }}
-                                >
+                                >   
                                     <div className="rounded-full size-2 bg-black"></div>
                                     <div className="rounded-full size-2 bg-black"></div>
                                     <div className="rounded-full size-2 bg-black"></div>
@@ -129,8 +161,9 @@ export default function CommentSection({ cid }: { cid: string }) {
                                             onClose={() => setOpenEditModal(null)}
                                             commentId={comment._id}
                                             name={userProfile?.name as string} 
-                                            oldComment={comment.comment}
                                             img={comment.user.image || ""}
+                                            rating={comment.rating}
+                                            oldComment={comment.comment}
                                             posted={() => setIsCommentPosted(prev => !prev)}
                                         />
                                     }

@@ -15,7 +15,7 @@ export const getComments = async (id : string) => {
     
 } 
 
-export const createComments = async (cid: string,comment: string) => {
+export const createComments = async (cid: string, comment: string, rating: number) => {
 
     try {
         const userStr = localStorage.getItem('user');
@@ -34,7 +34,8 @@ export const createComments = async (cid: string,comment: string) => {
                 authorization: `Bearer ${token}`,
             },
             body: JSON.stringify({
-                comment: comment
+                comment: comment,
+                rating: rating
             }), 
         })
         return await res.json()
@@ -47,7 +48,7 @@ export const createComments = async (cid: string,comment: string) => {
     
 } 
 
-export const editComments = async (id : string , comment: string) => {
+export const editComments = async (id : string , comment: string, rating: number) => {
 
     try {
         const userStr = localStorage.getItem('user');
@@ -66,7 +67,8 @@ export const editComments = async (id : string , comment: string) => {
                 authorization: `Bearer ${token}`,
             },
             body: JSON.stringify({
-                comment: comment
+                comment: comment,
+                rating: rating
             }), 
         })
         return await res.json()

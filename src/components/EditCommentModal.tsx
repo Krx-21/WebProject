@@ -1,17 +1,18 @@
 'use client'
 import React, { useEffect, useRef, useState } from 'react';
 import 'air-datepicker/air-datepicker.css';
-import toast from 'react-hot-toast';
+import toast, { Toaster } from 'react-hot-toast';
 import { TextField } from '@mui/material';
 import { editComments } from '@/services/comment.service';
 
 
-export default function EditCommentModal({ onClose, commentId, name , img , posted , oldComment}:{onClose:Function, commentId:string,  name:string, img:string, posted:Function, oldComment:string }) {   
-    const [comment ,setComment] = useState("")
+export default function EditCommentModal({ onClose, commentId, name, img, rating, oldComment, posted}:{ onClose:Function, commentId:string, name:string, img:string, rating:number, oldComment:string, posted:Function}) {   
+    const [comment ,setComment] = useState("");
+    const [currentRating, setCurrentRating] = useState(rating);
     
     const  handlePut = async () => {
         try {
-            const response = await editComments(commentId,comment)
+            const response = await editComments(commentId, comment, currentRating)
             if(response.ok){
                 posted();
                 toast.success('Comment update complete')
@@ -29,9 +30,10 @@ export default function EditCommentModal({ onClose, commentId, name , img , post
                 e.stopPropagation();
             }}
         >
+            <Toaster />
             <div className="bg-white p-6 rounded-3xl shadow-xl w-[90%] ">  
                 <div className="flex flex-row relative ">
-                    <div className="size-10 rounded-full inline border-2 border-red-300 bg-slate-100 " />
+                    <div className="size-10 rounded-full inline border-2 border-red-300</div> bg-slate-100 " />
                     <div className="flex flex-col pl-3">
                         <p className="text-black">{name}</p>
                     </div>
@@ -47,6 +49,21 @@ export default function EditCommentModal({ onClose, commentId, name , img , post
                         className='w-full'
                         onChange={(e) => setComment(e.target.value)}
                     />
+                </div>
+
+                <div className="w-full mt-4">
+                    <p className="text-black mb-2">Rating:</p>
+                    <div className="flex gap-1 text-2xl">
+                        {[...Array(5)].map((_, i) => (
+                            <span
+                                key={i}
+                                className={`cursor-pointer ${i < currentRating ? 'text-yellow-400' : 'text-gray-300'}`}
+                                onClick={() => setCurrentRating(i + 1)} 
+                            >
+                                ★
+                            </span>
+                        ))}
+                    </div>
                 </div>
 
                 <div className='w-full flex flex-row gap-3 mt-4 justify-end pr-5'>
