@@ -60,7 +60,7 @@ export default function CommentSection({ cid }: { cid: string }) {
     };
 
     useEffect(() => {
-        if ( !user) return;
+        //if ( !user) return;
         const fetchData = async () => {
             try {
                 setIsLoading(true);
