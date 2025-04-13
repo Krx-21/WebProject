@@ -2,7 +2,6 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
-import CommentModal from "@/components/CommentModal";
 import { getUserProfile } from '@/services/user.service';
 import { getComments, createComments } from "@/services/comment.service";
 import EditCommentModal from "@/components/EditCommentModal";
@@ -107,6 +106,12 @@ export default function CommentSection({ cid }: { cid: string }) {
     };
 
     const handlePost = async () => {
+        // Add role check before trying to post
+        if (userProfile?.role === 'provider') {
+            toast.error('Providers are not allowed to comment on cars');
+            return;
+        }
+
         try {
             const response = await createComments(cid, comment, rating);
             if (response.success) {
@@ -161,7 +166,7 @@ export default function CommentSection({ cid }: { cid: string }) {
                     </div>
                 </div>
 
-                {user ? (
+                {user && userProfile?.role !== 'provider' ? (
                     <div className="p-6 border-b border-gray-200 dark:border-gray-700">
                         <div className="flex items-start space-x-4">
                             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-100 to-blue-200 
@@ -209,12 +214,18 @@ export default function CommentSection({ cid }: { cid: string }) {
                     </div>
                 ) : (
                     <div className="p-6 text-center border-b border-gray-200 dark:border-gray-700">
-                        <button
-                            onClick={() => router.push('/login')}
-                            className="text-blue-600 dark:text-blue-400 hover:underline"
-                        >
-                            Log in to leave a comment
-                        </button>
+                        {!user ? (
+                            <button
+                                onClick={() => router.push('/login')}
+                                className="text-blue-600 dark:text-blue-400 hover:underline"
+                            >
+                                Log in to leave a comment
+                            </button>
+                        ) : (
+                            <p className="text-gray-600 dark:text-gray-400">
+                                Providers are not allowed to comment on cars
+                            </p>
+                        )}
                     </div>
                 )}
 
@@ -302,14 +313,6 @@ export default function CommentSection({ cid }: { cid: string }) {
                     )}
                 </div>
             </div>
-
-            <CommentModal
-                isOpen={showComModal}
-                onClose={() => setShowComModal(false)}
-                cid={cid}
-                name={userProfile?.name || ''}
-                posted={() => setIsCommentPosted(prev => !prev)}
-            />
 
             {openEditModal && (
                 <EditCommentModal
