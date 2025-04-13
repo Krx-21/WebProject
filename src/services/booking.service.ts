@@ -222,7 +222,6 @@ export const deleteBooking = async (id: string) => {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`
       },
-      credentials: 'include'
     });
 
     if (!response.ok) {
