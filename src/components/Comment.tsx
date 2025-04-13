@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import CommentModal from "@/components/CommentModal";
 import { getUserProfile } from '@/services/user.service';
-import { getComments } from "@/services/comment.service";
+import { getComments, createComments } from "@/services/comment.service";
 import EditCommentModal from "@/components/EditCommentModal";
 import { useAuth } from "@/contexts/AuthContext";
 import { deleteComments } from "@/services/comment.service";
@@ -30,6 +30,10 @@ interface UseerItem {
     createAt: string
 }
 
+interface KeyboardEventWithShift extends React.KeyboardEvent<HTMLTextAreaElement> {
+  shiftKey: boolean;
+}
+
 export default function CommentSection({ cid }: { cid: string }) {
     const [openDropdown, setOpenDropdown] = useState<string | null>(null);
     const [openEditModal, setOpenEditModal] = useState<string | null>(null);
@@ -41,6 +45,8 @@ export default function CommentSection({ cid }: { cid: string }) {
     const { user } = useAuth();
     const [isLoading, setIsLoading] = useState(true);
     const [userProfile, setUserProfile] = useState<UseerItem | null>(null);
+    const [comment, setComment] = useState('');
+    const [rating, setRating] = useState(0);
 
     const formatDate = (isoDate: string) => {
         const date = new Date(isoDate);
@@ -100,6 +106,40 @@ export default function CommentSection({ cid }: { cid: string }) {
         }
     };
 
+    const handlePost = async () => {
+        try {
+            const response = await createComments(cid, comment, rating);
+            if (response.success) {
+                setComment("");
+                setRating(0);
+                setIsCommentPosted(prev => !prev);
+                toast.success('Comment posted successfully');
+            }
+        } catch (e) {
+            toast.error('Failed to post comment');
+        }
+    };
+
+    const handleKeyDown = (e: KeyboardEventWithShift) => {
+        if (e.key === 'Enter') {
+            if (e.shiftKey) {
+                return;
+            } else {
+                e.preventDefault();
+                if (comment.trim() && rating > 0) {
+                    handlePost();
+                } else {
+                    if (!comment.trim()) {
+                        toast.error('Please enter a comment');
+                    }
+                    if (rating === 0) {
+                        toast.error('Please select a rating');
+                    }
+                }
+            }
+        }
+    };
+
     return (
         <div className="mt-10">
             <div className="card-base">
@@ -119,18 +159,64 @@ export default function CommentSection({ cid }: { cid: string }) {
                             </div>
                         )}
                     </div>
-                    
-                    <button
-                        onClick={() => !user ? router.push('/login') : setShowComModal(true)}
-                        className="btn-primary flex items-center space-x-2"
-                    >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" 
-                                d="M12 4v16m8-8H4"/>
-                        </svg>
-                        <span>Add Comment</span>
-                    </button>
                 </div>
+
+                {user ? (
+                    <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+                        <div className="flex items-start space-x-4">
+                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-100 to-blue-200 
+                                dark:from-blue-900 dark:to-blue-800 flex items-center justify-center flex-shrink-0">
+                                {userProfile?.name?.[0]?.toUpperCase()}
+                            </div>
+                            <div className="flex-1">
+                                <textarea
+                                    placeholder="Share your thoughts... (Press Enter to send, Shift + Enter for new line)"
+                                    className="w-full p-3 border border-gray-200 dark:border-gray-700 rounded-lg 
+                                        bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300
+                                        focus:border-blue-500 dark:focus:border-blue-400 focus:ring-1 focus:ring-blue-500"
+                                    rows={3}
+                                    value={comment}
+                                    onChange={(e) => setComment(e.target.value)}
+                                    onKeyDown={handleKeyDown}  
+                                />
+                                <div className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                                    Press Enter to send, Shift + Enter for new line
+                                </div>
+                                <div className="mt-3 flex items-center justify-between">
+                                    <div className="flex gap-1 text-2xl">
+                                        {[...Array(5)].map((_, i) => (
+                                            <button
+                                                key={i}
+                                                className={`cursor-pointer transition-colors duration-150
+                                                    ${i < rating ? 'text-yellow-400' : 'text-gray-300 hover:text-yellow-200'}`}
+                                                onClick={() => setRating(i + 1)}
+                                            >
+                                                ★
+                                            </button>
+                                        ))}
+                                    </div>
+                                    <button
+                                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700
+                                            transition-colors duration-200 disabled:opacity-50"
+                                        onClick={handlePost}
+                                        disabled={!comment.trim() || rating === 0}
+                                    >
+                                        Post Comment
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="p-6 text-center border-b border-gray-200 dark:border-gray-700">
+                        <button
+                            onClick={() => router.push('/login')}
+                            className="text-blue-600 dark:text-blue-400 hover:underline"
+                        >
+                            Log in to leave a comment
+                        </button>
+                    </div>
+                )}
 
                 <div className="divide-y divide-gray-200 dark:divide-gray-700">
                     {comments.length > 0 ? (
