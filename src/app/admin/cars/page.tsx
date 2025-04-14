@@ -14,33 +14,67 @@ export default function PromotionsPage() {
   const [userRole, setUserRole] = useState<'admin' | 'provider' | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [cars, setCars] = useState<Car[]>([]);
+  const [stringAPI, setStringAPI] = useState<string>('');
+  const [token, setToken] = useState<string>('');
 
   useEffect(() => {
     const user = getCurrentUser();
     if (!user) {
-      router.push('/login');
-      return;
+      // router.push('/login');
+      // return;
+    } else if (user.role !== 'admin' && user.role !== 'provider') {
+      // router.push('/');
+      // return;
     }
-
-    if (user.role === 'admin' || user.role === 'provider') {
-      setUserRole(user.role);
-      fetchCars();
-    } else {
-      router.push('/');
-    }
+    setUserRole(user.role);
+    setToken(user.token);
   }, [router]);
 
-  const fetchCars = async () => {
-    try {
-      const user = getCurrentUser();
-      if (!user) {
+  useEffect(() => {
+    console.log("fetch me");
+    console.log("User token:", token);
+    fetchMe();
+  }, [token]);  
+
+  useEffect(() => {
+    console.log("fetch cars");
+    console.log("Url:", stringAPI);
+    fetchCars();
+  });
+
+  const fetchMe = async () => {
+    const me = await fetch(API_ENDPOINTS.auth.getme, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Accept': 'application/json'
+      },
+    });
+    console.log("token:", token);
+    console.log("Me response:", me);
+    if (!me.ok) {
+      if (me.status === 401) {
+        console.log("status 401");
         router.push('/login');
         return;
       }
+      throw new Error('Failed to fetch user data');
+    }
+    const meData = await me.json();
+    console.log("Me data:", meData.data);
+    if (meData.data.role === 'provider') {
+      setStringAPI(API_ENDPOINTS.rentalCarProviders.getCars(meData.data.myRcpId));
+    } else {
+      setStringAPI(API_ENDPOINTS.cars.getAll);
+    }
+  };
 
-      const response = await fetch(API_ENDPOINTS.cars.getAll, {
+  const fetchCars = async () => {
+    try {
+      
+      const response = await fetch(stringAPI, {
         headers: {
-          'Authorization': `Bearer ${user.token}`,
+          'Authorization': `Bearer ${token}`,
           'Accept': 'application/json'
         },
         //credentials: 'include'
@@ -48,6 +82,7 @@ export default function PromotionsPage() {
 
       if (!response.ok) {
         if (response.status === 401) {
+          console.log("from fetch cars status 401");
           router.push('/login');
           return;
         }
@@ -61,6 +96,8 @@ export default function PromotionsPage() {
       } else {
         throw new Error(data.message || 'Failed to fetch cars');
       }
+    router.push('/');
+
     } catch (err) {
       console.error('Error fetching cars:', err);
       setError(err instanceof Error ? err.message : 'An error occurred');
