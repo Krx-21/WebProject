@@ -9,12 +9,7 @@ import { getAllRcps } from '@/services/rcp.service';
 import EditBookingModal from '@/components/EditBookingModal';
 import RcpManagement from '@/components/RcpManagement';
 import { useAuth } from '@/contexts/AuthContext';
-import { Booking } from '@/types/booking';
-
-interface NewBooking {
-  providerId: string;
-  date: string;
-}
+import { Booking, BookingFormData } from '@/types/booking';
 
 export default function DashboardContent() {
   const { user } = useAuth();
@@ -57,6 +52,7 @@ export default function DashboardContent() {
 
   const loadBookings = useCallback(async () => {
     try {
+      console.log('Loading bookings...');
       const userStr = localStorage.getItem('user');
       if (!userStr) {
         console.error('No user data found in localStorage');
@@ -64,35 +60,66 @@ export default function DashboardContent() {
         return;
       }
 
-      const response = await getUserBookings();
-      if (response.success) {
-        setBookings(response.data);
-      } else {
-        if (response.error === 'Authentication required') {
-          console.error('Authentication required, redirecting to login');
-          localStorage.removeItem('user');
-          router.push('/login');
-          return;
+      try {
+        const response = await getUserBookings();
+        console.log('Booking response:', response);
+
+        if (response.success) {
+          setBookings(response.data);
+        } else {
+          if (response.error === 'Authentication required') {
+            console.error('Authentication required, redirecting to login');
+            localStorage.removeItem('user');
+            router.push('/login');
+            return;
+          }
+
+          // Check if it's a network error
+          if (response.error && response.error.includes('Network error')) {
+            setError('Network error: Could not connect to the server. Please check your internet connection.');
+          } else {
+            setError(response.error || 'Failed to load bookings');
+          }
         }
-        setError(response.error || 'Failed to load bookings');
+      } catch (fetchErr) {
+        console.error('Error fetching bookings:', fetchErr);
+        setError('Failed to load bookings. Please try again later.');
       }
     } catch (err) {
-      console.error('Error loading bookings:', err);
+      console.error('Error in loadBookings:', err);
+      setError('An unexpected error occurred. Please try again later.');
     }
   }, [router]);
 
   const loadProviders = useCallback(async () => {
     try {
-      const response = await getAllRcps();
-      if (response.success) {
-        setProviders(response.data);
-      } else {
-        setError('Failed to load providers');
+      console.log('Loading providers...');
+      try {
+        const response = await getAllRcps();
+        console.log('Providers response:', response);
+
+        if (response.success) {
+          setProviders(response.data);
+        } else {
+          // Only set error if we don't already have a booking error
+          if (!error || !error.includes('Network error')) {
+            setError(response.error || 'Failed to load providers');
+          }
+        }
+      } catch (fetchErr) {
+        console.error('Error fetching providers:', fetchErr);
+        // Only set error if we don't already have a booking error
+        if (!error || !error.includes('Network error')) {
+          setError('Failed to load providers. Please try again later.');
+        }
       }
     } catch (err) {
-      console.error('Error loading providers:', err);
+      console.error('Error in loadProviders:', err);
+      if (!error) {
+        setError('An unexpected error occurred. Please try again later.');
+      }
     }
-  }, []);
+  }, [error]);
 
   useEffect(() => {
     if (!user) {
@@ -108,11 +135,31 @@ export default function DashboardContent() {
 
     const init = async () => {
       setIsLoading(true);
+      setError('');
       try {
-        await Promise.all([loadBookings(), loadProviders()]);
+        console.log('Initializing dashboard...');
+        // Load bookings and providers separately to handle errors better
+        try {
+          await loadBookings();
+        } catch (bookingErr) {
+          console.error('Error loading bookings during init:', bookingErr);
+          // Don't set error yet, try to load providers first
+        }
+
+        try {
+          await loadProviders();
+        } catch (providerErr) {
+          console.error('Error loading providers during init:', providerErr);
+          // Only set error if we don't already have one from bookings
+        }
+
+        // If both failed and no specific error is set, show a generic error
+        if (bookings.length === 0 && providers.length === 0 && !error) {
+          setError('Could not load dashboard data. Please check your internet connection and try again.');
+        }
       } catch (err) {
         console.error('Init error:', err);
-        setError('Failed to initialize dashboard');
+        setError('Failed to initialize dashboard. Please try again later.');
       } finally {
         setIsLoading(false);
       }
@@ -121,7 +168,7 @@ export default function DashboardContent() {
     init();
   }, [user, router, loadBookings, loadProviders]);
 
-  const handleAddBooking = async (booking: NewBooking) => {
+  const handleAddBooking = async (bookingData: BookingFormData) => {
     setIsSubmitting(true);
     setError('');
 
@@ -130,10 +177,7 @@ export default function DashboardContent() {
         throw new Error('Maximum booking limit (3) reached');
       }
 
-      const response = await createBooking(booking.providerId, {
-        date: booking.date,
-        providerId: booking.providerId
-      });
+      const response = await createBooking(bookingData.carId, bookingData);
 
       if (response.success) {
         await loadBookings();
@@ -149,7 +193,7 @@ export default function DashboardContent() {
     }
   };
 
-  const handleEditBooking = async (updatedBooking: Partial<Booking>) => {
+  const handleEditBooking = async (updatedBooking: BookingFormData) => {
     setIsSubmitting(true);
     setError('');
 
@@ -158,13 +202,8 @@ export default function DashboardContent() {
         throw new Error('No booking selected for editing');
       }
 
-      const bookingData = {
-        date: updatedBooking.date!,
-        providerId: updatedBooking.providerId!
-      };
-      
-      const response = await updateBooking(editingBooking._id, bookingData);
-      
+      const response = await updateBooking(editingBooking._id, updatedBooking);
+
       if (response.success) {
         await loadBookings();
         setEditingBooking(null);
@@ -243,25 +282,25 @@ export default function DashboardContent() {
                 {isAdmin ? 'Admin Dashboard' : 'Your Car Rentals'}
               </h1>
               <p className="mt-2 text-gray-600 dark:text-gray-400">
-                {isAdmin 
-                  ? 'Manage all bookings and car providers.' 
+                {isAdmin
+                  ? 'Manage all bookings and car providers.'
                   : 'View and manage your car rental bookings.'}
               </p>
             </div>
-            
+
             {!isAdmin && (
               <div className="mt-4 md:mt-0 status-pill status-primary">
                 {bookings.length} / 3 Bookings
               </div>
             )}
-            
+
             {isAdmin && (
               <div className="mt-4 md:mt-0 status-pill bg-indigo-100 text-indigo-800 dark:bg-indigo-900/50 dark:text-indigo-300">
                 Admin Access
               </div>
             )}
           </div>
-          
+
           {/* Admin Navigation Tabs */}
           {isAdmin && (
             <div className="flex flex-wrap gap-2">
@@ -317,10 +356,10 @@ export default function DashboardContent() {
                   onClick={() => setShowForm(true)}
                   disabled={bookings.length >= 3 && !isAdmin}
                 >
-                  <svg 
+                  <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5 transition-transform group-hover:rotate-90 duration-300" 
-                    viewBox="0 0 20 20" 
+                    className="h-5 w-5 transition-transform group-hover:rotate-90 duration-300"
+                    viewBox="0 0 20 20"
                     fill="currentColor"
                   >
                     <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
@@ -355,7 +394,7 @@ export default function DashboardContent() {
               <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6 pb-2 border-b border-gray-200 dark:border-gray-700">
                 {isAdmin ? 'All Bookings' : 'Your Current Bookings'}
               </h2>
-              <BookingList 
+              <BookingList
                 bookings={bookings}
                 providers={providers}
                 onEdit={(booking) => {
@@ -372,8 +411,8 @@ export default function DashboardContent() {
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6 pb-2 border-b border-gray-200 dark:border-gray-700">
               Manage Car Providers
             </h2>
-            <RcpManagement 
-              providers={providers} 
+            <RcpManagement
+              providers={providers}
               refreshProviders={loadProviders}
               setError={setError}
             />
@@ -395,4 +434,4 @@ export default function DashboardContent() {
       </div>
     </div>
   );
-} 
+}

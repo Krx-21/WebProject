@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Booking } from '@/types/booking';
+import { Car } from '@/types/Car';
 
 interface Provider {
   _id: string;
@@ -19,12 +20,12 @@ interface BookingListProps {
   showUser?: boolean;
 }
 
-export default function BookingList({ 
-  bookings = [], 
-  providers = [], 
-  onEdit, 
-  onDelete, 
-  showUser = false 
+export default function BookingList({
+  bookings = [],
+  providers = [],
+  onEdit,
+  onDelete,
+  showUser = false
 }: BookingListProps) {
   if (!Array.isArray(bookings) || bookings.length === 0) {
     return (
@@ -40,36 +41,14 @@ export default function BookingList({
 
   console.log('Providers in BookingList:', providers);
   console.log('Bookings in BookingList:', bookings);
-  
-  const getProviderName = (providerId: string): string => {
-    if (!providerId) return 'Unknown provider';
-    
-    console.log('Looking for provider with ID:', providerId);
-    
-    const provider = providers.find(p => {
-      console.log('Comparing with provider:', p._id);
-      return p._id === providerId;
-    });
-    
-    return provider ? provider.name : 'Unknown provider';
-  };
 
-  const getProviderAddress = (providerId: string): string => {
-    if (!providerId) return 'Unknown location';
-    
-    const provider = providers.find(p => p._id === providerId);
-    
-    if (provider) {
-      const addressParts = [
-        provider.address,
-        provider.district,
-        provider.province
-      ].filter(Boolean);
-      
-      return addressParts.join(', ');
-    }
-    
-    return 'Unknown location';
+  // Format currency
+  const formatCurrency = (amount: number): string => {
+    return new Intl.NumberFormat('th-TH', {
+      style: 'currency',
+      currency: 'THB',
+      minimumFractionDigits: 0
+    }).format(amount);
   };
 
   const formatDate = (dateString: string): string => {
@@ -89,74 +68,59 @@ export default function BookingList({
     <div className="space-y-4">
       {bookings.map((booking: Booking) => {
         console.log('Processing booking:', booking);
-        
-        let bookingProviderId = '';
-        let providerInfo: any = null;
-        
-        if (booking.providerId) {
-          bookingProviderId = booking.providerId;
-        } else if (booking.rentalCarProvider && booking.rentalCarProvider._id) {
-          bookingProviderId = booking.rentalCarProvider._id;
-        } else if ((booking as any).provider && typeof (booking as any).provider === 'string') {
-          bookingProviderId = (booking as any).provider;
-        } else if ((booking as any).provider && typeof (booking as any).provider === 'object' && (booking as any).provider._id) {
-          bookingProviderId = (booking as any).provider._id;
+
+        // Get car information
+        let carInfo: any = null;
+        if (booking.car) {
+          if (typeof booking.car === 'object') {
+            carInfo = booking.car;
+          }
         }
-        
-        console.log('Extracted providerId:', bookingProviderId);
-        
-        if (booking.rentalCarProvider) {
-          providerInfo = booking.rentalCarProvider;
-        } else if ((booking as any).provider && typeof (booking as any).provider === 'object') {
-          providerInfo = (booking as any).provider;
-        } else if (bookingProviderId) {
-          providerInfo = providers.find(p => p._id === bookingProviderId);
-        }
-        
-        console.log('Provider info found:', providerInfo);
-        
-        let addressDisplay = 'Unknown location';
-        if (providerInfo && providerInfo.address) {
-          const addressParts = [
-            providerInfo.address,
-            providerInfo.district,
-            providerInfo.province
-          ].filter(Boolean);
-          
-          addressDisplay = addressParts.join(', ');
-        } else if (bookingProviderId) {
-          addressDisplay = getProviderAddress(bookingProviderId);
-        }
-        
+
         return (
-          <div 
-            key={booking._id} 
+          <div
+            key={booking._id}
             className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 border border-gray-200 dark:border-gray-700"
           >
             {showUser && booking.user && (
               <div className="mb-4">
                 <span className="text-sm text-gray-500 dark:text-gray-400 block mb-1">Customer:</span>
                 <p className="font-medium text-gray-900 dark:text-white">
-                  {typeof booking.user === 'string' ? booking.user : 
-                   (booking.user && typeof booking.user === 'object' ? 
-                     (booking.user as any).name || (booking.user as any).email || 'Unknown user' : 
+                  {typeof booking.user === 'string' ? booking.user :
+                   (booking.user && typeof booking.user === 'object' ?
+                     (booking.user as any).name || (booking.user as any).email || 'Unknown user' :
                      'Unknown user')}
                 </p>
               </div>
             )}
 
-            <div className="mb-4">
-              <span className="text-sm text-gray-500 dark:text-gray-400 block mb-1">Date:</span>
-              <p className="font-medium text-gray-900 dark:text-white">{formatDate(booking.date)}</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <div>
+                <span className="text-sm text-gray-500 dark:text-gray-400 block mb-1">Start Date:</span>
+                <p className="font-medium text-gray-900 dark:text-white">{formatDate(booking.start_date)}</p>
+              </div>
+              <div>
+                <span className="text-sm text-gray-500 dark:text-gray-400 block mb-1">End Date:</span>
+                <p className="font-medium text-gray-900 dark:text-white">{formatDate(booking.end_date)}</p>
+              </div>
             </div>
 
             <div className="mb-4">
-              <span className="text-sm text-gray-500 dark:text-gray-400 block mb-1">Provider:</span>
+              <span className="text-sm text-gray-500 dark:text-gray-400 block mb-1">Car:</span>
               <p className="font-medium text-gray-900 dark:text-white">
-                {providerInfo?.name || getProviderName(bookingProviderId)}
+                {carInfo ? `${carInfo.brand} ${carInfo.model} (${carInfo.type})` : 'Car information not available'}
               </p>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                {addressDisplay}
+              {carInfo && carInfo.provider && (
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                  Provider: {carInfo.provider.name}
+                </p>
+              )}
+            </div>
+
+            <div className="mb-4">
+              <span className="text-sm text-gray-500 dark:text-gray-400 block mb-1">Total Price:</span>
+              <p className="font-medium text-gray-900 dark:text-white">
+                {formatCurrency(booking.totalprice)}
               </p>
             </div>
 

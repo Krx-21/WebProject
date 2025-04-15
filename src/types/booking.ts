@@ -1,14 +1,17 @@
+import { Car } from './Car';
+
 export interface Booking {
     _id: string;
-    date: string;
+    start_date: string;
+    end_date: string;
     user?: string;
-    providerId?: string;
-    rentalCarProvider?: {
-        _id: string;
-        name: string;
-        address: string;
-        province?: string;
-        district?: string;
-    };
+    car?: string | Car;
+    totalprice: number;
     createdAt?: string;
+}
+
+export interface BookingFormData {
+    start_date: string;
+    end_date: string;
+    carId: string;
 }

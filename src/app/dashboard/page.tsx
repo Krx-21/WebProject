@@ -9,13 +9,8 @@ import BookingForm from '@/components/BookingForm';
 import BookingList from '@/components/BookingList';
 import EditBookingModal from '@/components/EditBookingModal';
 import RcpManagement from '@/components/RcpManagement';
-import { Booking } from '@/types/booking';
+import { Booking, BookingFormData } from '@/types/booking';
 import { RentalCarProvider } from '@/types/rcp';
-
-interface NewBooking {
-  providerId: string;
-  date: string;
-}
 
 export default function Dashboard() {
   const router = useRouter();
@@ -52,25 +47,61 @@ export default function Dashboard() {
   const loadData = async () => {
     try {
       setIsLoading(true);
-      const [bookingsResponse, providersResponse] = await Promise.all([
-        getUserBookings(),
-        getAllRcps()
-      ]);
+      setError('');
 
-      if (bookingsResponse.success) {
-        setBookings(bookingsResponse.data as Booking[]);
-      } else {
-        setError(bookingsResponse.error || 'Failed to load bookings');
+      console.log('Loading dashboard data...');
+
+      // Load bookings and providers separately to handle errors better
+      let bookingsData: Booking[] = [];
+      let providersData: RentalCarProvider[] = [];
+
+      try {
+        console.log('Fetching user bookings...');
+        const bookingsResponse = await getUserBookings();
+
+        if (bookingsResponse.success) {
+          console.log('Successfully loaded bookings');
+          bookingsData = bookingsResponse.data as Booking[];
+          setBookings(bookingsData);
+        } else {
+          console.error('Failed to load bookings:', bookingsResponse.error);
+          setError(bookingsResponse.error || 'Failed to load bookings');
+        }
+      } catch (bookingErr) {
+        console.error('Error loading bookings:', bookingErr);
+        // Don't set the error yet, try to load providers first
       }
 
-      if (providersResponse.success) {
-        setProviders(providersResponse.data);
-      } else {
-        setError(providersResponse.error || 'Failed to load providers');
+      try {
+        console.log('Fetching rental car providers...');
+        const providersResponse = await getAllRcps();
+
+        if (providersResponse.success) {
+          console.log('Successfully loaded providers');
+          providersData = providersResponse.data;
+          setProviders(providersData);
+        } else {
+          console.error('Failed to load providers:', providersResponse.error);
+          // Only set the error if we don't already have a booking error
+          if (!error) {
+            setError(providersResponse.error || 'Failed to load providers');
+          }
+        }
+      } catch (providerErr) {
+        console.error('Error loading providers:', providerErr);
+        // Only set the error if we don't already have a booking error
+        if (!error) {
+          setError('Failed to load providers');
+        }
+      }
+
+      // If both failed, show a more generic error
+      if (bookingsData.length === 0 && providersData.length === 0) {
+        setError('Network error: Could not connect to the server. Please check your internet connection and try again.');
       }
     } catch (err) {
-      console.error('Error loading data:', err);
-      setError('Failed to load data');
+      console.error('Unexpected error loading data:', err);
+      setError('Failed to load data. Please try again later.');
     } finally {
       setIsLoading(false);
     }
@@ -81,15 +112,12 @@ export default function Dashboard() {
     loadData();
   }, [mounted, user]);
 
-  const handleAddBooking = async (booking: NewBooking) => {
+  const handleAddBooking = async (bookingData: BookingFormData) => {
     try {
       setIsSubmitting(true);
       setError('');
 
-      const response = await createBooking(booking.providerId, {
-        date: booking.date,
-        providerId: booking.providerId
-      });
+      const response = await createBooking(bookingData.carId, bookingData);
 
       if (response.success) {
         await loadData();
@@ -105,19 +133,16 @@ export default function Dashboard() {
     }
   };
 
-  const handleEditBooking = async (updatedBooking: Partial<Booking>) => {
+  const handleEditBooking = async (updatedBooking: BookingFormData) => {
     try {
       setIsSubmitting(true);
       setError('');
 
-      if (!updatedBooking._id) {
+      if (!editingBooking?._id) {
         throw new Error('Invalid booking data: Missing ID');
       }
 
-      const response = await updateBooking(updatedBooking._id, {
-        date: updatedBooking.date!,
-        providerId: updatedBooking.providerId!
-      });
+      const response = await updateBooking(editingBooking._id, updatedBooking);
 
       if (response.success) {
         await loadData();
