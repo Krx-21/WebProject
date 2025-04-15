@@ -90,12 +90,10 @@ export default function BookingForm({ onSubmit, onCancel, isSubmitting = false, 
       setStartDate(booking.start_date);
       setEndDate(booking.end_date);
 
-      // Handle car ID
       if (typeof booking.car === 'string') {
         setCarId(booking.car);
       } else if (booking.car && typeof booking.car === 'object') {
         setCarId(booking.car._id);
-        // If we have the car's provider, set it
         if (booking.car.provider && typeof booking.car.provider === 'object') {
           setProviderId(booking.car.provider._id);
         }
@@ -120,7 +118,6 @@ export default function BookingForm({ onSubmit, onCancel, isSubmitting = false, 
       return;
     }
 
-    // Validate dates
     const start = new Date(startDate);
     const end = new Date(endDate);
     const today = new Date();
@@ -189,7 +186,7 @@ export default function BookingForm({ onSubmit, onCancel, isSubmitting = false, 
           value={providerId}
           onChange={(e) => {
             setProviderId(e.target.value);
-            setCarId(''); // Reset car selection when provider changes
+            setCarId(''); 
           }}
           className="w-full p-2 border rounded text-gray-800 dark:text-gray-300 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600"
           required

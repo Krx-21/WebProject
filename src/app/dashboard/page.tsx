@@ -51,7 +51,6 @@ export default function Dashboard() {
 
       console.log('Loading dashboard data...');
 
-      // Load bookings and providers separately to handle errors better
       let bookingsData: Booking[] = [];
       let providersData: RentalCarProvider[] = [];
 
@@ -69,7 +68,6 @@ export default function Dashboard() {
         }
       } catch (bookingErr) {
         console.error('Error loading bookings:', bookingErr);
-        // Don't set the error yet, try to load providers first
       }
 
       try {
@@ -82,20 +80,17 @@ export default function Dashboard() {
           setProviders(providersData);
         } else {
           console.error('Failed to load providers:', providersResponse.error);
-          // Only set the error if we don't already have a booking error
           if (!error) {
             setError(providersResponse.error || 'Failed to load providers');
           }
         }
       } catch (providerErr) {
         console.error('Error loading providers:', providerErr);
-        // Only set the error if we don't already have a booking error
         if (!error) {
           setError('Failed to load providers');
         }
       }
 
-      // If both failed, show a more generic error
       if (bookingsData.length === 0 && providersData.length === 0) {
         setError('Network error: Could not connect to the server. Please check your internet connection and try again.');
       }

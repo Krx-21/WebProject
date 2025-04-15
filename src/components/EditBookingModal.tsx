@@ -197,7 +197,7 @@ export default function EditBookingModal({ booking, onSubmit, onCancel, isSubmit
               value={providerId}
               onChange={(e) => {
                 setProviderId(e.target.value);
-                setCarId(''); // Reset car selection when provider changes
+                setCarId('');
               }}
               className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white"
               required

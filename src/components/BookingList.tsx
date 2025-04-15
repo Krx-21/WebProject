@@ -69,7 +69,6 @@ export default function BookingList({
       {bookings.map((booking: Booking) => {
         console.log('Processing booking:', booking);
 
-        // Get car information
         let carInfo: any = null;
         if (booking.car) {
           if (typeof booking.car === 'object') {

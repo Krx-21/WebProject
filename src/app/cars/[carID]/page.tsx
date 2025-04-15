@@ -5,6 +5,8 @@ import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { Car } from '@/types/Car';
 import CommentSection from '@/components/Comment';
+import BookingModal from '@/components/BookingModal';
+import { getCurrentUser } from '@/services/auth.service';
 
 
 export default function CarsProviderPage() {
@@ -13,8 +15,13 @@ export default function CarsProviderPage() {
   const [carDetails, setCarDetails] = useState<Car | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showBookingModal, setShowBookingModal] = useState(false);
+  const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
+    const currentUser = getCurrentUser();
+    setUser(currentUser);
+
     const fetchCar = async () => {
       if (typeof carID === 'string') {
         try {
@@ -62,7 +69,7 @@ export default function CarsProviderPage() {
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
             {/* Header Section */}
             <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-700 via-slate-800 to-slate-900 
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-700 via-slate-800 to-slate-900
                 dark:from-slate-200 dark:via-slate-300 dark:to-slate-400
                 bg-clip-text text-transparent">
                 {carDetails.brand} {carDetails.model}
@@ -136,8 +143,8 @@ export default function CarsProviderPage() {
             </div>
 
             {/* Action Buttons */}
-            <div className="p-6 bg-gray-50 dark:bg-gray-800/50 border-t border-gray-200 dark:border-gray-700">
-              <Link 
+            <div className="p-6 bg-gray-50 dark:bg-gray-800/50 border-t border-gray-200 dark:border-gray-700 flex justify-between items-center">
+              <Link
                 href="/cars"
                 className="inline-flex items-center text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
               >
@@ -146,11 +153,30 @@ export default function CarsProviderPage() {
                 </svg>
                 Back to Cars
               </Link>
+
+              {user && (
+                <button
+                  onClick={() => setShowBookingModal(true)}
+                  className="px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors flex items-center"
+                >
+                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  Book Now
+                </button>
+              )}
             </div>
           </div>
         )}
       </div>
       <CommentSection cid={carID as string} />
+
+      {showBookingModal && carDetails && (
+        <BookingModal
+          car={carDetails}
+          onClose={() => setShowBookingModal(false)}
+        />
+      )}
     </main>
   );
 }
