@@ -5,7 +5,7 @@ import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { Car } from '@/types/Car';
 import CommentSection from '@/components/Comment';
-
+import CarImage from '@/components/CarImage';
 
 export default function CarsProviderPage() {
   const params = useParams();
@@ -134,6 +134,8 @@ export default function CarsProviderPage() {
                 </div>
               </div>
             </div>
+
+            <CarImage images={carDetails.image} />
 
             {/* Action Buttons */}
             <div className="p-6 bg-gray-50 dark:bg-gray-800/50 border-t border-gray-200 dark:border-gray-700">

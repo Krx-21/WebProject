@@ -9,7 +9,7 @@ export interface Car {
     seatingCapacity: number,
     year: number,
     pricePerDay: number,
-    provider: string,
+    provider: Provider,
     carDescription: string,
     image: string[],
     postedDate: string,
