@@ -401,7 +401,7 @@ export default function NewCarPage() {
                 </div>
               </div>
               {
-                provider === null ? (
+                providers.length > 0 ? (
                   <div>
                     <label htmlFor="provider" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                       Provider
