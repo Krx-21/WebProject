@@ -8,68 +8,109 @@ import { getCurrentUser } from '@/services/auth.service';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { Car } from '@/types/Car';
 
-export default function PromotionsPage() {
+export default function CarsPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [userRole, setUserRole] = useState<'admin' | 'provider' | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [cars, setCars] = useState<Car[]>([]);
+  const [stringAPI, setStringAPI] = useState<string>('');
+  const [token, setToken] = useState<string>(API_ENDPOINTS.cars.getAll);
 
   useEffect(() => {
     const user = getCurrentUser();
     if (!user) {
-      router.push('/login');
+      // router.push('/login');
+      return;
+    } else if (user.role !== 'admin' && user.role !== 'provider') {
+      // router.push('/');
       return;
     }
-
-    if (user.role === 'admin' || user.role === 'provider') {
-      setUserRole(user.role);
-      fetchCars();
-    } else {
-      router.push('/');
-    }
+    setUserRole(user.role);
+    setToken(user.token);
   }, [router]);
+
+  useEffect(() => {
+    fetchMe();
+  }, [token]);  
+
+  useEffect(() => {
+    if (stringAPI) {
+            fetchCars();
+          }
+  }, [token, stringAPI]);
+
+  const fetchMe = async () => {
+    const me = await fetch(API_ENDPOINTS.auth.getme, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Accept': 'application/json'
+      },
+    });
+    if (!me.ok) {
+      if (me.status === 401) {
+        // router.push('/login');
+        return;
+      }
+      throw new Error('Failed to fetch user data');
+    }
+    const meData = await me.json();
+    if (meData.data.role === 'provider') {
+      setStringAPI(API_ENDPOINTS.rentalCarProviders.getCars(meData.data.myRcpId));
+    } else {
+      setStringAPI(API_ENDPOINTS.cars.getAll);
+    }
+    // console.log("stringAPI inside fetchMe:", stringAPI);
+    // fetchCars();
+  };
 
   const fetchCars = async () => {
     try {
-      const user = getCurrentUser();
-      if (!user) {
-        router.push('/login');
-        return;
-      }
-
-      const response = await fetch(API_ENDPOINTS.cars.getAll, {
+      console.log("stringAPI:", stringAPI);
+      const response = await fetch(stringAPI, {
         headers: {
-          'Authorization': `Bearer ${user.token}`,
+          'Authorization': `Bearer ${token}`,
           'Accept': 'application/json'
         },
-        //credentials: 'include'
       });
 
       if (!response.ok) {
         if (response.status === 401) {
+          // console.log("from fetch cars status 401");
           router.push('/login');
           return;
         }
         throw new Error('Failed to fetch cars');
       }
-
-      const data = await response.json();
-      if (data.success) {
-        setCars(data.data);
-        console.log("Cars data:", data.data);
-      } else {
-        throw new Error(data.message || 'Failed to fetch cars');
+      console.log("response:", response);
+      console.log("below is data");
+      try {
+        const data = await response.json();
+        // console.log("data:", data);
+        if (data.success) {
+          setCars(data.data);
+          // console.log("Cars data inside fetch func:", data.data);
+        } else {
+          // console.log("error side");
+          throw new Error(data.message || 'Failed to fetch cars');
+        }
+      } catch (error) {
+        // console.log("stringAPI inside error:", stringAPI);
+        console.error("Error parsing JSON:", error);
+        throw new Error('Failed to parse response data');
       }
+      setLoading(false);
     } catch (err) {
-      console.error('Error fetching cars:', err);
+      // console.error('Error fetching cars:', err);
       setError(err instanceof Error ? err.message : 'An error occurred');
+      setLoading(false);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (id: string, images: string[]) => {
     if (!confirm('Are you sure you want to delete this car?')) return;
 
     try {
@@ -88,16 +129,27 @@ export default function PromotionsPage() {
           'Authorization': `Bearer ${user.token}`,
           'Accept': 'application/json'
         },
-        credentials: 'include'
       });
 
       if (!response.ok) {
         if (response.status === 401) {
-          router.push('/login');
+          // router.push('/login');
           return;
         }
         const errorData = await response.json();
         throw new Error(errorData?.message || 'Failed to delete the car');
+      }
+
+      const deleteImagesResponse = await fetch('/api/deleteImages', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ ids: images }),
+     });  
+
+      if (!deleteImagesResponse.ok) {
+        console.error('Failed to delete images');
       }
 
       const data = await response.json();
@@ -131,6 +183,12 @@ export default function PromotionsPage() {
   }
 
   console.log("Cars data after fetch:", cars);
+
+  if (cars.length === 0) {
+    return (
+      <div><div>Nothing</div><div>No no nothing</div></div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 px-4 py-8">
@@ -192,7 +250,7 @@ export default function PromotionsPage() {
                     </Button>
                     <Button
                       variant="destructive"
-                      onClick={() => handleDelete(car._id)}
+                      onClick={() => handleDelete(car._id, car.image)}
                       className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white
                         rounded-lg shadow-sm hover:shadow-md
                         transition-all duration-200"

@@ -5,9 +5,10 @@ import { useParams, useRouter } from 'next/navigation';
 import { Car } from "@/types/Car";
 import { API_ENDPOINTS } from '@/config/api';
 import { getCurrentUser } from '@/services/auth.service'; 
+import LoadingImage from '@/components/LoadImage';
 
 type CarType = 'Sedan' | 'SUV' | 'Hatchback' | 'Truck' | 'Convertible' | 'Van';
-type FuelType = 'Petrol' | 'Diesel' | 'Electric' | 'Hybrid';
+// type FuelType = 'Petrol' | 'Diesel' | 'Electric' | 'Hybrid';
 
 interface ValidationErrors {
   brand?: string;
@@ -71,19 +72,21 @@ export default function EditCarPage() {
   const params = useParams();
   const carId = params.id as string;
   const [car, setCar] = useState<Omit<Car, '_id' | '__v' | 'id' | 'postedDate'> | null>(null);
+  const [initailImages, setInitialImages] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [formData, setFormData] = useState<Omit<Car, '_id' | '__v' | 'id' | 'postedDate'> & { type: CarType; fuelType: FuelType }>({
+  const [formData, setFormData] = useState<Omit<Car, '_id' | '__v' | 'id' | 'postedDate'>>({
     brand: '',
     model: '',
     type: 'Sedan',
     topSpeed: 0,
-    fuelType: 'Petrol',
+    fuelType: '',
     seatingCapacity: 1,
     year: new Date().getFullYear(),
     pricePerDay: 0,
     provider: { _id: "", name: "", address: "", district: "", province: "", postalCode: "", tel: "", region: "", user: "", __v: 0, id: "" },
     carDescription: '',
+    image: [],
   });
 
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
@@ -120,7 +123,9 @@ export default function EditCarPage() {
           pricePerDay: data.data.pricePerDay,
           provider: data.data.provider,
           carDescription: data.data.carDescription,
+          image: data.data.image,
         });
+        setInitialImages(data.data.image);
       } catch (err) {
         console.error('Fetch error:', err);
         setError(err instanceof Error ? err.message : 'An error occurred while fetching car details');
@@ -132,14 +137,43 @@ export default function EditCarPage() {
     fetchCar();
   }, [carId]);
 
+  const deleteImageFromDataBase = async (imageIds: string[]) => {
+    console.log("imageIds:", imageIds);
+    console.log("initailImages:", initailImages);
+    if (initailImages.length === 0 || initailImages.length <= formData.image.length) return;
+    const idsToDelete = initailImages.filter(id => !formData.image.includes(id));
+    // console.log("idsToDelete:", idsToDelete);
+    if (idsToDelete.length === 0) return;
+    try {
+      const response = await fetch('/api/deleteImages', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ ids: idsToDelete }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        throw new Error(errorData?.message || `HTTP error! status: ${response.status}`);
+      }
+    } catch (err) {
+      console.error('Delete error:', err);
+    }
+  };
+
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
     if (e.target instanceof HTMLTextAreaElement) {
       setFormData(prev => ({ ...prev, [name]: value }));
-    } else if (name === 'type' || name === 'fuelType') {
-      setFormData(prev => ({ ...prev, [name]: value as CarType | FuelType }));
+    } else if (name === 'type') {
+      setFormData(prev => ({ ...prev, [name]: value as CarType}));
     } else if (type === 'number') {
-      setFormData(prev => ({ ...prev, [name]: parseInt(value, 10) }));
+      const parsedValue = parseInt(value, 10);
+      if (isNaN(parsedValue)) {
+        return;
+      }
+      setFormData(prev => ({ ...prev, [name]: parsedValue }));
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
     }
@@ -208,7 +242,7 @@ export default function EditCarPage() {
       if (!data.success) {
         throw new Error(data.message || 'Failed to update car');
       }
-
+      deleteImageFromDataBase(formData.image);
       router.push('/admin/cars');
     } catch (err) {
       console.error('Update error:', err);
@@ -463,7 +497,7 @@ export default function EditCarPage() {
                     transition-colors duration-200"
                 ></textarea>
               </div>
-
+<LoadingImage formData={formData} setFormData={setFormData} />
               <button
                 type="submit"
                 disabled={loading}

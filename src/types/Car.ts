@@ -1,7 +1,6 @@
 import { Provider } from "./Provider";
 
 export interface Car {
-    _id: string,
     brand: string,
     model: string,
     type: string,
@@ -12,7 +11,9 @@ export interface Car {
     pricePerDay: number,
     provider: Provider,
     carDescription: string,
+    image: string[],
     postedDate: string,
+    _id: string,
     __v: number,
     id: string,
 }

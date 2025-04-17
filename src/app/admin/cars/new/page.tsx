@@ -6,9 +6,10 @@ import { Car } from "@/types/Car";
 import { API_ENDPOINTS } from "@/config/api";
 import { Provider } from "@/types/Provider";
 import { getCurrentUser } from '@/services/auth.service';
+import LoadImage from '@/components/LoadImage';
 
 type CarType = 'Sedan' | 'SUV' | 'Hatchback' | 'Truck' | 'Convertible' | 'Van';
-type FuelType = 'Petrol' | 'Diesel' | 'Electric' | 'Hybrid';
+// type FuelType = 'Petrol' | 'Diesel' | 'Electric' | 'Hybrid';
 
 interface ValidationErrors {
   brand?: string;
@@ -23,139 +24,112 @@ interface ValidationErrors {
 export default function NewCarPage() {
   const router = useRouter();
   const [provider, setProvider] = useState<Provider | null>(null);
-
   const [providers, setProviders] = useState<Provider[]>([]);
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
-  const [formData, setFormData] = useState<Omit<Car, '_id' | '__v' | 'id' | 'postedDate'> & { type: CarType; fuelType: FuelType }>({
+  const [formData, setFormData] = useState<Omit<Car, '_id' | '__v' | 'id' | 'postedDate'>>({
     brand: '',
     model: '',
     type: 'Sedan',
     topSpeed: 0,
-    fuelType: 'Petrol',
+    fuelType: '',
     seatingCapacity: 1,
     year: new Date().getFullYear(),
     pricePerDay: 0,
     provider: provider ? provider : { _id: "", name: "", address: "", district: "", province: "", postalCode: "", tel: "", region: "", user: "", __v: 0, id: "" },
     carDescription: '',
+    image: [],
   });
   const user = getCurrentUser();
   if (!user) {
     router.push('/login');
     return;
   }
-
-  // ตอนนี้ provider ไม่สามารถสร้าง car ของตัวเองได้เพราะ role ที่เป็น provider ยังไม่ได้อยู่ใน provider list
-  // provider จะ get ข้อมูลของตัวเองไม่ได้ (บัญชี id ของ provider ที่เป็น model กับ user id มันคนละอันกัน)
-  // provider จะต้องสร้าง car ผ่าน admin เท่านั้น
-
-  // if (user.role === 'provider') {
-  //   useEffect(() => {
-  //           const fetchProvider = async () => {
-  //             try {
-  //               const response = await fetch(API_ENDPOINTS.rentalCarProviders.getOne(user._id), {
-  //                 method: 'GET',
-  //                 headers: {
-  //                   'Content-Type': 'application/json',
-  //                 }
-  //               });
-  //               
-  //               if (!response.ok) {
-  //                 throw new Error(`Failed to fetch provider id ${user._id}`);
-  //               }
-  //               const data = await response.json();
-
-  //               setProvider(data.data);
-  //               setFormData(prev => ({ ...prev, provider: data.data }));
-  //             } catch (err: any) {
-  //               console.error('Error fetching provider:', err);
-  //               setError(err.message);
-  //             }
-  //           };
-
-  //           fetchProvider();
-  //         }, []);
-  // } else if (user.role === 'admin') {
-  //   useEffect(() => {
-  //     const fetchProviders = async () => {
-  //       try {
-  //         const response = await fetch(API_ENDPOINTS.rentalCarProviders.getAll);
-  //         if (!response.ok) {
-  //           throw new Error('Failed to fetch providers');
-  //         }
-  //         const data = await response.json();
-  //         setProviders(data.data);
-  //         if (data.data.length > 0) {
-  //           setFormData(prev => ({ ...prev, provider: data.data[0] }));
-  //         }
-  //       } catch (err: any) {
-  //         console.error('Error fetching providers:', err);
-  //         setError(err.message);
-  //       }
-  //     };
-
-  //     fetchProviders();
-  //   }, []);
-  //   if (providers.length === 0) {
-  //     return <div>No providers available</div>;
-  //   }
-  // } else {
-  //   router.push('/login');
-  // }
-
-  if (user.role !== 'admin') {
+  if (user.role !== 'admin' && user.role !== 'provider') {
     router.push('/');
-  }
+  }  
+  // console.log('User:', user);
   useEffect(() => {
-    const fetchProviders = async () => {
-      try {
-        const response = await fetch(API_ENDPOINTS.rentalCarProviders.getAll);
-        if (!response.ok) {
-          throw new Error('Failed to fetch providers');
-        }
-        const data = await response.json();
-        setProviders(data.data);
-        if (data.data.length > 0) {
-          setFormData(prev => ({ ...prev, provider: data.data[0] }));
-        }
-      } catch (err: any) {
-        console.error('Error fetching providers:', err);
-        setError(err.message);
+    if (user.role === 'provider') {
+      fetchMe();
+    } else if (user.role === 'admin') {
+      fetchProviders();
+    }
+  }, [user.role, user._id, user.token, router]);
+
+  const fetchMe = async () => {
+    const me = await fetch(API_ENDPOINTS.auth.getme, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${user.token}`,
+      },
+    });
+    if (!me.ok) {
+      if (me.status === 401) {
+        router.push('/login');
+        return;
       }
-    };
+      throw new Error('Failed to fetch user data');
+    }
+    const meData = await me.json();
+    if (meData.data.role === 'provider') {
+      console.log('Provider:', meData.data);
+      // setProvider(meData.data);
+      fetchProvider(meData.data.myRcpId);
+    }
+    // console.log("stringAPI inside fetchMe:", stringAPI);
+    // fetchCars();
+  };
 
-    fetchProviders();
-  }, []);
+  const fetchProvider = async (proID: string) => {
+    try {
+      const response = await fetch(API_ENDPOINTS.rentalCarProviders.getOne(proID), {
+        method: 'GET',
+      });
+      if (!response.ok) {
+        throw new Error('Failed to fetch provider');
+      }
+      const data = await response.json();
+      setProvider(data.data);
+      setFormData(prev => ({ ...prev, provider: data.data }));
+    } catch (err: any) {
+      console.error('Error fetching provider:', err);
+      setError(err.message);
+    }
+  };
 
-  if (providers.length === 0) {
-    return (
-      <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex items-center justify-center">
-        <div className="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg text-center">
-          <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-          </svg>
-          <h3 className="mt-2 text-lg font-medium text-gray-900 dark:text-gray-100">No Providers Available</h3>
-          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Please add a provider before creating a car.</p>
-          <button
-            onClick={() => router.push('/admin/providers/new')}
-            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-200"
-          >
-            Add New Provider
-          </button>
-        </div>
-      </div>
-    );
-  }
+  const fetchProviders = async () => {
+    try {
+      const response = await fetch(API_ENDPOINTS.rentalCarProviders.getAll);
+      if (!response.ok) {
+        throw new Error('Failed to fetch providers');
+      }
+      const data = await response.json();
+      setProviders(data.data);
+      setProvider(data.data[0]);
+      if (data.data.length > 0) {
+        setFormData(prev => ({ ...prev, provider: data.data[0] }));
+      }
+    } catch (err: any) {
+      console.error('Error fetching providers:', err);
+      setError(err.message);
+    }
+  };
 
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
     if (e.target instanceof HTMLTextAreaElement) {
       setFormData(prev => ({ ...prev, [name]: value }));
-    } else if (name === 'type' || name === 'fuelType') {
-      setFormData(prev => ({ ...prev, [name]: value as CarType | FuelType }));
+    } else if (name === 'type') {
+      setFormData(prev => ({ ...prev, [name]: value as CarType}));
     } else if (type === 'number') {
-      setFormData(prev => ({ ...prev, [name]: parseInt(value, 10) }));
+      const parsedValue = parseInt(value, 10);
+      if (isNaN(parsedValue)) {
+        return;
+      }
+      setFormData(prev => ({ ...prev, [name]: parsedValue }));
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
     }
@@ -225,6 +199,7 @@ export default function NewCarPage() {
       });
 
       if (!response.ok) {
+        console.log('status not ok => Response:', response);
         const errorData = await response.json();
         throw new Error(errorData?.message || 'Failed to create car');
       }
@@ -237,6 +212,27 @@ export default function NewCarPage() {
       setLoading(false);
     }
   };
+
+  if (!provider && providers.length === 0) {
+    return (
+      <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex items-center justify-center">
+        <div className="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg text-center">
+          <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          <h3 className="mt-2 text-lg font-medium text-gray-900 dark:text-gray-100">No Providers Available</h3>
+          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Please add a provider before creating a car.</p>
+          <button
+            onClick={() => router.push('/admin/providers/new')}
+            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-200"
+          >
+            Add New Provider
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 px-4 py-8">
       <div className="container-base max-w-4xl mx-auto">
@@ -342,11 +338,13 @@ export default function NewCarPage() {
                   <label htmlFor="fuelType" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                     Fuel Type
                   </label>
-                  <select
+                  <input
+                    type="text"
                     id="fuelType"
                     name="fuelType"
                     value={formData.fuelType}
                     onChange={handleChange}
+                    required
                     className="mt-1 block w-full rounded-md
   bg-white dark:bg-gray-800 
   border-gray-300 dark:border-gray-600
@@ -354,12 +352,7 @@ export default function NewCarPage() {
   focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
   dark:focus:ring-blue-400 dark:focus:border-blue-400
   transition-colors duration-200"
-                  >
-                    <option value="Petrol">Petrol</option>
-                    <option value="Diesel">Diesel</option>
-                    <option value="Electric">Electric</option>
-                    <option value="Hybrid">Hybrid</option>
-                  </select>
+                  />
                 </div>
                 <div>
                   <label htmlFor="seatingCapacity" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -408,7 +401,7 @@ export default function NewCarPage() {
                 </div>
               </div>
               {
-                user.role === 'admin' && (
+                providers.length > 0 ? (
                   <div>
                     <label htmlFor="provider" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                       Provider
@@ -434,6 +427,11 @@ export default function NewCarPage() {
                     </select>
                     {validationErrors.provider && <p className="text-red-500 text-sm">{validationErrors.provider}</p>}
                   </div>
+                ) : (
+                  // <input type="hidden" id="provider" name="provider" value={formData.provider._id} onChange={handleChange} />
+                  <label htmlFor="provider" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                      Provider: {formData.provider.name}
+                  </label>
                 )
               }
 
@@ -459,7 +457,7 @@ export default function NewCarPage() {
   resize-none"
                 ></textarea>
               </div>
-
+              <LoadImage setFormData={setFormData} formData={formData}/>
               <button
                 type="submit"
                 disabled={loading}
