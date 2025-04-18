@@ -199,6 +199,7 @@ export default function NewCarPage() {
       });
 
       if (!response.ok) {
+        console.log("car images:", formData.image);
         console.log('status not ok => Response:', response);
         const errorData = await response.json();
         throw new Error(errorData?.message || 'Failed to create car');

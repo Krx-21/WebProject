@@ -1,13 +1,6 @@
 'use client';
 import { useState, useEffect } from "react";
-import CarImages from "@/components/CarImages";
 import { Car } from "@/types/Car";
-
-interface Image {
-    id: number;
-    name: string;
-    base64: string;
-}
 
 type FormData = Omit<Car, '_id' | '__v' | 'id' | 'postedDate'>;
 
@@ -33,37 +26,35 @@ export default function LoadingImage({ setFormData, formData }: LoadImageProps) 
                 setLoading(false);
                 return alert("only image!");
             }
-            const response = await fetch("/api/uploadImage", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ name: file.name, base64 }),
-            });
-
-            if (response.ok) {
-                const result = await response.json();
-                const newImageId = result.data[0]?.id;
-                setFile(null);
-                setFormData((prev) => ({ ...prev, image: [...prev.image, newImageId.toString()] }));
-            } else {
-                console.error("Upload failed:", response.statusText);
-            }
+            setFormData((prev) => ({ ...prev, image: [...prev.image, base64] }));
+            setLoading(false);
             setLoading(false);
         };
     };
 
-    const handleDelete = (id: string) => {
+    const onDelete = (id: string) => {
         setFormData((prev) => ({ ...prev, image: prev.image.filter((img) => img !== id) }));
-    };    
+    };
 
 
-    // console.log("imageIds:", imageIds);
     useEffect(() => {
-            // console.log("formData.image:", formData.image);
             setImageIds(formData.image);
     }, [formData.image.length]);
     return (
         <div style={{ textAlign: "center", padding: 20 }}>
-            <CarImages images={imageIds} onDelete={handleDelete} />
+            {
+                imageIds.length > 0 ? (
+                        <div style={{ display: "flex", flexDirection: "row", justifyContent:"center", overflowX: "auto", gap: "10px" }}>
+                            {
+                                imageIds.map((img, index) => (
+                                    <EachImage key={index} img={img} deleteFunc={() => onDelete(img.toString())} />
+                                ))
+                            }          
+                        </div>
+                ) : (
+                    <p>No Image Upload</p>
+                )
+            }
             <input
             type="file"
             onChange={(e) => setFile(e.target.files?.[0] || null)}
@@ -88,3 +79,18 @@ export default function LoadingImage({ setFormData, formData }: LoadImageProps) 
         </div>
     );
 }
+
+const EachImage = ({ img, deleteFunc }: { img: string, deleteFunc?: () => void }) => {
+    return (
+        <div style={{ position: "relative", margin: "0 auto" }}>
+            {
+                deleteFunc && (
+                    <div onClick={deleteFunc} style={{ position: "absolute", top: 0, right: 0, cursor: "pointer", padding: "5px", backgroundColor: "red", color: "white" }}>
+                        x
+                    </div>
+                )
+            }
+            <img src={img} style={{ width: "auto", height: "100px", objectFit: "cover" }} />
+        </div>
+    );
+};

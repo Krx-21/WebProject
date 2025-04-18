@@ -4,6 +4,7 @@ import { getCurrentUser } from "@/services/auth.service";
 import { useEffect, useState } from "react";
 import { Car } from "@/types/Car";
 import Link from "next/link";
+import CarImageSample from "./CarImageSample";
 
 export default function ProvidersCars({ providerId }: { providerId: string }) {
     const [loading, setLoading] = useState(true);
@@ -83,6 +84,7 @@ export default function ProvidersCars({ providerId }: { providerId: string }) {
                                         ฿{car.pricePerDay}/day
                                     </p>
                                 </div>
+                                    <CarImageSample images={car.image} />
                                 <div className="mt-4 flex justify-end">
                                     <span className="inline-flex items-center text-sm font-medium text-blue-600 dark:text-blue-400
                                         group-hover:translate-x-1 transition-transform duration-200">

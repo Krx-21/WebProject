@@ -4,10 +4,10 @@ import { useState, useEffect } from 'react';
 import { API_ENDPOINTS } from "@/config/api";
 import Link from "next/link";
 import { Car } from "@/types/Car";
+import CarImageSample from '@/components/CarImageSample';
 
 export default function CarsPage () {
   const [cars, setCars] = useState<Car[]>([]);
-  const [userRole, setUserRole] = useState<'admin' | 'provider' | 'user' | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -101,6 +101,7 @@ export default function CarsPage () {
                       Year: {car.year}
                     </p>
                   </div>
+                  <CarImageSample images={car.image} />
                 </div>
               </div>
             </Link>

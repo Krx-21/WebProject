@@ -110,7 +110,7 @@ export default function CarsPage() {
     }
   };
 
-  const handleDelete = async (id: string, images: string[]) => {
+  const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this car?')) return;
 
     try {
@@ -138,18 +138,6 @@ export default function CarsPage() {
         }
         const errorData = await response.json();
         throw new Error(errorData?.message || 'Failed to delete the car');
-      }
-
-      const deleteImagesResponse = await fetch('/api/deleteImages', {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ ids: images }),
-     });  
-
-      if (!deleteImagesResponse.ok) {
-        console.error('Failed to delete images');
       }
 
       const data = await response.json();
@@ -250,7 +238,7 @@ export default function CarsPage() {
                     </Button>
                     <Button
                       variant="destructive"
-                      onClick={() => handleDelete(car._id, car.image)}
+                      onClick={() => handleDelete(car._id)}
                       className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white
                         rounded-lg shadow-sm hover:shadow-md
                         transition-all duration-200"
