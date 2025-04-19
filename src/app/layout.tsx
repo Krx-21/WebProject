@@ -13,8 +13,12 @@ import Providers from "@/components/Providers";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "DriveEasy - Premium Car Rental Service",
-  description: "DriveEasy offers premium car rental services for every occasion. Experience luxury, comfort, and reliability.",
+  title: "Rent a Ride - Premium Car Rental Service",
+  description: "Rent a Ride offers premium car rental services for every occasion. Experience luxury, comfort, and reliability.",
+  icons: {
+    icon: "/logo.ico",
+    apple: "/logo.ico",
+  },
 };
 
 export default function RootLayout({

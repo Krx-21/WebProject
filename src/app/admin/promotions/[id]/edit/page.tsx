@@ -21,17 +21,17 @@ export default function EditPromotionPage() {
             'Content-Type': 'application/json',
           },
         });
-        
+
         if (!response.ok) {
           const errorData = await response.json().catch(() => null);
           throw new Error(errorData?.message || `HTTP error! status: ${response.status}`);
         }
-        
+
         const data = await response.json();
         if (!data.success) {
           throw new Error(data.message || 'Failed to fetch promotion');
         }
-        
+
         setPromotion(data.data);
       } catch (err) {
         console.error('Fetch error:', err);
@@ -63,10 +63,10 @@ export default function EditPromotionPage() {
           <p className="text-red-500 dark:text-red-400 mb-6">
             {error}
           </p>
-          <button 
-            onClick={() => window.location.reload()} 
-            className="w-full px-4 py-2 bg-primary hover:bg-primary/90 dark:bg-blue-600 
-                     dark:hover:bg-blue-700 text-white rounded-lg transition-colors 
+          <button
+            onClick={() => window.location.reload()}
+            className="w-full px-4 py-2 bg-primary hover:bg-primary/90 dark:bg-blue-600
+                     dark:hover:bg-blue-700 text-white rounded-lg transition-colors
                      duration-200 font-medium shadow-sm hover:shadow-md"
           >
             Retry
@@ -85,10 +85,10 @@ export default function EditPromotionPage() {
             <p className="text-gray-600 dark:text-gray-300 text-lg">
               Promotion not found
             </p>
-            <button 
+            <button
               onClick={() => window.history.back()}
-              className="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 
-                       dark:text-gray-300 rounded-lg hover:bg-gray-200 
+              className="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700
+                       dark:text-gray-300 rounded-lg hover:bg-gray-200
                        dark:hover:bg-gray-600 transition-colors duration-200"
             >
               Go Back
@@ -105,7 +105,7 @@ export default function EditPromotionPage() {
         {/* Header Section */}
         <div className="mb-8 bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm
                       border border-gray-200 dark:border-gray-700">
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-500 to-blue-700 
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-500 to-blue-700
                        bg-clip-text text-transparent">
             Edit Promotion
           </h1>
@@ -115,7 +115,7 @@ export default function EditPromotionPage() {
         </div>
 
         {/* Form Section */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg 
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg
                       border border-gray-200 dark:border-gray-700
                       hover:shadow-xl transition-all duration-200">
           <div className="border-b border-gray-200 dark:border-gray-700 p-6">
@@ -123,7 +123,7 @@ export default function EditPromotionPage() {
               Promotion Details
             </h2>
           </div>
-          
+
           <div className="p-6">
             <PromotionForm
               initialData={{
@@ -134,6 +134,10 @@ export default function EditPromotionPage() {
                 minPurchaseAmount: promotion.minPurchaseAmount,
                 startDate: promotion.startDate,
                 endDate: promotion.endDate,
+                provider: promotion.provider && typeof promotion.provider === 'object'
+                  ? promotion.provider._id
+                  : promotion.provider,
+                amount: promotion.amount
               }}
               promotionId={promotion._id}
             />

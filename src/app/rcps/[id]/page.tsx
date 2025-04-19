@@ -14,7 +14,7 @@ export default function RcpDetail() {
   const params = useParams<{ id: string }>();
   const id = params!.id as string;
   const router = useRouter();
-  
+
   const [rcp, setRcp] = useState<RentalCarProvider | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -29,9 +29,9 @@ export default function RcpDetail() {
   const loadBookings = useCallback(async () => {
     try {
       const response = await getUserBookings();
-      
-      console.log('Load bookings response:', response); // Debug logging
-      
+
+      console.log('Load bookings response:', response); 
+
       if (response.success) {
         setBookings(response.data);
       } else {
@@ -52,8 +52,8 @@ export default function RcpDetail() {
   const loadProviders = useCallback(async () => {
     try {
       const response = await getAllRcps();
-      console.log('Load providers response:', response); // Debug logging
-      
+      console.log('Load providers response:', response); 
+
       if (response.success) {
         setProviders(response.data);
       } else {
@@ -70,7 +70,7 @@ export default function RcpDetail() {
       if (!userStr) {
         return;
       }
-      
+
       try {
         const userData = JSON.parse(userStr);
         setUser(userData);
@@ -79,23 +79,23 @@ export default function RcpDetail() {
         console.error('Error parsing user data:', err);
       }
     };
-    
+
     checkAuth();
   }, []);
 
   useEffect(() => {
     const fetchData = async () => {
       if (!id) return;
-      
+
       setLoading(true);
-      
+
       try {
         const [rcpResponse] = await Promise.all([
           getRcpById(id),
           loadBookings(),
           loadProviders()
         ]);
-        
+
         if (rcpResponse.success) {
           setRcp(rcpResponse.data);
         } else {
@@ -109,22 +109,26 @@ export default function RcpDetail() {
         setIsLoading(false);
       }
     };
-    
+
     fetchData();
   }, [id, loadBookings, loadProviders]);
-  
+
   const filteredBookings = bookings.filter((booking: any) => {
-    return booking.providerId === id || 
-           (booking.provider && booking.provider._id === id) ||
-           (booking.provider && typeof booking.provider === 'string' && booking.provider === id) ||
-           (booking.rentalCarProvider && booking.rentalCarProvider._id === id);
+    return (
+      booking.providerId === id ||
+      (booking.provider && booking.provider._id === id) ||
+      (booking.provider && typeof booking.provider === 'string' && booking.provider === id) ||
+      (booking.rentalCarProvider && booking.rentalCarProvider._id === id) ||
+      (booking.car && booking.car.provider && typeof booking.car.provider === 'string' && booking.car.provider === id) ||
+      (booking.car && booking.car.provider && typeof booking.car.provider === 'object' && booking.car.provider._id === id)
+    );
   });
-  
+
   const handleDeleteBooking = async (bookingId: string) => {
     try {
       setIsSubmitting(true);
       const response = await deleteBooking(bookingId);
-      
+
       if (response.success) {
         setBookings(bookings.filter((booking: any) => booking._id !== bookingId));
       } else {
@@ -136,20 +140,20 @@ export default function RcpDetail() {
       setIsSubmitting(false);
     }
   };
-  
+
   const handleEditBooking = (booking: Booking) => {
     setEditingBooking(booking);
   };
-  
+
   const handleUpdateBooking = async (updatedData: any) => {
     if (!editingBooking) return;
-    
+
     try {
       setIsSubmitting(true);
       const response = await updateBooking(editingBooking._id, updatedData);
-      
+
       if (response.success) {
-        setBookings(bookings.map((booking: any) => 
+        setBookings(bookings.map((booking: any) =>
           booking._id === editingBooking._id ? response.data : booking
         ));
         setEditingBooking(null);
@@ -163,7 +167,6 @@ export default function RcpDetail() {
     }
   };
 
-  // Loading state
   if (loading) {
     return (
       <div className="min-h-screen bg-white dark:bg-gray-900 pt-20">
@@ -180,24 +183,23 @@ export default function RcpDetail() {
     );
   }
 
-  // Error state
   if (error && !rcp) {
     return (
       <div className="min-h-screen bg-white dark:bg-gray-900 pt-20">
         <div className="container-base">
           <div className="card-premium max-w-2xl mx-auto">
             <div className="text-center mb-6">
-              <svg 
+              <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="w-16 h-16 text-red-500 mx-auto" 
-                fill="none" 
-                viewBox="0 0 24 24" 
+                className="w-16 h-16 text-red-500 mx-auto"
+                fill="none"
+                viewBox="0 0 24 24"
                 stroke="currentColor"
               >
-                <path 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round" 
-                  strokeWidth={2} 
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
                   d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                 />
               </svg>
@@ -218,7 +220,6 @@ export default function RcpDetail() {
     );
   }
 
-  // If no RCP data
   if (!rcp) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12">
@@ -262,7 +263,7 @@ export default function RcpDetail() {
           </div>
           <div className="relative px-6 py-8 -mt-8">
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-6">
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-700 via-slate-800 to-slate-900 
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-700 via-slate-800 to-slate-900
     dark:from-slate-200 dark:via-slate-300 dark:to-slate-400
     bg-clip-text text-transparent mb-2">{rcp.name}</h1>
               {error && (
@@ -270,7 +271,7 @@ export default function RcpDetail() {
                   {error}
                 </div>
               )}
-              
+
               <div className="flex flex-col md:flex-row gap-6 mt-6">
                 {/* Contact info */}
                 <div className="card-premium hover:scale-[1.02] mb-6 p-6
@@ -278,31 +279,31 @@ export default function RcpDetail() {
     dark:from-gray-800 dark:to-gray-900/50
     backdrop-blur-sm">
     <h2 className="text-lg font-semibold mb-4 pb-2
-        bg-gradient-to-r from-gray-800 to-gray-900 
+        bg-gradient-to-r from-gray-800 to-gray-900
         dark:from-gray-100 dark:to-gray-300
         bg-clip-text text-transparent
         border-b border-gray-200 dark:border-gray-700">
         Contact Information
     </h2>
-    
+
     <div className="space-y-4">
         <div className="flex items-start group">
-            <div className="p-2 rounded-lg bg-blue-50 dark:bg-blue-900/20 
+            <div className="p-2 rounded-lg bg-blue-50 dark:bg-blue-900/20
                 group-hover:bg-blue-100 dark:group-hover:bg-blue-800/30
                 transition-colors duration-300 mr-4">
-                <svg className="w-5 h-5 text-blue-600 dark:text-blue-400" 
-                    fill="none" 
-                    stroke="currentColor" 
-                    viewBox="0 0 24 24" 
+                <svg className="w-5 h-5 text-blue-600 dark:text-blue-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
                     xmlns="http://www.w3.org/2000/svg">
-                    <path strokeLinecap="round" 
-                        strokeLinejoin="round" 
-                        strokeWidth="2" 
+                    <path strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
                         d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z">
                     </path>
-                    <path strokeLinecap="round" 
-                        strokeLinejoin="round" 
-                        strokeWidth="2" 
+                    <path strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
                         d="M15 11a3 3 0 11-6 0 3 3 0 016 0z">
                     </path>
                 </svg>
@@ -315,7 +316,7 @@ export default function RcpDetail() {
                 {(rcp.district || rcp.province) && (
                     <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">
                         {[rcp.district, rcp.province].filter(Boolean).join(', ')}
-                        {rcp.postalcode && 
+                        {rcp.postalcode &&
                             <span className="ml-1 text-gray-500 dark:text-gray-500">
                                 ({rcp.postalcode})
                             </span>
@@ -324,20 +325,20 @@ export default function RcpDetail() {
                 )}
             </div>
         </div>
-        
+
         {rcp.tel && (
             <div className="flex items-start group">
-                <div className="p-2 rounded-lg bg-blue-50 dark:bg-blue-900/20 
+                <div className="p-2 rounded-lg bg-blue-50 dark:bg-blue-900/20
                     group-hover:bg-blue-100 dark:group-hover:bg-blue-800/30
                     transition-colors duration-300 mr-4">
-                    <svg className="w-5 h-5 text-blue-600 dark:text-blue-400" 
-                        fill="none" 
-                        stroke="currentColor" 
-                        viewBox="0 0 24 24" 
+                    <svg className="w-5 h-5 text-blue-600 dark:text-blue-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
                         xmlns="http://www.w3.org/2000/svg">
-                        <path strokeLinecap="round" 
-                            strokeLinejoin="round" 
-                            strokeWidth="2" 
+                        <path strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
                             d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z">
                         </path>
                     </svg>
@@ -352,7 +353,7 @@ export default function RcpDetail() {
         )}
     </div>
 </div>
-                
+
                 {/* Map or additional info placeholder */}
                 <div className="flex-1 bg-gray-100 dark:bg-gray-700 rounded-lg p-4 flex items-center justify-center">
                   <div className="text-center">
@@ -364,32 +365,32 @@ export default function RcpDetail() {
                 </div>
               </div>
             </div>
-            
+
             {/* Actions button group */}
             <div className="flex flex-wrap gap-3 justify-between items-center">
               <div className="flex gap-2">
                 {isAdmin && (
-                  <Link 
+                  <Link
                     href={`/dashboard?tab=providers&edit=${rcp._id}`}
                     className="btn-primary flex items-center"
                   >
-                    <svg 
-                      xmlns="http://www.w3.org/2000/svg" 
-                      className="w-4 h-4 mr-1" 
-                      fill="none" 
-                      viewBox="0 0 24 24" 
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="w-4 h-4 mr-1"
+                      fill="none"
+                      viewBox="0 0 24 24"
                       stroke="currentColor"
                     >
-                      <path 
-                        strokeLinecap="round" 
-                        strokeLinejoin="round" 
-                        strokeWidth={2} 
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
                         d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
                       />
-                      <path 
-                        strokeLinecap="round" 
-                        strokeLinejoin="round" 
-                        strokeWidth={2} 
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
                         d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
                       />
                     </svg>
@@ -397,22 +398,22 @@ export default function RcpDetail() {
                   </Link>
                 )}
               </div>
-              
+
               <button
                 onClick={() => router.back()}
                 className="btn-secondary flex items-center"
               >
-                <svg 
-                  xmlns="http://www.w3.org/2000/svg" 
-                  className="w-4 h-4 mr-1" 
-                  fill="none" 
-                  viewBox="0 0 24 24" 
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="w-4 h-4 mr-1"
+                  fill="none"
+                  viewBox="0 0 24 24"
                   stroke="currentColor"
                 >
-                  <path 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round" 
-                    strokeWidth={2} 
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
                     d="M10 19l-7-7m0 0l7-7m-7 7h18"
                   />
                 </svg>
@@ -425,51 +426,77 @@ export default function RcpDetail() {
         {/* User's bookings section */}
         {user && (
           <div className="card-base">
-            <h2 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-blue-600 
-                dark:from-indigo-400 dark:to-blue-400
-                bg-clip-text text-transparent mb-6 pb-2 border-b border-gray-200 dark:border-gray-700">
-              {`Your Bookings with ${rcp.name}`}
-            </h2>
-            
-            {filteredBookings.length > 0 ? (
-              <BookingList 
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 pb-2 border-b border-gray-200 dark:border-gray-700">
+              <h2 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-blue-600
+                  dark:from-indigo-400 dark:to-blue-400
+                  bg-clip-text text-transparent">
+                {`Your Bookings with ${rcp.name}`}
+              </h2>
+
+              <Link
+                href={`/booking/new?provider=${rcp._id}`}
+                className="mt-2 md:mt-0 inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 rounded-md shadow-sm transition-all duration-200 transform hover:-translate-y-0.5"
+              >
+                <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"/>
+                </svg>
+                Book a Car
+              </Link>
+            </div>
+
+            {isLoading ? (
+              <div className="animate-pulse space-y-4 p-4">
+                <div className="h-24 bg-slate-200 dark:bg-slate-700 rounded-lg"></div>
+                <div className="h-24 bg-slate-200 dark:bg-slate-700 rounded-lg"></div>
+              </div>
+            ) : filteredBookings.length > 0 ? (
+              <BookingList
                 bookings={filteredBookings}
                 providers={providers}
                 onEdit={handleEditBooking}
                 onDelete={handleDeleteBooking}
               />
             ) : (
-              <div className="text-center p-8 bg-gradient-to-br from-gray-50 to-blue-50/50 
+              <div className="text-center p-8 bg-gradient-to-br from-gray-50 to-blue-50/50
                   dark:from-gray-800 dark:to-blue-900/20 rounded-lg
                   border border-gray-200 dark:border-gray-700
                   backdrop-blur-md shadow-sm hover:shadow-md
                   transition-all duration-300">
-                <svg 
+                <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="w-12 h-12 text-indigo-600 dark:text-indigo-400 mx-auto mb-4" 
-                  fill="none" 
-                  viewBox="0 0 24 24" 
+                  className="w-12 h-12 text-indigo-600 dark:text-indigo-400 mx-auto mb-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
                   stroke="currentColor"
                 >
-                  <path 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round" 
-                    strokeWidth={2} 
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
                     d="M12 6v6m0 0v6m0-6h6m-6 0H6"
                   />
                 </svg>
                 <p className="text-gray-700 dark:text-gray-300 font-medium mb-2">
                   No Bookings Found
                 </p>
-                <p className="text-gray-600 dark:text-gray-400 text-sm">
-                  You don't have any bookings with this provider yet.
+                <p className="text-gray-600 dark:text-gray-400 text-sm mb-4">
+                  You don&apos;t have any bookings with this provider yet.
                 </p>
+                <Link
+                  href={`/booking/new?provider=${rcp._id}`}
+                  className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 rounded-md shadow-sm transition-all duration-200"
+                >
+                  <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"/>
+                  </svg>
+                  Book Now
+                </Link>
               </div>
             )}
           </div>
         )}
       </div>
-      
+
       {/* Edit booking modal */}
       {editingBooking && (
         <EditBookingModal
