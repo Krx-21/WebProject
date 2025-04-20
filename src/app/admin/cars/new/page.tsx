@@ -98,7 +98,7 @@ export default function NewCarPage() {
       console.error('Error fetching provider:', err);
       setError(err.message);
     }
-  };
+  };                
 
   const fetchProviders = async () => {
     try {
