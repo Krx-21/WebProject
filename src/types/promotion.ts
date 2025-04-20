@@ -7,6 +7,7 @@ export interface Promotion {
   minPurchaseAmount: number;
   startDate: string;
   endDate: string;
-  provider?: string;
+  provider?: string | { _id: string; name: string; }; 
+  amount: number; 
   createdAt: string;
-} 
+}

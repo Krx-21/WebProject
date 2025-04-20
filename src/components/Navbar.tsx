@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useDarkMode } from '@/contexts/DarkModeContext';
@@ -11,7 +11,8 @@ export default function Navbar() {
   const { darkMode, toggleDarkMode } = useDarkMode();
   const pathname = usePathname();
   const router = useRouter();
-  
+  const searchParams = useSearchParams();
+
   const [scrolled, setScrolled] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isProvider, setIsProvider] = useState(false);
@@ -33,27 +34,31 @@ export default function Navbar() {
   useEffect(() => {
     const handleScroll = () => {
       const offset = window.scrollY;
-      if (offset > 50) {
-        setScrolled(true);
-      } else {
-        setScrolled(false);
-      }
+      setScrolled(offset > 50);
     };
-    
+
+    handleScroll();
+
+    window.addEventListener('scroll', handleScroll);
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
+
+  useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsDropdownOpen(false);
       }
     };
-    
-    window.addEventListener('scroll', handleScroll);
+
     document.addEventListener('mousedown', handleClickOutside);
-    
+
     return () => {
-      window.removeEventListener('scroll', handleScroll);
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [user]);
+  }, []);
 
   const isActive = (path: string) => {
     if (!pathname) return false;
@@ -61,7 +66,7 @@ export default function Navbar() {
   };
 
   const handleLogout = async () => {
-    setIsDropdownOpen(false); 
+    setIsDropdownOpen(false);
     await logout();
     router.push('/');
   };
@@ -72,77 +77,67 @@ export default function Navbar() {
 
   return (
     <nav className={`fixed w-full z-50 transition-all duration-300 ${
-      scrolled ? 'bg-white/90 dark:bg-gray-900/90 backdrop-blur-md shadow-lg' : 
+      scrolled ? 'bg-white/90 dark:bg-gray-900/90 backdrop-blur-md shadow-lg' :
                 'bg-white dark:bg-gray-900'
     }`}>
       <div className="container mx-auto px-6 py-4">
         <div className="flex justify-between items-center">
           <div className="flex items-center space-x-2">
             <Link href="/" className="flex items-center">
-              <svg 
-                xmlns="http://www.w3.org/2000/svg" 
-                viewBox="0 0 24 24" 
-                fill="currentColor" 
-                className="w-8 h-8 text-blue-600"
-              >
-                <path d="M3.375 4.5C2.339 4.5 1.5 5.34 1.5 6.375V13.5h12V6.375c0-1.036-.84-1.875-1.875-1.875h-8.25zM13.5 15h-12v2.625c0 1.035.84 1.875 1.875 1.875h8.25c1.035 0 1.875-.84 1.875-1.875V15z" />
-                <path d="M8.25 19.5a1.5 1.5 0 10-3 0 1.5 1.5 0 003 0zM15.75 6.75a.75.75 0 00-.75.75v11.25c0 .087.015.17.042.248a3 3 0 01-1.542.252 2.996 2.996 0 002.25 1.5 3 3 0 003-3V7.5a.75.75 0 00-.75-.75h-2.25z" />
-              </svg>
-              <span className="ml-2 text-xl font-bold text-gray-900 dark:text-white">DriveEasy</span>
+              <img
+                src="/logo.ico"
+                alt="Rent a Ride Logo"
+                className="w-10 h-10 object-contain"
+              />
+              <span className="ml-2 text-xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 text-transparent bg-clip-text">Rent a Ride</span>
             </Link>
           </div>
 
           <div className="hidden md:flex items-center space-x-6">
-            <Link 
-              href="/" 
+            <Link
+              href="/"
               className={`nav-link ${isActive('/') && !isActive('/rcps') && !isActive('/dashboard') ? 'nav-link-active' : ''}`}
             >
               Home
             </Link>
-            <Link 
-              href="/rcps" 
+            <Link
+              href="/rcps"
               className={`nav-link ${isActive('/rcps') ? 'nav-link-active' : ''}`}
             >
               Car Providers
             </Link>
-            <Link 
-              href="/cars" 
+            <Link
+              href="/cars"
               className={`nav-link ${isActive('/cars') ? 'nav-link-active' : ''}`}
             >
               Cars
             </Link>
-            <Link 
-              href="/promotions" 
+            <Link
+              href="/promotions"
               className={`nav-link ${isActive('/promotions') ? 'nav-link-active' : ''}`}
             >
               Promotions
             </Link>
-            {isAdmin && (
-              <Link 
-                href="/dashboard?tab=providers" 
-                className={`nav-link ${pathname?.includes('/dashboard') && pathname?.includes('tab=providers') ? 'nav-link-active' : ''}`}
-              >
-                Manage Providers
-              </Link>
-            )}
+
+
             {(isAdmin || isProvider) && (
-              <Link 
-                href="/admin/cars" 
+              <Link
+                href="/admin/cars"
                 className={`nav-link ${isActive('/admin/cars') ? 'nav-link-active' : ''}`}
               >
                 Manage Cars
               </Link>
             )}
             {(isAdmin || isProvider) && (
-              <Link 
-                href="/admin/promotions" 
+              <Link
+                href="/admin/promotions"
                 className={`nav-link ${isActive('/admin/promotions') ? 'nav-link-active' : ''}`}
               >
                 Manage Promotions
               </Link>
             )}
-            <Link 
-              href="/about" 
+            <Link
+              href="/about"
               className={`nav-link ${isActive('/about') ? 'nav-link-active' : ''}`}
             >
               About
@@ -151,7 +146,7 @@ export default function Navbar() {
 
           <div className="flex items-center space-x-4">
             {/* Dark Mode Toggle Button */}
-            <button 
+            <button
               onClick={toggleDarkMode}
               className="p-2 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
               aria-label="Toggle dark mode"
@@ -170,44 +165,73 @@ export default function Navbar() {
             {user ? (
               <div className="flex items-center space-x-4">
                 <div className="relative" ref={dropdownRef}>
-                  <button 
+                  <button
                     onClick={toggleDropdown}
                     className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white focus:outline-none"
                   >
                     <span>{user.name}</span>
-                    <svg 
-                      className={`ml-1 w-4 h-4 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`} 
-                      fill="none" 
-                      stroke="currentColor" 
-                      viewBox="0 0 24 24" 
+                    <svg
+                      className={`ml-1 w-4 h-4 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
                       xmlns="http://www.w3.org/2000/svg"
                     >
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
                     </svg>
                   </button>
-                  
+
                   {isDropdownOpen && (
-                    <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-10">
-                      <Link 
-                        href="/profile" 
-                        className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-10 border border-gray-200 dark:border-gray-700">
+                      <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+                        <p className="text-sm font-medium text-gray-900 dark:text-white">{user.name}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{user.email}</p>
+                      </div>
+
+                      <Link
+                        href="/profile"
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                         onClick={() => setIsDropdownOpen(false)}
                       >
+                        <svg className="mr-2 h-4 w-4 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
                         My Profile
                       </Link>
-                      <Link 
-                        href="/dashboard" 
-                        className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+
+                      <Link
+                        href="/dashboard"
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                         onClick={() => setIsDropdownOpen(false)}
                       >
+                        <svg className="mr-2 h-4 w-4 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                        </svg>
                         Dashboard
                       </Link>
-                      <button 
-                        onClick={handleLogout}
-                        className="block w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700"
+
+                      <Link
+                        href="/booking/new"
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                        onClick={() => setIsDropdownOpen(false)}
                       >
-                        Logout
-                      </button>
+                        <svg className="mr-2 h-4 w-4 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        New Booking
+                      </Link>
+
+                      <div className="border-t border-gray-200 dark:border-gray-700 mt-1 pt-1">
+                        <button
+                          onClick={handleLogout}
+                          className="flex items-center w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700"
+                        >
+                          <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                          </svg>
+                          Logout
+                        </button>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -258,11 +282,8 @@ export default function Navbar() {
             <Link href="/promotions" className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-50 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800">
               Promotions
             </Link>
-            {isAdmin && (
-              <Link href="/dashboard?tab=providers" className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-50 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800">
-                Manage Providers
-              </Link>
-            )}
+
+
             {(isAdmin || isProvider) && (
               <Link href="/admin/cars" className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-50 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800">
                 Manage Cars

@@ -21,14 +21,19 @@ export default function Login() {
     setLoading(true);
 
     try {
+      console.log('Login form submitted with email:', email);
       const response = await login({
         email,
         password
       });
-      
+
+      console.log('Login response:', response);
+
       if (response.success) {
+        console.log('Login successful, redirecting to dashboard');
         router.push('/dashboard');
       } else {
+        console.error('Login failed:', response.error);
         setError(response.error || 'Invalid credentials');
       }
     } catch (err) {
@@ -62,6 +67,8 @@ export default function Login() {
               </div>
             </div>
           )}
+
+
 
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl p-8 border border-gray-200 dark:border-gray-700">
             <form onSubmit={handleSubmit} className="space-y-6">
@@ -127,7 +134,7 @@ export default function Login() {
 
             <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
               <p className="text-center text-sm text-gray-600 dark:text-gray-400">
-                Don't have an account?{' '}
+                Don&apos;t have an account?{' '}
                 <Link href="/register" className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300">
                   Sign up now
                 </Link>

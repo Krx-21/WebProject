@@ -62,7 +62,7 @@ export default function CarsProviderPage() {
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
             {/* Header Section */}
             <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-700 via-slate-800 to-slate-900 
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-700 via-slate-800 to-slate-900
                 dark:from-slate-200 dark:via-slate-300 dark:to-slate-400
                 bg-clip-text text-transparent">
                 {carDetails.brand} {carDetails.model}
@@ -138,8 +138,8 @@ export default function CarsProviderPage() {
             <CarImage images={carDetails.image} />
 
             {/* Action Buttons */}
-            <div className="p-6 bg-gray-50 dark:bg-gray-800/50 border-t border-gray-200 dark:border-gray-700">
-              <Link 
+            <div className="p-6 bg-gray-50 dark:bg-gray-800/50 border-t border-gray-200 dark:border-gray-700 flex justify-between items-center">
+              <Link
                 href="/cars"
                 className="inline-flex items-center text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
               >
@@ -147,6 +147,16 @@ export default function CarsProviderPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                 </svg>
                 Back to Cars
+              </Link>
+
+              <Link
+                href={`/booking/new?carId=${carDetails._id}&providerId=${carDetails.provider._id}`}
+                className="inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-indigo-600 to-teal-600 hover:from-indigo-700 hover:to-teal-700 text-white font-medium rounded-lg transition-all duration-200 shadow-md hover:shadow-lg"
+              >
+                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+                </svg>
+                Book Now
               </Link>
             </div>
           </div>

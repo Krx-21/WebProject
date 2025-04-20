@@ -13,7 +13,9 @@ import { Booking } from '@/types/booking';
 
 interface NewBooking {
   providerId: string;
-  date: string;
+  start_date: string;
+  end_date: string;
+  carId?: string;
 }
 
 export default function DashboardContent() {
@@ -87,12 +89,19 @@ export default function DashboardContent() {
       if (response.success) {
         setProviders(response.data);
       } else {
-        setError('Failed to load providers');
+        if (response.error === 'Authentication required') {
+          console.error('Authentication required, redirecting to login');
+          localStorage.removeItem('user');
+          router.push('/login');
+          return;
+        }
+        setError('Failed to load providers: ' + response.error);
       }
     } catch (err) {
       console.error('Error loading providers:', err);
+      setError('Error loading providers. Please try refreshing the page.');
     }
-  }, []);
+  }, [router]);
 
   useEffect(() => {
     if (!user) {
@@ -109,7 +118,8 @@ export default function DashboardContent() {
     const init = async () => {
       setIsLoading(true);
       try {
-        await Promise.all([loadBookings(), loadProviders()]);
+        await loadProviders();
+        await loadBookings();
       } catch (err) {
         console.error('Init error:', err);
         setError('Failed to initialize dashboard');
@@ -131,8 +141,10 @@ export default function DashboardContent() {
       }
 
       const response = await createBooking(booking.providerId, {
-        date: booking.date,
-        providerId: booking.providerId
+        start_date: booking.start_date,
+        end_date: booking.end_date,
+        providerId: booking.providerId,
+        carId: booking.carId
       });
 
       if (response.success) {
@@ -159,12 +171,14 @@ export default function DashboardContent() {
       }
 
       const bookingData = {
-        date: updatedBooking.date!,
-        providerId: updatedBooking.providerId!
+        start_date: updatedBooking.start_date!,
+        end_date: updatedBooking.end_date!,
+        providerId: updatedBooking.providerId!,
+        carId: updatedBooking.carId
       };
-      
+
       const response = await updateBooking(editingBooking._id, bookingData);
-      
+
       if (response.success) {
         await loadBookings();
         setEditingBooking(null);
@@ -233,35 +247,35 @@ export default function DashboardContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pt-20">
+    <div className="min-h-screen bg-gradient-to-br from-white to-pink-50 dark:from-gray-900 dark:to-pink-900/10 pt-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Dashboard Header */}
-        <div className="mb-8 bg-white dark:bg-gray-800 rounded-xl shadow-xl p-6 border border-gray-100 dark:border-gray-700">
+        <div className="mb-8 bg-white dark:bg-gray-800 rounded-xl shadow-xl p-6 border border-pink-100 dark:border-pink-800/30">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-pink-500 to-pink-400 bg-clip-text text-transparent dark:from-pink-400 dark:to-pink-300">
                 {isAdmin ? 'Admin Dashboard' : 'Your Car Rentals'}
               </h1>
               <p className="mt-2 text-gray-600 dark:text-gray-400">
-                {isAdmin 
-                  ? 'Manage all bookings and car providers.' 
+                {isAdmin
+                  ? 'Manage all bookings and car providers.'
                   : 'View and manage your car rental bookings.'}
               </p>
             </div>
-            
+
             {!isAdmin && (
-              <div className="mt-4 md:mt-0 status-pill status-primary">
+              <div className="mt-4 md:mt-0 px-4 py-2 bg-pink-100 text-pink-800 dark:bg-pink-900/30 dark:text-pink-300 rounded-full font-medium text-sm shadow-sm">
                 {bookings.length} / 3 Bookings
               </div>
             )}
-            
+
             {isAdmin && (
-              <div className="mt-4 md:mt-0 status-pill bg-indigo-100 text-indigo-800 dark:bg-indigo-900/50 dark:text-indigo-300">
+              <div className="mt-4 md:mt-0 px-4 py-2 bg-pink-100 text-pink-800 dark:bg-pink-900/30 dark:text-pink-300 rounded-full font-medium text-sm shadow-sm">
                 Admin Access
               </div>
             )}
           </div>
-          
+
           {/* Admin Navigation Tabs */}
           {isAdmin && (
             <div className="flex flex-wrap gap-2">
@@ -269,8 +283,8 @@ export default function DashboardContent() {
                 onClick={() => setActiveTab('bookings')}
                 className={`px-6 py-3 text-sm font-medium rounded-lg transition-colors duration-300 focus:outline-none ${
                   activeTab === 'bookings'
-                    ? 'bg-blue-600 text-white shadow-md'
-                    : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600'
+                    ? 'bg-pink-500 text-white shadow-md'
+                    : 'bg-pink-50 dark:bg-pink-900/20 text-pink-700 dark:text-pink-300 hover:bg-pink-100 dark:hover:bg-pink-800/30'
                 }`}
               >
                 Manage Bookings
@@ -279,8 +293,8 @@ export default function DashboardContent() {
                 onClick={() => setActiveTab('providers')}
                 className={`px-6 py-3 text-sm font-medium rounded-lg transition-colors duration-300 focus:outline-none ${
                   activeTab === 'providers'
-                    ? 'bg-blue-600 text-white shadow-md'
-                    : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600'
+                    ? 'bg-pink-500 text-white shadow-md'
+                    : 'bg-pink-50 dark:bg-pink-900/20 text-pink-700 dark:text-pink-300 hover:bg-pink-100 dark:hover:bg-pink-800/30'
                 }`}
               >
                 Manage Providers
@@ -291,7 +305,7 @@ export default function DashboardContent() {
 
         {/* Error Alert */}
         {error && (
-          <div className="mb-8 bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 p-4 rounded-lg">
+          <div className="mb-8 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 p-4 rounded-lg shadow-sm">
             <div className="flex">
               <div className="flex-shrink-0">
                 <svg className="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
@@ -310,17 +324,17 @@ export default function DashboardContent() {
           <>
             {/* Booking Form */}
             {!showForm ? (
-              <div className="mb-8 bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-100 dark:border-gray-700">
+              <div className="mb-8 bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-pink-100 dark:border-pink-800/30">
                 <button
-                  className={`group px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg shadow-md transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg flex items-center gap-2
+                  className={`group px-6 py-3 bg-pink-500 hover:bg-pink-600 text-white font-medium rounded-lg shadow-md transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg flex items-center gap-2
                     ${bookings.length >= 3 && !isAdmin ? 'opacity-50 cursor-not-allowed' : ''}`}
                   onClick={() => setShowForm(true)}
                   disabled={bookings.length >= 3 && !isAdmin}
                 >
-                  <svg 
+                  <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5 transition-transform group-hover:rotate-90 duration-300" 
-                    viewBox="0 0 20 20" 
+                    className="h-5 w-5 transition-transform group-hover:rotate-90 duration-300"
+                    viewBox="0 0 20 20"
                     fill="currentColor"
                   >
                     <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
@@ -334,8 +348,8 @@ export default function DashboardContent() {
                 )}
               </div>
             ) : (
-              <div className="mb-8 bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-100 dark:border-gray-700">
-                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-6 pb-2 border-b border-gray-200 dark:border-gray-700">
+              <div className="mb-8 bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-pink-100 dark:border-pink-800/30">
+                <h3 className="text-xl font-semibold text-pink-600 dark:text-pink-400 mb-6 pb-2 border-b border-pink-100 dark:border-pink-800/30">
                   Book a New Car
                 </h3>
                 <BookingForm
@@ -351,15 +365,14 @@ export default function DashboardContent() {
             )}
 
             {/* Booking List */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-100 dark:border-gray-700">
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6 pb-2 border-b border-gray-200 dark:border-gray-700">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-pink-100 dark:border-pink-800/30">
+              <h2 className="text-xl font-semibold text-pink-600 dark:text-pink-400 mb-6 pb-2 border-b border-pink-100 dark:border-pink-800/30">
                 {isAdmin ? 'All Bookings' : 'Your Current Bookings'}
               </h2>
-              <BookingList 
+              <BookingList
                 bookings={bookings}
                 providers={providers}
                 onEdit={(booking) => {
-                  console.log('Edit booking:', booking);
                   setEditingBooking(booking as unknown as Booking);
                 }}
                 onDelete={handleDeleteBooking}
@@ -368,12 +381,12 @@ export default function DashboardContent() {
             </div>
           </>
         ) : (
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-100 dark:border-gray-700">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6 pb-2 border-b border-gray-200 dark:border-gray-700">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-pink-100 dark:border-pink-800/30">
+            <h2 className="text-xl font-semibold text-pink-600 dark:text-pink-400 mb-6 pb-2 border-b border-pink-100 dark:border-pink-800/30">
               Manage Car Providers
             </h2>
-            <RcpManagement 
-              providers={providers} 
+            <RcpManagement
+              providers={providers}
               refreshProviders={loadProviders}
               setError={setError}
             />
@@ -395,4 +408,4 @@ export default function DashboardContent() {
       </div>
     </div>
   );
-} 
+}
