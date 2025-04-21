@@ -19,7 +19,7 @@ export default function CarsPage() {
   const [error, setError] = useState<string | null>(null);
   const [cars, setCars] = useState<Car[]>([]);
   const [filteredCars, setFilteredCars] = useState<Car[]>([]);
-  const [stringAPI, setStringAPI] = useState<string>('');  
+  const [stringAPI, setStringAPI] = useState<string>('');
   const [token, setToken] = useState<string>(API_ENDPOINTS.cars.getAll);
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -201,9 +201,9 @@ export default function CarsPage() {
 
   useEffect(() => {
     if (stringAPI) {
-      fetchCars(); 
+      fetchCars();
     }
-  }, [token, stringAPI, fetchCars]); 
+  }, [token, stringAPI, fetchCars]);
 
   useEffect(() => {
     if (stringAPI) {
@@ -534,7 +534,7 @@ export default function CarsPage() {
                       height={200}
                     />
                     <div className="absolute top-0 right-0 p-2">
-                      <Badge className="bg-indigo-500 hover:bg-indigo-600 text-white">
+                      <Badge className="bg-indigo-500 hover:bg-indigo-600 dark:bg-indigo-700 dark:hover:bg-indigo-800 text-black font-bold text-xs">
                         {car.type}
                       </Badge>
                     </div>
@@ -644,7 +644,7 @@ export default function CarsPage() {
                           height={128}
                         />
                         <div className="absolute top-0 right-0 p-2">
-                          <Badge className="bg-indigo-500 hover:bg-indigo-600 text-white">
+                          <Badge className="bg-indigo-500 hover:bg-indigo-600 dark:bg-indigo-700 dark:hover:bg-indigo-800 text-white font-bold text-xs">
                             {car.type}
                           </Badge>
                         </div>
