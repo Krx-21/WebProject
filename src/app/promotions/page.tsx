@@ -38,12 +38,23 @@ export default function PromotionsPage() {
     const fetchPromotions = async () => {
       try {
         const response = await getAllPromotions();
-        if (!response.success || !response.data) {
-          throw new Error(response.error || 'Failed to fetch promotions');
+        if (!response.success) {
+          if (response.error === 'Authentication required') {
+            setPromotions([]);
+            setFilteredPromotions([]);
+            setLoading(false);
+            return;
+          } else {
+            throw new Error(response.error || 'Failed to fetch promotions');
+          }
         }
 
-        const promotionsWithProviders = await Promise.all(
-          response.data.map(async (promotion) => {
+        if (!response.data) {
+          throw new Error('No promotion data received');
+        }
+
+        const promotionPromises = response.data.map(async (promotion) => {
+          try {
             let providerName = 'Unknown Provider';
 
             if (promotion.provider) {
@@ -51,9 +62,13 @@ export default function PromotionsPage() {
                 providerName = promotion.provider.name;
               }
               else if (typeof promotion.provider === 'string') {
-                const providerResponse = await getProviderDetails(promotion.provider);
-                if (providerResponse.success && providerResponse.data) {
-                  providerName = providerResponse.data.name || 'Unknown Provider';
+                try {
+                  const providerResponse = await getProviderDetails(promotion.provider);
+                  if (providerResponse.success && providerResponse.data) {
+                    providerName = providerResponse.data.name || 'Unknown Provider';
+                  }
+                } catch (err) {
+                  console.warn(`Error fetching provider ${promotion.provider}:`, err);
                 }
               }
             }
@@ -62,8 +77,19 @@ export default function PromotionsPage() {
               ...promotion,
               providerName
             };
-          })
-        );
+          } catch (error) {
+            console.error('Error processing promotion:', error);
+            return {
+              ...promotion,
+              providerName: 'Unknown Provider'
+            };
+          }
+        });
+
+        const results = await Promise.allSettled(promotionPromises);
+        const promotionsWithProviders = results
+          .filter(result => result.status === 'fulfilled')
+          .map(result => (result as PromiseFulfilledResult<PromotionWithProviderName>).value);
 
         setPromotions(promotionsWithProviders);
         setFilteredPromotions(promotionsWithProviders);

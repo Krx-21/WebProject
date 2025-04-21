@@ -9,7 +9,7 @@ import CarImage from '@/components/CarImage';
 
 export default function CarsProviderPage() {
   const params = useParams();
-  const carID = params.carID;
+  const carID = params.carID as string;
   const [carDetails, setCarDetails] = useState<Car | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

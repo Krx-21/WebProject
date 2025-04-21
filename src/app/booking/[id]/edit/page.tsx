@@ -338,7 +338,7 @@ export default function EditBookingPage() {
                   type="date"
                   value={endDate}
                   onChange={(e) => setEndDate(e.target.value)}
-                  min={startDate} 
+                  min={startDate}
                   className="w-full p-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-600"
                   required
                 />
@@ -351,7 +351,7 @@ export default function EditBookingPage() {
                 value={providerId}
                 onChange={(e) => {
                   setProviderId(e.target.value);
-                  setCarId(''); 
+                  setCarId('');
                 }}
                 className="w-full p-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-600"
                 required

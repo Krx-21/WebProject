@@ -31,6 +31,8 @@ export default function RcpsPage() {
 
           setRcps(providersData);
           setFilteredRcps(providersData);
+        } else if (response.error) {
+          setError(response.error);
         } else {
           setError('Failed to fetch data');
         }

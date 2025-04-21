@@ -42,40 +42,43 @@ export const getProviderDetails = async (providerId: string): Promise<{ success:
       };
     }
 
-    const user = getCurrentUser();
-    if (!user) {
+    try {
+      const response = await fetch(`${API_ENDPOINTS.rentalCarProviders.getOne(providerId)}`, {
+        headers: {
+          'Accept': 'application/json'
+        },
+      });
+
+      if (!response.ok) {
+        console.warn(`Provider fetch failed with status: ${response.status}`);
+        return {
+          success: false,
+          error: `Failed to fetch provider: ${response.status}`
+        };
+      }
+
+      const data = await response.json();
+
+      if (!data.success) {
+        return {
+          success: false,
+          error: data.message || 'Failed to fetch provider details'
+        };
+      }
+
+      return {
+        success: true,
+        data: data.data
+      };
+    } catch (fetchError) {
+      console.warn('Error fetching provider:', fetchError);
       return {
         success: false,
-        error: 'Authentication required'
+        error: 'Failed to fetch provider details'
       };
     }
-
-    const response = await fetch(`${API_ENDPOINTS.rentalCarProviders.getOne(providerId)}`, {
-      headers: {
-        'Authorization': `Bearer ${user.token}`,
-        'Accept': 'application/json'
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const data = await response.json();
-
-    if (!data.success) {
-      return {
-        success: false,
-        error: data.message || 'Failed to fetch provider details'
-      };
-    }
-
-    return {
-      success: true,
-      data: data.data
-    };
   } catch (error: any) {
-    console.error('Error fetching provider details:', error);
+    console.error('Error in getProviderDetails:', error);
     return {
       success: false,
       error: error.message || 'Failed to fetch provider details'
@@ -85,17 +88,8 @@ export const getProviderDetails = async (providerId: string): Promise<{ success:
 
 export const getAllPromotions = async (): Promise<{ success: boolean; data?: Promotion[]; error?: string }> => {
   try {
-    const user = getCurrentUser();
-    if (!user) {
-      return {
-        success: false,
-        error: 'Authentication required'
-      };
-    }
-
     const response = await fetch(API_ENDPOINTS.promotions.getAll, {
       headers: {
-        'Authorization': `Bearer ${user.token}`,
         'Accept': 'application/json'
       },
     });
@@ -135,17 +129,8 @@ export const getPromotionsByProvider = async (providerId: string): Promise<{ suc
       };
     }
 
-    const user = getCurrentUser();
-    if (!user) {
-      return {
-        success: false,
-        error: 'Authentication required'
-      };
-    }
-
     const response = await fetch(API_ENDPOINTS.rentalCarProviders.getPromotions(providerId), {
       headers: {
-        'Authorization': `Bearer ${user.token}`,
         'Accept': 'application/json'
       },
     });
