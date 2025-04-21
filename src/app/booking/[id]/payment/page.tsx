@@ -61,7 +61,7 @@ export default function BookingPaymentPage({ params }: { params: { id: string } 
       } catch (err) {
         console.error('Error checking payment status:', err);
       }
-    }, 5000); 
+    }, 5000);
 
     setStatusCheckInterval(interval);
 

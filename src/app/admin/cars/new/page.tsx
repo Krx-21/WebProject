@@ -614,9 +614,6 @@ export default function NewCarPage() {
               {/* Image Upload */}
               <div>
                 <ImageUploader setFormData={setFormData} formData={formData}/>
-                {validationErrors.image && (
-                  <p className="text-red-500 text-sm mt-2">{validationErrors.image}</p>
-                )}
               </div>
 
               {/* Error Display */}
@@ -630,29 +627,7 @@ export default function NewCarPage() {
                 </Alert>
               )}
 
-              {/* Submit Button */}
-              <Button
-                type="submit"
-                disabled={loading}
-                className={`w-full bg-gradient-to-r from-indigo-600 to-teal-600 hover:from-indigo-700 hover:to-teal-700 text-white font-medium rounded-lg transition-all duration-200 shadow-md hover:shadow-lg ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
-              >
-                {loading ? (
-                  <>
-                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Creating Car...
-                  </>
-                ) : (
-                  <>
-                    <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                    </svg>
-                    Create Car
-                  </>
-                )}
-              </Button>
+
             </form>
           </CardContent>
           <CardFooter className="border-t border-slate-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800/50 px-6 py-4">
@@ -665,14 +640,19 @@ export default function NewCarPage() {
               >
                 Cancel
               </Button>
-              <Button
-                type="submit"
-                form="car-form"
-                disabled={loading}
-                className="bg-gradient-to-r from-indigo-600 to-teal-600 hover:from-indigo-700 hover:to-teal-700 text-white"
-              >
-                {loading ? 'Creating Car...' : 'Create Car'}
-              </Button>
+              <div className="flex flex-col items-end">
+                {validationErrors.image && (
+                  <p className="text-red-500 text-sm mb-1 text-right">{validationErrors.image}</p>
+                )}
+                <Button
+                  type="submit"
+                  form="car-form"
+                  disabled={loading}
+                  className="bg-gradient-to-r from-indigo-600 to-teal-600 hover:from-indigo-700 hover:to-teal-700 text-white"
+                >
+                  {loading ? 'Creating Car...' : 'Create Car'}
+                </Button>
+              </div>
             </div>
           </CardFooter>
         </Card>

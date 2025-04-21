@@ -11,8 +11,8 @@ import Link from 'next/link';
 import ProvidersCars from '@/components/ProvidersCars';
 
 export default function RcpDetail() {
-  const params = useParams<{ id: string }>();
-  const id = params!.id as string;
+  const params = useParams();
+  const id = params.id as string;
   const router = useRouter();
 
   const [rcp, setRcp] = useState<RentalCarProvider | null>(null);
@@ -30,7 +30,7 @@ export default function RcpDetail() {
     try {
       const response = await getUserBookings();
 
-      console.log('Load bookings response:', response); 
+      console.log('Load bookings response:', response);
 
       if (response.success) {
         setBookings(response.data);
@@ -52,10 +52,12 @@ export default function RcpDetail() {
   const loadProviders = useCallback(async () => {
     try {
       const response = await getAllRcps();
-      console.log('Load providers response:', response); 
+      console.log('Load providers response:', response);
 
       if (response.success) {
         setProviders(response.data);
+      } else if (response.error === 'Authentication required') {
+        console.log('No authentication, but continuing to show available data');
       } else {
         setError('Failed to load providers');
       }
@@ -98,6 +100,12 @@ export default function RcpDetail() {
 
         if (rcpResponse.success) {
           setRcp(rcpResponse.data);
+        } else if (rcpResponse.error === 'Authentication required') {
+          if ((rcpResponse as any).data) {
+            setRcp((rcpResponse as any).data);
+          } else {
+            setError('Failed to fetch RCP details - authentication required');
+          }
         } else {
           setError('Failed to fetch RCP details');
         }

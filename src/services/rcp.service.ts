@@ -2,38 +2,10 @@ const BASE_URL = 'http://localhost:5000/api/v1';
 
 export const getAllRcps = async () => {
   try {
-    const userStr = localStorage.getItem('user');
-    if (!userStr) {
-      return {
-        success: false,
-        error: 'Authentication required'
-      };
-    }
-
-    let userData;
-    try {
-      userData = JSON.parse(userStr);
-    } catch (error) {
-      localStorage.removeItem('user');
-      return {
-        success: false,
-        error: 'Invalid user data'
-      };
-    }
-
-    const token = userData.token;
-    if (!token) {
-      return {
-        success: false,
-        error: 'Authentication required'
-      };
-    }
-
     const response = await fetch(`${BASE_URL}/rentalCarProviders`, {
       method: 'GET',
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
+        'Content-Type': 'application/json'
       },
       cache: 'no-store'
     });
@@ -59,39 +31,11 @@ export const getAllRcps = async () => {
 
 export const getRcpById = async (id: string) => {
   try {
-    const userStr = localStorage.getItem('user');
-    if (!userStr) {
-      return {
-        success: false,
-        error: 'Authentication required'
-      };
-    }
-
-    let userData;
-    try {
-      userData = JSON.parse(userStr);
-    } catch (error) {
-      localStorage.removeItem('user');
-      return {
-        success: false,
-        error: 'Invalid user data'
-      };
-    }
-
-    const token = userData.token;
-    if (!token) {
-      return {
-        success: false,
-        error: 'Authentication required'
-      };
-    }
-
     const response = await fetch(`${BASE_URL}/rentalCarProviders/${id}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Authorization': `Bearer ${token}`
+        'Accept': 'application/json'
       },
       cache: 'no-store'
     });
