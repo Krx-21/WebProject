@@ -23,13 +23,13 @@ function getPromotionStatus(startDate: string, endDate: string) {
   }
 }
 
-interface PromotionWithProviderName extends Promotion {
-  providerName?: string;
-}
+// interface PromotionWithProviderName extends Promotion {
+//   providerName?: string;
+// }
 
 export default function PromotionsPage() {
-  const [promotions, setPromotions] = useState<PromotionWithProviderName[]>([]);
-  const [filteredPromotions, setFilteredPromotions] = useState<PromotionWithProviderName[]>([]);
+  const [promotions, setPromotions] = useState<Promotion[]>([]);
+  const [filteredPromotions, setFilteredPromotions] = useState<Promotion[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeFilter, setActiveFilter] = useState<'all' | 'active' | 'upcoming'>('all');
@@ -53,46 +53,46 @@ export default function PromotionsPage() {
           throw new Error('No promotion data received');
         }
 
-        const promotionPromises = response.data.map(async (promotion) => {
-          try {
-            let providerName = 'Unknown Provider';
+        // const promotionPromises = response.data.map(async (promotion) => {
+        //   try {
+        //     let providerName = 'Unknown Provider';
 
-            if (promotion.provider) {
-              if (typeof promotion.provider === 'object' && promotion.provider.name) {
-                providerName = promotion.provider.name;
-              }
-              else if (typeof promotion.provider === 'string') {
-                try {
-                  const providerResponse = await getProviderDetails(promotion.provider);
-                  if (providerResponse.success && providerResponse.data) {
-                    providerName = providerResponse.data.name || 'Unknown Provider';
-                  }
-                } catch (err) {
-                  console.warn(`Error fetching provider ${promotion.provider}:`, err);
-                }
-              }
-            }
+        //     if (promotion.provider) {
+        //       if (typeof promotion.provider === 'object' && promotion.provider.name) {
+        //         providerName = promotion.provider.name;
+        //       }
+        //       else if (typeof promotion.provider === 'string') {
+        //         try {
+        //           const providerResponse = await getProviderDetails(promotion.provider);
+        //           if (providerResponse.success && providerResponse.data) {
+        //             providerName = providerResponse.data.name || 'Unknown Provider';
+        //           }
+        //         } catch (err) {
+        //           console.warn(`Error fetching provider ${promotion.provider}:`, err);
+        //         }
+        //       }
+        //     }
 
-            return {
-              ...promotion,
-              providerName
-            };
-          } catch (error) {
-            console.error('Error processing promotion:', error);
-            return {
-              ...promotion,
-              providerName: 'Unknown Provider'
-            };
-          }
-        });
+        //     return {
+        //       ...promotion,
+        //       providerName
+        //     };
+        //   } catch (error) {
+        //     console.error('Error processing promotion:', error);
+        //     return {
+        //       ...promotion,
+        //       providerName: 'Unknown Provider'
+        //     };
+        //   }
+        // });
 
-        const results = await Promise.allSettled(promotionPromises);
-        const promotionsWithProviders = results
-          .filter(result => result.status === 'fulfilled')
-          .map(result => (result as PromiseFulfilledResult<PromotionWithProviderName>).value);
+        // const results = await Promise.allSettled(promotionPromises);
+        // const promotionsWithProviders = response
+        //   .filter(result => result.status === 'fulfilled')
+        //   .map(result => (result as PromiseFulfilledResult<Promotion>).value);
 
-        setPromotions(promotionsWithProviders);
-        setFilteredPromotions(promotionsWithProviders);
+        setPromotions(response.data);
+        setFilteredPromotions(response.data);
       } catch (err) {
         console.error('Error fetching promotions:', err);
         setError(err instanceof Error ? err.message : 'An error occurred');
@@ -271,7 +271,7 @@ export default function PromotionsPage() {
                       </div>
                       <div className="ml-3">
                         <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Provider</p>
-                        <p className="text-sm text-slate-700 dark:text-slate-300">{promotion.providerName}</p>
+                        <p className="text-sm text-slate-700 dark:text-slate-300">{promotion.provider?.name || 'Unknown Provider'}</p>
                       </div>
                     </div>
 

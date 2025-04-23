@@ -346,11 +346,7 @@ export const deleteBooking = async (id: string) => {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`
-<<<<<<< HEAD
-      },
-=======
       }
->>>>>>> 519dd4b547d6c9ffd8cc347198f7c8f74ad906f1
     });
 
     if (!response.ok) {

@@ -11,7 +11,10 @@ export interface Promotion {
   startDate: string;
   endDate: string;
   amount: number;
-  provider?: string | {
+  provider
+  ?: 
+  // string | 
+  {
     _id: string;
     name: string;
     address?: string;
