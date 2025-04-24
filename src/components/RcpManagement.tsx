@@ -3,6 +3,7 @@
 import { useState, FormEvent, ChangeEvent } from 'react';
 import { RentalCarProvider } from '@/types/rcp';
 import { createRcp, updateRcp, deleteRcp } from '@/services/rcp.service';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface RcpManagementProps {
   providers: RentalCarProvider[];
@@ -11,31 +12,36 @@ interface RcpManagementProps {
 }
 
 export default function RcpManagement({ providers, refreshProviders, setError }: RcpManagementProps) {
+  const { user } = useAuth();
   const [showForm, setShowForm] = useState(false);
   const [editingProvider, setEditingProvider] = useState<RentalCarProvider | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const isAdmin = user?.role === 'admin';
+  const isProvider = user?.role === 'provider';
   const [formData, setFormData] = useState({
     name: '',
     address: '',
-    district: '',  
+    district: '',
     province: '',
-    postalcode: '', 
-    tel: ''
+    postalcode: '',
+    tel: '',
+    region: ''
   });
 
   const resetForm = () => {
     setFormData({
       name: '',
       address: '',
-      district: '',  
+      district: '',
       province: '',
       postalcode: '',
-      tel: ''
+      tel: '',
+      region: ''
     });
     setEditingProvider(null);
   };
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
@@ -45,10 +51,11 @@ export default function RcpManagement({ providers, refreshProviders, setError }:
     setFormData({
       name: provider.name,
       address: provider.address,
-      district: provider.district || '', 
+      district: provider.district || '',
       province: provider.province || '',
-      postalcode: provider.postalcode || '', 
-      tel: provider.tel || ''
+      postalcode: provider.postalcode || '',
+      tel: provider.tel || '',
+      region: provider.region || ''
     });
     setShowForm(true);
   };
@@ -75,7 +82,7 @@ export default function RcpManagement({ providers, refreshProviders, setError }:
 
     try {
       let response;
-      
+
       if (editingProvider) {
         response = await updateRcp(editingProvider._id, formData);
       } else {
@@ -86,6 +93,14 @@ export default function RcpManagement({ providers, refreshProviders, setError }:
         await refreshProviders();
         setShowForm(false);
         resetForm();
+
+        if (!editingProvider && isProvider && response.data) {
+          const userData = JSON.parse(localStorage.getItem('user') || '{}');
+          userData.myRcpId = response.data._id;
+          localStorage.setItem('user', JSON.stringify(userData));
+          console.log('Provider created successfully, updating user data:', userData);
+          window.location.reload();
+        }
       } else {
         setError(response.error || 'Failed to save provider');
       }
@@ -101,8 +116,8 @@ export default function RcpManagement({ providers, refreshProviders, setError }:
     <div>
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Rental Car Providers</h2>
-        
-        {!showForm && (
+
+        {!showForm && (isAdmin || (isProvider && providers.length === 0)) && (
           <button
             onClick={() => {
               resetForm();
@@ -136,7 +151,7 @@ export default function RcpManagement({ providers, refreshProviders, setError }:
                   required
                 />
               </div>
-              
+
               <div>
                 <label className="block mb-1 text-gray-700 dark:text-gray-300">Address</label>
                 <textarea
@@ -147,7 +162,7 @@ export default function RcpManagement({ providers, refreshProviders, setError }:
                   required
                 />
               </div>
-              
+
               <div>
                 <label className="block mb-1 text-gray-700 dark:text-gray-300">District</label>
                 <input
@@ -156,9 +171,10 @@ export default function RcpManagement({ providers, refreshProviders, setError }:
                   value={formData.district}
                   onChange={handleChange}
                   className="w-full p-2 border rounded text-gray-800 dark:text-gray-300 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600"
+                  required
                 />
               </div>
-              
+
               <div>
                 <label className="block mb-1 text-gray-700 dark:text-gray-300">Province</label>
                 <input
@@ -167,6 +183,7 @@ export default function RcpManagement({ providers, refreshProviders, setError }:
                   value={formData.province}
                   onChange={handleChange}
                   className="w-full p-2 border rounded text-gray-800 dark:text-gray-300 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600"
+                  required
                 />
               </div>
 
@@ -178,9 +195,10 @@ export default function RcpManagement({ providers, refreshProviders, setError }:
                   value={formData.postalcode}
                   onChange={handleChange}
                   className="w-full p-2 border rounded text-gray-800 dark:text-gray-300 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600"
+                  required
                 />
               </div>
-              
+
               <div>
                 <label className="block mb-1 text-gray-700 dark:text-gray-300">Contact Number</label>
                 <input
@@ -191,7 +209,26 @@ export default function RcpManagement({ providers, refreshProviders, setError }:
                   className="w-full p-2 border rounded text-gray-800 dark:text-gray-300 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600"
                 />
               </div>
-              
+
+              <div>
+                <label className="block mb-1 text-gray-700 dark:text-gray-300">Region</label>
+                <select
+                  name="region"
+                  value={formData.region}
+                  onChange={handleChange}
+                  className="w-full p-2 border rounded text-gray-800 dark:text-gray-300 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600"
+                  required
+                >
+                  <option value="">Select a region</option>
+                  <option value="North">North</option>
+                  <option value="Northeast">Northeast</option>
+                  <option value="Central">Central</option>
+                  <option value="East">East</option>
+                  <option value="West">West</option>
+                  <option value="South">South</option>
+                </select>
+              </div>
+
               <div className="flex justify-end space-x-3 mt-6">
                 <button
                   type="button"
@@ -225,18 +262,22 @@ export default function RcpManagement({ providers, refreshProviders, setError }:
               <div className="flex justify-between">
                 <h3 className="font-semibold text-lg text-gray-900 dark:text-white">{provider.name}</h3>
                 <div className="flex space-x-2">
-                  <button 
-                    onClick={() => handleEdit(provider)}
-                    className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
-                  >
-                    Edit
-                  </button>
-                  <button 
-                    onClick={() => handleDelete(provider._id)}
-                    className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
-                  >
-                    Delete
-                  </button>
+                  {(isAdmin || (isProvider && provider._id === user?.myRcpId)) && (
+                    <>
+                      <button
+                        onClick={() => handleEdit(provider)}
+                        className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDelete(provider._id)}
+                        className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
+                      >
+                        Delete
+                      </button>
+                    </>
+                  )}
                 </div>
               </div>
               <p className="text-gray-600 dark:text-gray-400 mt-2">{provider.address}</p>
@@ -251,6 +292,9 @@ export default function RcpManagement({ providers, refreshProviders, setError }:
               )}
               {provider.tel && (
                 <p className="text-gray-600 dark:text-gray-400 mt-1">Tel: {provider.tel}</p>
+              )}
+              {provider.region && (
+                <p className="text-gray-600 dark:text-gray-400 mt-1">Region: {provider.region}</p>
               )}
             </div>
           ))}

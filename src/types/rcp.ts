@@ -7,4 +7,5 @@ export interface RentalCarProvider {
     postalcode: string;
     tel: string;
     region: string;
+    user?: string;
 }
