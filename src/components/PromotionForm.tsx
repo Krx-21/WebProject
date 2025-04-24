@@ -33,9 +33,10 @@ interface PromotionFormProps {
     amount?: number;
   };
   promotionId?: string;
+  onSuccess?: () => void;
 }
 
-export default function PromotionForm({ initialData, promotionId }: PromotionFormProps) {
+export default function PromotionForm({ initialData, promotionId, onSuccess }: PromotionFormProps) {
   const router = useRouter();
   const [formData, setFormData] = useState({
     title: initialData?.title || '',
@@ -67,7 +68,9 @@ export default function PromotionForm({ initialData, promotionId }: PromotionFor
     try {
       const response = await getAllRcps();
       if (response.success && response.data) {
-        setProviders(Array.isArray(response.data) ? response.data : []);
+        const providersData = Array.isArray(response.data) ? response.data : [];
+        console.log('Providers data:', providersData);
+        setProviders(providersData);
       } else {
         console.error('Failed to fetch providers:', response.error);
       }
@@ -112,6 +115,8 @@ export default function PromotionForm({ initialData, promotionId }: PromotionFor
         amount: formData.amount
       };
 
+      console.log('Sending promotion data:', formattedData);
+
       const url = promotionId
         ? API_ENDPOINTS.promotions.update(promotionId)
         : API_ENDPOINTS.promotions.create;
@@ -140,7 +145,14 @@ export default function PromotionForm({ initialData, promotionId }: PromotionFor
         throw new Error(data.message || 'Failed to save promotion');
       }
 
-      router.push('/admin/promotions');
+      if (onSuccess) {
+        onSuccess();
+      }
+
+      if (!promotionId) {
+        router.push('/admin/promotions');
+      }
+
       router.refresh();
     } catch (err) {
       console.error('Form submission error:', err);
@@ -299,26 +311,33 @@ export default function PromotionForm({ initialData, promotionId }: PromotionFor
               <span className="text-slate-600 dark:text-slate-300">Loading providers...</span>
             </div>
           ) : (
-            <select
-              id="provider"
-              name="provider"
-              value={formData.provider}
-              onChange={handleChange}
-              className="w-full p-2 rounded-md bg-white dark:bg-gray-800
-                       border border-gray-300 dark:border-gray-600
-                       text-gray-800 dark:text-gray-100
-                       focus:ring-2 focus:ring-primary dark:focus:ring-blue-500
-                       hover:border-primary dark:hover:border-blue-400"
-            >
-              <option value="">Select a provider</option>
-              {providers.map((provider) => (
-                <option key={provider._id} value={provider._id}>
-                  {provider.name} - {provider.address}
-                  {provider.district && `, ${provider.district}`}
-                  {provider.province && `, ${provider.province}`}
-                </option>
-              ))}
-            </select>
+            <>
+              <select
+                id="provider"
+                name="provider"
+                value={formData.provider}
+                onChange={handleChange}
+                className="w-full p-2 rounded-md bg-white dark:bg-gray-800
+                         border border-gray-300 dark:border-gray-600
+                         text-gray-800 dark:text-gray-100
+                         focus:ring-2 focus:ring-primary dark:focus:ring-blue-500
+                         hover:border-primary dark:hover:border-blue-400"
+              >
+                <option value="">Select a provider</option>
+                {providers.map((provider) => (
+                  <option key={provider._id} value={provider._id}>
+                    {provider.name} - {provider.address}
+                    {provider.district && `, ${provider.district}`}
+                    {provider.province && `, ${provider.province}`}
+                  </option>
+                ))}
+              </select>
+              {formData.provider && (
+                <div className="mt-2 text-xs text-gray-600 dark:text-gray-400">
+                  Selected Provider ID: {formData.provider}
+                </div>
+              )}
+            </>
           )}
           <p className="text-sm text-blue-600 dark:text-blue-400 mt-1">
             As an admin, you can create promotions for specific providers.
