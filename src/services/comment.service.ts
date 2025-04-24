@@ -1,4 +1,4 @@
-const baseURL = 'http://localhost:5000';
+const baseURL = 'https://backend-six-bay-39.vercel.app';
 export const getComments = async (id : string) => {
 
     try {
@@ -11,9 +11,9 @@ export const getComments = async (id : string) => {
     }catch (e){
         console.log(`get comment fail ${e}`)
     }
-    
-    
-} 
+
+
+}
 
 export const createComments = async (cid: string, comment: string, rating: number) => {
 
@@ -36,17 +36,17 @@ export const createComments = async (cid: string, comment: string, rating: numbe
             body: JSON.stringify({
                 comment: comment,
                 rating: rating
-            }), 
+            }),
         })
         return await res.json()
-            
-        
+
+
     }catch (e){
         console.log(`create comment fail ${e}`)
     }
-    
-    
-} 
+
+
+}
 
 export const editComments = async (id : string , comment: string, rating: number) => {
 
@@ -69,16 +69,16 @@ export const editComments = async (id : string , comment: string, rating: number
             body: JSON.stringify({
                 comment: comment,
                 rating: rating
-            }), 
+            }),
         })
         return await res.json()
-        
+
     }catch (e){
         console.log(`edit comment fail ${e}`)
     }
-    
-    
-} 
+
+
+}
 
 export const deleteComments = async (id : string) => {
 
@@ -103,6 +103,6 @@ export const deleteComments = async (id : string) => {
     }catch (e){
         console.log(`delete comment fail ${e}`)
     }
-    
-    
-} 
+
+
+}

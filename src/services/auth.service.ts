@@ -1,7 +1,5 @@
 // Use backend API directly
-const BASE_URL = process.env.NODE_ENV === 'development'
-  ? 'http://localhost:5000/api/v1'
-  : 'https://backend-delta-tawny-40.vercel.app/api/v1';
+const BASE_URL = 'https://backend-six-bay-39.vercel.app/api/v1';
 
 interface LoginCredentials {
   email: string;

@@ -1,4 +1,4 @@
-const BASE_URL = 'http://localhost:5000/api/v1';
+const BASE_URL = 'https://backend-six-bay-39.vercel.app/api/v1';
 
 export const getAllRcps = async () => {
   try {
