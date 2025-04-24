@@ -418,7 +418,7 @@ export default function EditBookingPage() {
                     <option value="">No promotion (regular price)</option>
                     {promotions.map((promo) => (
                       <option key={promo._id} value={promo._id}>
-                        {promo.name ?? 'Promotion Details'} - {promo.discountPercentage}% off (max ฿{promo.maxDiscountAmount})
+                        {promo.title ?? 'Promotion Details'} - {promo.discountPercentage}% off (max ฿{promo.maxDiscountAmount})
                       </option>
                     ))}
                   </select>

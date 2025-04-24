@@ -161,7 +161,7 @@ export default function BookingForm({ onSubmit, onCancel, isSubmitting = false, 
         return;
       }
 
-      const days = differenceInDays(end, start) || 1; 
+      const days = differenceInDays(end, start) || 1;
 
       setCalculatingPrice(true);
       try {
@@ -263,7 +263,7 @@ export default function BookingForm({ onSubmit, onCancel, isSubmitting = false, 
           value={providerId}
           onChange={(e) => {
             setProviderId(e.target.value);
-            setCarId(''); 
+            setCarId('');
           }}
           className="w-full p-2 border border-slate-200 dark:border-slate-700 rounded-md focus:ring-2 focus:ring-indigo-300 dark:focus:ring-indigo-800 focus:border-transparent bg-white dark:bg-slate-700 text-slate-900 dark:text-white outline-none transition-all duration-200"
           required
@@ -344,7 +344,7 @@ export default function BookingForm({ onSubmit, onCancel, isSubmitting = false, 
                       <span>Promotion Applied</span>
                     </span>
                     <span className="bg-teal-100 dark:bg-teal-800/40 px-2 py-1 rounded text-sm">
-                      {priceDetails.promoName || promotions.find(p => p._id === priceDetails.promoId)?.name || 'Promotion'}
+                      {priceDetails.promoName || promotions.find(p => p._id === priceDetails.promoId)?.title || 'Promotion'}
                     </span>
                   </div>
 
@@ -408,7 +408,7 @@ export default function BookingForm({ onSubmit, onCancel, isSubmitting = false, 
 
                 return (
                   <option key={promo._id} value={promo._id}>
-                    {promo.name} - {promo.discountPercentage}% off (up to ฿{promo.maxDiscountAmount}) | {providerName}
+                    {promo.title} - {promo.discountPercentage}% off (up to ฿{promo.maxDiscountAmount}) | {providerName}
                   </option>
                 );
               })}

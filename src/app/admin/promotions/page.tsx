@@ -196,7 +196,7 @@ export default function PromotionsPage() {
                     {/* Title and Description */}
                     <div className="space-y-3">
                       <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
-                        {promotion.name || 'Unnamed Promotion'}
+                        {promotion.title || 'Unnamed Promotion'}
                       </h2>
                       <div className="flex items-center mb-2">
                         <span className="text-sm font-medium text-pink-600 dark:text-pink-400 mr-2">Provider:</span>

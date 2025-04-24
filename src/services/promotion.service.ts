@@ -3,8 +3,8 @@ import { getCurrentUser } from "./auth.service";
 
 export interface Promotion {
   _id: string;
-  name: string;
-  code: string;
+  title: string;
+  description: string;
   discountPercentage: number;
   maxDiscountAmount: number;
   minPurchaseAmount: number;
@@ -18,7 +18,7 @@ export interface Promotion {
     district?: string;
     province?: string;
   };
-  description?: string;
+  createdAt?: string;
 }
 
 export interface PriceCalculationResult {
