@@ -1,4 +1,3 @@
-// Use backend API directly
 const BASE_URL = 'https://backend-six-bay-39.vercel.app/api/v1';
 
 interface LoginCredentials {
