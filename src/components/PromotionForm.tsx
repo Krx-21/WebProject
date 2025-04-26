@@ -150,9 +150,9 @@ export default function PromotionForm({ initialData, promotionId, onSuccess }: P
         onSuccess();
       }
 
-      // if (!promotionId) {
+      if (response.ok) {
         router.push('/admin/promotions');
-      // }
+      }
       
       router.refresh();
     } catch (err) {
