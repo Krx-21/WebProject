@@ -5,7 +5,7 @@ export const verifyPayment = async (bookingId: string): Promise<{ success: boole
     if (!bookingId) {
       return {
         success: false,
-        error: 'Booking ID is required'
+        error: 'Please provide a valid booking ID.'
       };
     }
 
@@ -18,7 +18,7 @@ export const verifyPayment = async (bookingId: string): Promise<{ success: boole
     });
 
     if (!response.ok) {
-      throw new Error('Failed to verify payment');
+      throw new Error('We couldn’t verify the payment. Please try again later.');
     }
 
     const data = await response.json();
@@ -26,7 +26,7 @@ export const verifyPayment = async (bookingId: string): Promise<{ success: boole
     if (!data.success) {
       return {
         success: false,
-        error: 'Failed to verify payment'
+        error: 'We couldn’t verify the payment. Please check your payment details and try again.'
       };
     }
 
@@ -34,10 +34,10 @@ export const verifyPayment = async (bookingId: string): Promise<{ success: boole
       success: true,
       data: data.data
     };
-  } catch (error: any) {
+  } catch (error) {
     return {
       success: false,
-      error: 'Failed to verify payment'
+      error: error instanceof Error ? error.message:'Something went wrong while verifying the payment. Please try again later.'
     };
   }
 };

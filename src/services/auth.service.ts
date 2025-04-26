@@ -41,18 +41,18 @@ export const register = async (userData: RegisterData) => {
     const data = await response.json();
 
     if (!response.ok) {
-      throw new Error('Oops! Something went wrong. Please try again later.');
+      throw new Error('We’re having trouble connecting to the server. Please try again in a moment.');
     }
 
     if (!data.success) {
-      throw new Error('We couldn’t complete your registration. Please try again.');
+      throw new Error('Registration was unsuccessful. Please check your information and try again.');
     }
 
     return { success: true, data };
   } catch (error) {
     return {
       success: false,
-      error: 'Oops! Something went wrong. Please try again later.',
+      error: error instanceof Error ? error.message:'Something went wrong. Please try again later.',
     };
   }
 };
@@ -78,20 +78,19 @@ export const login = async (credentials: LoginCredentials) => {
 
 
     if (!response.ok) {
-      throw new Error(`Incorrect Email or Password. Please try again.`);
+      throw new Error('Incorrect email or password. Please double-check and try again.');
     }
 
     let data;
     try {
       const responseText = await response.text();
       data = JSON.parse(responseText);
-    } catch (parseError) {
-      throw new Error('Failed to parse login response');
+    } catch (error) {
+      throw new Error('We couldn’t process the server response. Please try again later.');
     }
 
-
     if (!data.success) {
-      throw new Error('Login failed');
+      throw new Error('Login failed. Please try again later.');
     }
 
     const userData = {
@@ -114,7 +113,7 @@ export const login = async (credentials: LoginCredentials) => {
   } catch (error) {
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'An error occurred during login'
+      error: error instanceof Error ? error.message : 'Something went wrong during login. Please try again.',
     };
   }
 };
@@ -122,9 +121,7 @@ export const login = async (credentials: LoginCredentials) => {
 export const getCurrentUser = () => {
   try {
     const userStr = localStorage.getItem('user');
-
     if (!userStr) return null;
-
     const user = JSON.parse(userStr);
     return user;
   } catch (error) {
@@ -147,19 +144,22 @@ export const logout = async () => {
     });
 
     if (!response.ok) {
-      throw new Error(`Oops! Something went wrong. Please try again later.`);
+      throw new Error('We’re unable to log you out right now. Please try again shortly.');
     }
 
     const data = await response.json();
     if (!data.success) {
-      throw new Error(data.message || 'Failed to logout');
+      throw new Error('Logout was unsuccessful. Please try again.');
     }
 
     localStorage.removeItem('user');
     return { success: true };
   } catch (error) {
     localStorage.removeItem('user');
-    throw error;
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Something went wrong while logging out. Please try again.',
+    };
   }
 };
 

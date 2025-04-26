@@ -7,17 +7,26 @@ export const getUserProfile = async () => {
     if (!userStr) {
       return {
         success: false,
-        error: 'No user data found'
+        error: 'User information is missing. Please log in again.'
       };
     }
     
-    const user = JSON.parse(userStr);
+    let user;
+    try {
+      user = JSON.parse(userStr);
+    } catch (error) {
+      localStorage.removeItem('user');
+      return {
+        success: false,
+        error: 'There was a problem reading your user information. Please log in again.'
+      };
+    }
     const token = user.token;
     
     if (!token) {
       return {
         success: false,
-        error: 'No authentication token found'
+        error: 'Authentication token is missing. Please log in again.'
       };
     }
 
@@ -32,50 +41,11 @@ export const getUserProfile = async () => {
       success: true,
       data: response.data.data
     };
-  } catch (error: any) {
+  } catch (error) {
     return {
       success: false,
-      error: 'Failed to fetch user profile'
+      error: error instanceof Error ? error.message:'Unable to fetch your profile. Please try again later.'
     };
-  }
-};
-
-export const updateUserProfile = async (userData: any) => {
-  try {
-    const userStr = localStorage.getItem('user');
-    if (!userStr) {
-      return {
-        success: false,
-        error: 'No user data found'
-      };
-    }
-    
-    const user = JSON.parse(userStr);
-    const token = user.token;
-    
-    if (!token) {
-      return {
-        success: false,
-        error: 'No authentication token found'
-      };
-    }
-
-    const endpoint = API_ENDPOINTS.auth.update
-    const response = await axios.put(endpoint, 
-      userData, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    });
-    
-    return {
-      success: true,
-      data: response.data.data
-    };
-  } catch (error: any) {
-    return {
-      success: false,
-      error: 'Failed to update user profile'
     };
   }
 };

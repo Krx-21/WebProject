@@ -4,13 +4,13 @@ export const getComments = async (id : string) => {
         const endpoint = API_ENDPOINTS.comments.getAll(id);
         const response = await fetch(endpoint);
         if(!response.ok){
-            throw new Error('Failed to load comments')
+            throw new Error('We couldn’t load the comments. Please try again later.')
         }
         return await response.json()
-    }catch (error: any){
+    }catch (error){
         return {
             success: false,
-            error: 'Failed to load comments'
+            error: error instanceof Error ? error.message: 'An error occurred while loading the comments. Please try again later.'
         };
     }
 
@@ -24,7 +24,7 @@ export const createComments = async (id: string, comment: string, rating: number
         if (!userStr) {
             return {
               success: false,
-              error: 'Authentication required'
+              error: 'You need to be logged in to post a comment.'
             };
         }
         const userData = JSON.parse(userStr);
@@ -43,13 +43,13 @@ export const createComments = async (id: string, comment: string, rating: number
             }),
         })
         if(!response.ok){
-            throw new Error('Failed to create comments')
+            throw new Error('We couldn’t post your comment. Please try again later.');
         }
         return await response.json()
-    }catch (error: any){
+    }catch (error){
         return {
             success: false,
-            error: 'Failed to create comments'
+            error: error instanceof Error ? error.message: 'An error occurred while posting your comment. Please try again later.'
         };
     }
 
@@ -63,7 +63,7 @@ export const editComments = async (id : string , comment: string, rating: number
         if (!userStr) {
             return {
               success: false,
-              error: 'Authentication required'
+              error: 'You need to be logged in to edit a comment.'
             };
         }
         const userData = JSON.parse(userStr);
@@ -82,13 +82,13 @@ export const editComments = async (id : string , comment: string, rating: number
             }),
         })
         if(!response.ok){
-            throw new Error('Failed to create comments')
+            throw new Error('We couldn’t update your comment. Please try again later.')
         }
         return await response.json()
-    }catch (error: any){
+    }catch (error){
         return {
             success: false,
-            error: 'Failed to edit comments'
+            error: error instanceof Error ? error.message: 'An error occurred while editing your comment. Please try again later.'
         };
     }
 
@@ -102,7 +102,7 @@ export const deleteComments = async (id : string) => {
         if (!userStr) {
             return {
               success: false,
-              error: 'Authentication required'
+              error: 'You need to be logged in to delete a comment.'
             };
         }
         const userData = JSON.parse(userStr);
@@ -116,9 +116,17 @@ export const deleteComments = async (id : string) => {
                 authorization: `Bearer ${token}`,
             },
         })
+
+        if (!response.ok) {
+            throw new Error('We couldn’t delete your comment. Please try again later.');
+        }
+
         return await response.json()
-    }catch (e){
-        console.log(`delete comment fail ${e}`)
+    }catch (error){
+        return {
+            success: false,
+            error: error instanceof Error ? error.message:'An error occurred while deleting your comment. Please try again later.'
+        };
     }
 
 

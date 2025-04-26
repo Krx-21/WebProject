@@ -38,7 +38,7 @@ export const getProviderDetails = async (providerId: string): Promise<{ success:
     if (!providerId) {
       return {
         success: false,
-        error: 'Provider ID is required'
+        error: 'Please provide a valid provider ID.'
       };
     }
 
@@ -53,7 +53,7 @@ export const getProviderDetails = async (providerId: string): Promise<{ success:
       if (!response.ok) {
         return {
           success: false,
-          error: 'Failed to fetch provider details'
+          error: 'We couldn’t retrieve the provider details. Please try again later.'
         };
       }
 
@@ -62,7 +62,7 @@ export const getProviderDetails = async (providerId: string): Promise<{ success:
       if (!data.success) {
         return {
           success: false,
-          error: 'Failed to fetch provider details'
+          error: 'We couldn’t retrieve the provider details. Please check the provider ID and try again.'
         };
       }
 
@@ -70,16 +70,16 @@ export const getProviderDetails = async (providerId: string): Promise<{ success:
         success: true,
         data: data.data
       };
-    } catch (error: any) {
+    } catch (error) {
       return {
         success: false,
-        error: 'Failed to fetch provider details'
+        error: error instanceof Error ? error.message:'There was an issue while fetching provider details. Please try again later.'
       };
     }
-  } catch (error: any) {
+  } catch (error) {
     return {
       success: false,
-      error: 'Failed to fetch provider details'
+      error: error instanceof Error ? error.message:'There was an issue while fetching provider details. Please try again later.'
     };
   }
 };
@@ -94,7 +94,7 @@ export const getAllPromotions = async (): Promise<{ success: boolean; data?: Pro
     });
 
     if (!response.ok) {
-      throw new Error('Failed to fetch promotions');
+      throw new Error('We couldn’t retrieve the promotions at the moment. Please try again later.');
     }
 
     const data = await response.json();
@@ -102,7 +102,7 @@ export const getAllPromotions = async (): Promise<{ success: boolean; data?: Pro
     if (!data.success) {
       return {
         success: false,
-        error: 'Failed to fetch promotions'
+        error: 'We couldn’t retrieve the promotions at the moment. Please try again later.'
       };
     }
 
@@ -110,10 +110,10 @@ export const getAllPromotions = async (): Promise<{ success: boolean; data?: Pro
       success: true,
       data: data.data
     };
-  } catch (error: any) {
+  } catch (error) {
     return {
       success: false,
-      error: error.message || 'Failed to fetch promotions'
+      error: error instanceof Error ? error.message:'We couldn’t retrieve the promotions at the moment. Please try again later.'
     };
   }
 };
@@ -123,7 +123,7 @@ export const getPromotionsByProvider = async (providerId: string): Promise<{ suc
     if (!providerId) {
       return {
         success: false,
-        error: 'Provider ID is required'
+        error: 'Please provide a valid provider ID.'
       };
     }
 
@@ -134,7 +134,7 @@ export const getPromotionsByProvider = async (providerId: string): Promise<{ suc
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      throw new Error('There was an issue retrieving the promotions for this provider. Please try again later.');
     }
 
     const data = await response.json();
@@ -142,7 +142,7 @@ export const getPromotionsByProvider = async (providerId: string): Promise<{ suc
     if (!data.success) {
       return {
         success: false,
-        error: data.message || 'Failed to fetch promotions'
+        error: 'There was an issue retrieving the promotions for this provider. Please try again later.'
       };
     }
 
@@ -150,10 +150,10 @@ export const getPromotionsByProvider = async (providerId: string): Promise<{ suc
       success: true,
       data: data.data
     };
-  } catch (error: any) {
+  } catch (error) {
     return {
       success: false,
-      error: error.message || 'Failed to fetch promotions'
+      error: error instanceof Error ? error.message: 'There was an issue retrieving the promotions for this provider. Please try again later.'
     };
   }
 };
@@ -167,7 +167,7 @@ export const calculatePrice = async (
     if (!carId || !numberOfDays) {
       return {
         success: false,
-        error: 'Car ID and number of days are required'
+        error: 'Please provide both the car ID and the number of days.'
       };
     }
 
@@ -175,7 +175,7 @@ export const calculatePrice = async (
     if (!user) {
       return {
         success: false,
-        error: 'Authentication required'
+        error: 'You need to be logged in to calculate the price.'
       };
     }
 
@@ -200,7 +200,7 @@ export const calculatePrice = async (
     });
 
     if (!response.ok) {
-      throw new Error('Failed to calculate price');
+      throw new Error('We couldn’t calculate the price. Please try again later.');
     }
 
     const data = await response.json();
@@ -208,7 +208,7 @@ export const calculatePrice = async (
     if (!data.success) {
       return {
         success: false,
-        error: 'Failed to calculate price'
+        error: 'We couldn’t calculate the price. Please check the details and try again.'
       };
     }
 
@@ -216,10 +216,10 @@ export const calculatePrice = async (
       success: true,
       data: data.data
     };
-  } catch (error: any) {
+  } catch (error) {
     return {
       success: false,
-      error: 'Failed to calculate price'
+      error: error instanceof Error ? error.message:'We encountered an issue while calculating the price. Please try again later.'
     };
   }
 };

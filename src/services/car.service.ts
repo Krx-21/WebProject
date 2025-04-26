@@ -7,7 +7,7 @@ export const getCarsByProvider = async (providerId: string): Promise<{ success: 
     if (!providerId) {
       return {
         success: false,
-        error: 'Provider ID is required'
+        error: 'Please provide a valid provider ID.'
       };
     }
 
@@ -15,7 +15,7 @@ export const getCarsByProvider = async (providerId: string): Promise<{ success: 
     if (!user) {
       return {
         success: false,
-        error: 'Authentication required'
+        error: 'You need to be logged in to view the available cars.'
       };
     }
 
@@ -28,7 +28,7 @@ export const getCarsByProvider = async (providerId: string): Promise<{ success: 
     });
 
     if (!response.ok) {
-      throw new Error('Failed to load cars');
+      throw new Error('We couldn’t load the cars at the moment. Please try again later.');
     }
 
     const data = await response.json();
@@ -36,7 +36,7 @@ export const getCarsByProvider = async (providerId: string): Promise<{ success: 
     if (!data.success) {
       return {
         success: false,
-        error: 'Failed to load cars'
+        error: 'There was an issue fetching the cars. Please try again.'
       };
     }
 
@@ -44,10 +44,10 @@ export const getCarsByProvider = async (providerId: string): Promise<{ success: 
       success: true,
       data: data.data
     };
-  } catch (error: any) {
+  } catch (error) {
     return {
       success: false,
-      error: 'Failed to load cars'
+      error: error instanceof Error ? error.message : 'An error occurred while fetching the cars. Please try again later.'
     };
   }
 };
@@ -57,7 +57,7 @@ export const getCarById = async (carId: string): Promise<{ success: boolean; dat
     if (!carId) {
       return {
         success: false,
-        error: 'Car ID is required'
+        error: 'Please provide a valid car ID.'
       };
     }
 
@@ -65,7 +65,7 @@ export const getCarById = async (carId: string): Promise<{ success: boolean; dat
     if (!user) {
       return {
         success: false,
-        error: 'Authentication required'
+        error: 'You need to be logged in to view car details.'
       };
     }
 
@@ -78,7 +78,7 @@ export const getCarById = async (carId: string): Promise<{ success: boolean; dat
     });
 
     if (!response.ok) {
-      throw new Error('Failed to load this car');
+      throw new Error('We couldn’t load the car details at the moment. Please try again later.');
     }
 
     const data = await response.json();
@@ -86,7 +86,7 @@ export const getCarById = async (carId: string): Promise<{ success: boolean; dat
     if (!data.success) {
       return {
         success: false,
-        error: 'Failed to load this car'
+        error: 'There was an issue fetching the car details. Please try again.'
       };
     }
 
@@ -94,10 +94,10 @@ export const getCarById = async (carId: string): Promise<{ success: boolean; dat
       success: true,
       data: data.data
     };
-  } catch (error: any) {
+  } catch (error) {
     return {
       success: false,
-      error: 'Failed to load this car'
+      error: error instanceof Error ? error.message: 'An error occurred while fetching the car details. Please try again later.'
     };
   }
 };

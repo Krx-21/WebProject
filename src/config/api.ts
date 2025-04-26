@@ -49,7 +49,6 @@ export const API_ENDPOINTS = {
     login: `${API_URL}/api/v1/auth/login`,
     getme: `${API_URL}/api/v1/auth/me`,
     logout: `${API_URL}/api/v1/auth/logout`
-    update: `${API_URL}/api/v1/auth/updatedetails`
   },
   payments: {
     verify: (bookingId: string) => `${API_URL}/api/v1/payments/verify/${bookingId}`
