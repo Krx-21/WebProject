@@ -32,7 +32,7 @@ export const API_ENDPOINTS = {
     getOne: (id: string) => `${API_URL}/api/v1/bookings/${id}`,
     update: (id: string) => `${API_URL}/api/v1/bookings/${id}`,
     delete: (id: string) => `${API_URL}/api/v1/bookings/${id}`,
-    bookingthiscar: (carId: string) => `${API_ENDPOINTS}/api/v1/cars/${carId}/bookings`
+    bookingthiscar: (carId: string) => `${API_URL}/api/v1/cars/${carId}/bookings`
   },
   rentalCarProviders: {
     getAll: `${API_URL}/api/v1/rentalCarProviders`,
