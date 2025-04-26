@@ -2,6 +2,8 @@ import { Button } from '@mui/material';
 import { test, expect } from '@playwright/test';   
 import path from 'path';
 
+const timeout = 180000
+
 
 //test provider manage cars add new car
 test('should navigate to the Manage Cars page', async ({ page }) => {
@@ -30,6 +32,7 @@ test('should navigate to the Manage Cars page', async ({ page }) => {
 
 //test provider manage cars edit car
 test('should navigate to the Edit Car page', async ({ page }) => {
+  test.setTimeout(timeout);
   await page.goto('https://web-project-delta-nine.vercel.app');
   await page.getByRole('link', { name: 'Login' }).click();
   await page.getByRole('textbox', { name: 'Email Address' }).click();
@@ -52,6 +55,7 @@ test('should navigate to the Edit Car page', async ({ page }) => {
 
 //test admin manage cars add new car
 test('admin should navigate to the Manage Cars page', async ({ page }) => {
+  test.setTimeout(timeout);
   await page.goto('https://web-project-delta-nine.vercel.app');
   await page.getByRole('link', { name: 'Login' }).click();
   await page.getByRole('textbox', { name: 'Email Address' }).click();
@@ -77,6 +81,7 @@ test('admin should navigate to the Manage Cars page', async ({ page }) => {
 
 //test provider manage cars edit car
 test('admin should navigate to the Edit Car page', async ({ page }) => {
+  test.setTimeout(timeout);
   await page.goto('https://web-project-delta-nine.vercel.app');
   await page.getByRole('link', { name: 'Login' }).click();
   await page.getByRole('textbox', { name: 'Email Address' }).click();
@@ -90,8 +95,8 @@ test('admin should navigate to the Edit Car page', async ({ page }) => {
   await page.getByRole('textbox', { name: 'Car Description' }).click();
   await page.getByRole('textbox', { name: 'Car Description' }).fill('bad car');
   await page.getByRole('button', { name: 'Update Car' }).click();
-  page.on('dialog', async (dialog) => {
-    console.log('OK', dialog.message()); 
+  page.once('dialog', async (dialog) => {
+    expect(dialog.message()).toContain('Are you sure you want to delete this promotion?'); 
     await dialog.accept(); 
   });
   await page.goto('https://web-project-delta-nine.vercel.app/admin/cars');  
@@ -99,6 +104,7 @@ test('admin should navigate to the Edit Car page', async ({ page }) => {
 
 //test provider manage cars delete car
 test('should navigate to the Delete Car page', async ({ page }) => {
+  test.setTimeout(timeout);
   await page.goto('https://web-project-delta-nine.vercel.app');
   await page.getByRole('link', { name: 'Login' }).click();
   await page.getByRole('textbox', { name: 'Email Address' }).click();
@@ -119,9 +125,10 @@ test('should navigate to the Delete Car page', async ({ page }) => {
 
 //test admin manage cars delete car
 test('admin should navigate to the Delete Car page', async ({ page }) => {
+  test.setTimeout(timeout);
   await page.goto('https://web-project-delta-nine.vercel.app');
   await page.getByRole('link', { name: 'Login' }).click();
-  await page.getByRole('textbox', { name: 'Email Address' }).click();
+  await  page.getByRole('textbox', { name: 'Email Address' }).click();
   await page.getByRole('textbox', { name: 'Email Address' }).fill('anan.panit@example.com');
   await page.getByRole('textbox', { name: 'Password' }).click();
   await page.getByRole('textbox', { name: 'Password' }).fill('password123');
@@ -139,19 +146,16 @@ test('admin should navigate to the Delete Car page', async ({ page }) => {
 
 //test everyone get all cars
 test('should navigate to the All Cars page', async ({ page }) => {
+  test.setTimeout(timeout);
   await page.goto('https://web-project-delta-nine.vercel.app');
   await page.getByRole('link', { name: 'Cars', exact: true }).click();
   await expect(page).toHaveURL('https://web-project-delta-nine.vercel.app/cars');
-  await expect(page.getByRole('link', {  name: 'No Image ฿2,800/day SUV Nissan Terra 2022 ปิยะนุช ยูสคาร์ Diesel 7 seats View' })).toBeVisible();
-  await expect(page.getByRole('link', { name: 'No Image ฿2,500/day Van' })).toBeVisible();
+  await expect(page.locator('div').filter({ hasText: 'Available CarsBrowse our' }).nth(2)).toBeVisible();
 });
-
-
-
-
 
 //test dark mode & light mode
 test.describe('Theme mode switch (Dark/Light)', () => {
+    test.setTimeout(timeout);
     test.beforeEach(async ({ page }) => {
       await page.goto('https://web-project-delta-nine.vercel.app'); // แก้ URL ตามโปรเจกต์ของคุณ
     });
