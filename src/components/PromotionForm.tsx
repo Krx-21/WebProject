@@ -137,9 +137,10 @@ export default function PromotionForm({ initialData, promotionId }: PromotionFor
 
       const data = await response.json();
       if (!data.success) {
+        // console.log(` here ====> ${response}`);
         throw new Error(data.message || 'Failed to save promotion');
       }
-
+      // console.log(` here ====> ${data}`);
       router.push('/admin/promotions');
       router.refresh();
     } catch (err) {
@@ -329,14 +330,14 @@ export default function PromotionForm({ initialData, promotionId }: PromotionFor
       {/* Date Fields */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="startDate" className="text-gray-800 dark:text-gray-200 font-medium">
+          <Label htmlFor="startDate" className="text-gray-800 dark:text-gray-200 font-medium mr-2">
             Start Date
           </Label>
           <DatePicker
             selected={formData.startDate ? new Date(formData.startDate) : null}
             onChange={(date) => handleDateChange('startDate', date)}
             dateFormat="dd/MM/yyyy"
-            minDate={new Date()}
+            // minDate={new Date()}
             className="w-full p-2 rounded-md bg-white dark:bg-gray-800
                      border border-gray-300 dark:border-gray-600
                      text-gray-800 dark:text-gray-100
@@ -349,7 +350,7 @@ export default function PromotionForm({ initialData, promotionId }: PromotionFor
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="endDate" className="text-gray-800 dark:text-gray-200 font-medium">
+          <Label htmlFor="endDate" className="text-gray-800 dark:text-gray-200 font-medium mr-2">
             End Date
           </Label>
           <DatePicker
@@ -379,7 +380,7 @@ export default function PromotionForm({ initialData, promotionId }: PromotionFor
           className="border-2 border-gray-300 dark:border-gray-600
                    text-gray-700 dark:text-gray-300
                    hover:bg-gray-50 dark:hover:bg-gray-700/50
-                   transition-all duration-200"
+                   transition-all duration-200 p-1"
         >
           Cancel
         </Button>
@@ -393,7 +394,7 @@ export default function PromotionForm({ initialData, promotionId }: PromotionFor
                    text-white font-medium shadow-sm
                    hover:shadow-md disabled:opacity-50
                    disabled:cursor-not-allowed
-                   transition-all duration-200"
+                   transition-all duration-200 p-1"
         >
           {loading ? 'Saving...' : promotionId ? 'Update Promotion' : 'Create Promotion'}
         </Button>

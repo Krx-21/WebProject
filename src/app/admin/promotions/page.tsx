@@ -196,7 +196,7 @@ export default function PromotionsPage() {
                     {/* Title and Description */}
                     <div className="space-y-3">
                       <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
-                        {promotion.name || 'Unnamed Promotion'}
+                        {promotion.title || 'Unnamed Promotion'}
                       </h2>
                       <div className="flex items-center mb-2">
                         <span className="text-sm font-medium text-pink-600 dark:text-pink-400 mr-2">Provider:</span>
@@ -247,7 +247,7 @@ export default function PromotionsPage() {
                         <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">
                           Valid Period
                         </p>
-                        <p className="text-sm font-medium text-gray-800 dark:text-gray-200">
+                        <p className="text-sm font-medium text-gray-800 dark:text-gray-200" >
                           {formatDate(promotion.startDate)} - {formatDate(promotion.endDate)}
                         </p>
                       </div>
@@ -258,6 +258,7 @@ export default function PromotionsPage() {
                   <div className="flex lg:flex-col gap-3 justify-end">
                     <Button
                       variant="outline"
+                      data-testid={`edit-btn-${promotion._id}`}
                       onClick={() => router.push(`/admin/promotions/${promotion._id}/edit`)}
                       className="flex-1 lg:flex-none px-6 py-2 border-2 border-blue-500
                                 text-blue-600 dark:text-blue-400 dark:border-blue-400
@@ -269,6 +270,7 @@ export default function PromotionsPage() {
                     </Button>
                     <Button
                       variant="destructive"
+                      data-testid={`delete-btn-${promotion._id}`}
                       onClick={() => handleDelete(promotion._id)}
                       className="flex-1 lg:flex-none px-6 py-2 bg-red-500 hover:bg-red-600
                                 dark:bg-red-600/90 dark:hover:bg-red-500

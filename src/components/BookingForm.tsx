@@ -344,7 +344,7 @@ export default function BookingForm({ onSubmit, onCancel, isSubmitting = false, 
                       <span>Promotion Applied</span>
                     </span>
                     <span className="bg-teal-100 dark:bg-teal-800/40 px-2 py-1 rounded text-sm">
-                      {priceDetails.promoName || promotions.find(p => p._id === priceDetails.promoId)?.name || 'Promotion'}
+                      {priceDetails.promoName || promotions.find(p => p._id === priceDetails.promoId)?.title || 'Promotion'}
                     </span>
                   </div>
 
@@ -408,7 +408,7 @@ export default function BookingForm({ onSubmit, onCancel, isSubmitting = false, 
 
                 return (
                   <option key={promo._id} value={promo._id}>
-                    {promo.name} - {promo.discountPercentage}% off (up to ฿{promo.maxDiscountAmount}) | {providerName}
+                    {promo.title} - {promo.discountPercentage}% off (up to ฿{promo.maxDiscountAmount}) | {providerName}
                   </option>
                 );
               })}

@@ -3,7 +3,7 @@ import { getCurrentUser } from "./auth.service";
 
 export interface Promotion {
   _id: string;
-  name: string;
+  title: string;
   code: string;
   discountPercentage: number;
   maxDiscountAmount: number;

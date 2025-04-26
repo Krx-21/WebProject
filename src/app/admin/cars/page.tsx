@@ -207,7 +207,7 @@ export default function CarsPage() {
 
   useEffect(() => {
     if (stringAPI) {
-            fetchCars();
+          fetchCars();
           }
   }, [token, stringAPI, fetchCars]);
 
