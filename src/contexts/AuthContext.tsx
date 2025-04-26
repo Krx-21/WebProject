@@ -3,7 +3,6 @@ import { createContext, useContext, useState, useEffect, ReactNode } from 'react
 import { login as apiLogin, register as apiRegister, getCurrentUser, logout as apiLogout } from '@/services/auth.service';
 import { useRouter } from 'next/navigation';
 
-// เพิ่ม interface User ตามข้อมูลที่ได้รับจาก API
 interface User {
   _id: string;
   name: string;
@@ -12,6 +11,7 @@ interface User {
   telephoneNumber?: string;
   createdAt?: string;
   token?: string;
+  myRcpId?: string;
 }
 
 interface AuthContextType {
@@ -50,13 +50,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setLoading(false);
       }
     };
-    
+
     checkUser();
   }, []);
 
   useEffect(() => {
     if (user) {
-      console.log("Saving user to localStorage:", user); 
+      console.log("Saving user to localStorage:", user);
       localStorage.setItem('user', JSON.stringify(user));
     }
   }, [user]);
@@ -65,9 +65,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       setError(null);
       const response = await apiLogin(credentials);
-      
+
       if (response.success) {
-        console.log("Login successful, response data:", response.data); 
+        console.log("Login successful, response data:", response.data);
         setUser(response.data);
         return { success: true };
       } else {
@@ -85,7 +85,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       setError(null);
       const response = await apiRegister(userData);
-      
+
       if (response.success) {
         return { success: true };
       } else {
@@ -104,9 +104,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await apiLogout();
     } catch (err) {
       console.error('Logout error:', err);
-      // Continue with logout even if API call fails
     } finally {
-      // Always clear user data and redirect
       setUser(null);
       localStorage.removeItem('user');
       setError(null);
@@ -119,9 +117,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser((prevUser: User | null) => {
       if (!prevUser) return null;
       const updatedUser = { ...prevUser, ...newData };
-      
+
       localStorage.setItem('user', JSON.stringify(updatedUser));
-      
+
       return updatedUser;
     });
   };

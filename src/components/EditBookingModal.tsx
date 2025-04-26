@@ -54,7 +54,7 @@ export default function EditBookingModal({ booking, onSubmit, onCancel, isSubmit
             if (!dateString) return '';
             try {
               const date = new Date(dateString);
-              return date.toISOString().split('T')[0]; 
+              return date.toISOString().split('T')[0];
             } catch (error) {
               console.error('Error formatting date:', error);
               return '';
@@ -77,11 +77,11 @@ export default function EditBookingModal({ booking, onSubmit, onCancel, isSubmit
             }
           }
 
-          setProviderId(determinedProviderId); 
+          setProviderId(determinedProviderId);
           setCarId(booking.carId || (booking.car && booking.car._id) || '');
           setPromoId(booking.promoId || '');
 
-          if (determinedProviderId) { 
+          if (determinedProviderId) {
             loadCars(determinedProviderId);
             loadPromotions(determinedProviderId);
           }
@@ -164,7 +164,7 @@ export default function EditBookingModal({ booking, onSubmit, onCancel, isSubmit
         return;
       }
 
-      const days = differenceInDays(end, start) || 1; 
+      const days = differenceInDays(end, start) || 1;
 
       setCalculating(true);
       try {
@@ -263,7 +263,7 @@ export default function EditBookingModal({ booking, onSubmit, onCancel, isSubmit
                 type="date"
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
-                min={startDate} 
+                min={startDate}
                 className="w-full p-2 border border-slate-200 dark:border-slate-700 rounded-md focus:ring-2 focus:ring-indigo-300 dark:focus:ring-indigo-800 focus:border-transparent dark:bg-slate-700 dark:text-white outline-none transition-all duration-200"
                 required
               />
@@ -276,7 +276,7 @@ export default function EditBookingModal({ booking, onSubmit, onCancel, isSubmit
               value={providerId}
               onChange={(e) => {
                 setProviderId(e.target.value);
-                setCarId(''); 
+                setCarId('');
               }}
               className="w-full p-2 border border-slate-200 dark:border-slate-700 rounded-md focus:ring-2 focus:ring-indigo-300 dark:focus:ring-indigo-800 focus:border-transparent dark:bg-slate-700 dark:text-white outline-none transition-all duration-200"
               required
@@ -341,7 +341,7 @@ export default function EditBookingModal({ booking, onSubmit, onCancel, isSubmit
                   <option value="">No promotion (regular price)</option>
                   {promotions.map((promo) => (
                     <option key={promo._id} value={promo._id}>
-                      {promo.name} - {promo.discountPercentage}% off (max ฿{promo.maxDiscountAmount})
+                      {promo.title} - {promo.discountPercentage}% off (max ฿{promo.maxDiscountAmount})
                     </option>
                   ))}
                 </select>

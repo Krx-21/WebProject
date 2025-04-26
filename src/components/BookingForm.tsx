@@ -161,7 +161,7 @@ export default function BookingForm({ onSubmit, onCancel, isSubmitting = false, 
         return;
       }
 
-      const days = differenceInDays(end, start) || 1; 
+      const days = differenceInDays(end, start) || 1;
 
       setCalculatingPrice(true);
       try {
@@ -263,7 +263,7 @@ export default function BookingForm({ onSubmit, onCancel, isSubmitting = false, 
           value={providerId}
           onChange={(e) => {
             setProviderId(e.target.value);
-            setCarId(''); 
+            setCarId('');
           }}
           className="w-full p-2 border border-slate-200 dark:border-slate-700 rounded-md focus:ring-2 focus:ring-indigo-300 dark:focus:ring-indigo-800 focus:border-transparent bg-white dark:bg-slate-700 text-slate-900 dark:text-white outline-none transition-all duration-200"
           required

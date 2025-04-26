@@ -331,19 +331,23 @@ export default function NewCarPage() {
             </div>
             <CardTitle className="text-xl font-semibold text-slate-800 dark:text-slate-100">No Providers Available</CardTitle>
             <CardDescription className="text-slate-600 dark:text-slate-400">
-              You need to add a provider before you can create a car listing.
+              {user.role === 'admin'
+                ? "Administrators cannot add providers. Please ask a provider user to create a provider profile."
+                : "You need to add a provider before you can create a car listing."}
             </CardDescription>
           </CardHeader>
           <CardFooter className="flex justify-center pb-6 pt-2">
-            <Button
-              onClick={() => router.push('/admin/providers/new')}
-              className="bg-gradient-to-r from-indigo-600 to-teal-600 hover:from-indigo-700 hover:to-teal-700 text-white font-medium rounded-lg transition-all duration-200 shadow-md hover:shadow-lg"
-            >
-              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-              </svg>
-              Add New Provider
-            </Button>
+            {user.role === 'provider' && (
+              <Button
+                onClick={() => router.push('/dashboard')}
+                className="bg-gradient-to-r from-indigo-600 to-teal-600 hover:from-indigo-700 hover:to-teal-700 text-white font-medium rounded-lg transition-all duration-200 shadow-md hover:shadow-lg"
+              >
+                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                Go to Dashboard to Add Provider
+              </Button>
+            )}
           </CardFooter>
         </Card>
       </div>

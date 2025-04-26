@@ -1,18 +1,28 @@
 import { test, expect } from '@playwright/test';
 
-const baseURL = 'http://localhost:3000'
+const baseURL = 'https://web-project-delta-nine.vercel.app'
+const timeout = 180000
 
 test('admin create promotion', async ({ page }, testInfo) => {
-  testInfo.setTimeout(60000);
+  testInfo.setTimeout(timeout);
   await page.goto(`${baseURL}/login`);
   await page.getByRole('textbox', { name: 'Email Address' }).click();
   await page.getByRole('textbox', { name: 'Email Address' }).fill('chaiwat.duangdee@example.com');
   await page.getByRole('textbox', { name: 'Password' }).click();
   await page.getByRole('textbox', { name: 'Password' }).fill('password123');
   await page.getByRole('button', { name: 'Sign in' }).click();
-  await page.getByRole('link', { name: 'Manage Promotions' }).click();
+  // await page.getByRole('link', { name: 'Manage Promotions' }).click();
+  await Promise.all([
+    page.waitForNavigation({ waitUntil: 'load' }),
+    page.getByRole('link', { name: 'Manage Promotions' }).click(),
+  ])
   await expect(page.url()).toBe(`${baseURL}/admin/promotions`);
-  await page.getByRole('button', { name: 'Create New Promotion' }).click();
+  // await page.getByRole('button', { name: 'Create New Promotion' }).click();
+  await Promise.all([
+    page.waitForNavigation({ waitUntil: 'load' }),
+    page.getByRole('button', { name: 'Create New Promotion' }).click(),
+  ])
+
   await expect(page.url()).toBe(`${baseURL}/admin/promotions/new`);
   await page.getByRole('textbox', { name: 'Title' }).click();
   await page.getByRole('textbox', { name: 'Title' }).fill('admin create promotion 1');
@@ -28,10 +38,13 @@ test('admin create promotion', async ({ page }, testInfo) => {
   await page.getByRole('spinbutton', { name: 'Available Quantity' }).fill('4');
   await page.getByLabel('Select Provider').selectOption('6809bcb851d2828667fa50ae');
   await page.getByRole('textbox', { name: 'Select start date' }).click();
-  await page.getByRole('option', { name: 'Choose Friday, April 25th,' }).click();
+  await page.getByRole('option', { name: 'Choose Thursday, May 1st,' }).click();
   await page.getByRole('textbox', { name: 'Select end date' }).click();
   await page.getByRole('option', { name: 'Choose Saturday, May 3rd,' }).click();
-  await page.getByRole('button', { name: 'Create Promotion' }).click();
+  await Promise.all([
+    page.waitForNavigation({ waitUntil: 'load' }),
+    page.getByRole('button', { name: 'Create Promotion' }).click(),
+  ]);
   await expect(page.url()).toBe(`${baseURL}/admin/promotions`);
   
   await expect(page.getByRole('heading', { name: 'admin create promotion 1' })).toBeVisible();
@@ -48,7 +61,7 @@ test('admin create promotion', async ({ page }, testInfo) => {
 
 
 test('admin create promotion missing field' ,async ({ page }, testInfo) => {
-  testInfo.setTimeout(60000);
+  testInfo.setTimeout(timeout);
   await page.goto(`${baseURL}/login`);
   await page.getByRole('textbox', { name: 'Email Address' }).click();
   await page.getByRole('textbox', { name: 'Email Address' }).fill('chaiwat.duangdee@example.com');
@@ -71,7 +84,7 @@ test('admin create promotion missing field' ,async ({ page }, testInfo) => {
   await page.getByRole('spinbutton', { name: 'Available Quantity' }).fill('5');
   await page.getByLabel('Select Provider').selectOption('6809bcf551d2828667fa50b5');
   await page.getByRole('textbox', { name: 'Select start date' }).click();
-  await page.getByRole('option', { name: 'Choose Tuesday, April 29th,' }).click();
+  await page.getByRole('option', { name: 'Choose Thursday, May 1st,' }).click();
   await page.getByRole('textbox', { name: 'Select end date' }).click();
   await page.getByRole('option', { name: 'Choose Saturday, May 3rd,' }).click();
   await page.getByRole('button', { name: 'Create Promotion' }).click();
@@ -135,7 +148,7 @@ test('admin create promotion over discount percentege' , async ({page}) => {
   await page.getByRole('spinbutton', { name: 'Available Quantity' }).fill('5');
   await page.getByLabel('Select Provider').selectOption('6809bcf551d2828667fa50b5');
   await page.getByRole('textbox', { name: 'Select start date' }).click();
-  await page.getByRole('option', { name: 'Choose Tuesday, April 29th,' }).click();
+  await page.getByRole('option', { name: 'Choose Thursday, May 1st,' }).click();
   await page.getByRole('textbox', { name: 'Select end date' }).click();
   await page.getByRole('option', { name: 'Choose Saturday, May 3rd,' }).click();
   await page.getByRole('button', { name: 'Create Promotion' }).click();
@@ -144,7 +157,7 @@ test('admin create promotion over discount percentege' , async ({page}) => {
 })
 
 test('admin delete promotion', async ({ page }, testInfo) => {
-  testInfo.setTimeout(60000);
+  testInfo.setTimeout(timeout);
   await page.goto(`${baseURL}/login`);
   await page.getByRole('textbox', { name: 'Email Address' }).click();
   await page.getByRole('textbox', { name: 'Email Address' }).fill('anan.panit@example.com');
@@ -168,7 +181,7 @@ test('admin delete promotion', async ({ page }, testInfo) => {
   await page.getByRole('spinbutton', { name: 'Available Quantity' }).fill('4');
   await page.getByLabel('Select Provider').selectOption('6809bcf551d2828667fa50b5');
   await page.getByRole('textbox', { name: 'Select start date' }).click();
-  await page.getByRole('option', { name: 'Choose Friday, April 25th,' }).click();
+  await page.getByRole('option', { name: 'Choose Thursday, May 1st,' }).click();
   await page.getByRole('textbox', { name: 'Select end date' }).click();
   await page.getByRole('option', { name: 'Choose Saturday, May 3rd,' }).click();
   await page.getByRole('button', { name: 'Create Promotion' }).click();
@@ -188,7 +201,11 @@ test(`admin delete promotion but change his mind`, async ({ page }) => {
   await page.getByRole('textbox', { name: 'Password' }).click();
   await page.getByRole('textbox', { name: 'Password' }).fill('password123');
   await page.getByRole('button', { name: 'Sign in' }).click();
-  await page.getByRole('link', { name: 'Manage Promotions' }).click();
+  // await page.getByRole('link', { name: 'Manage Promotions' }).click();
+  await Promise.all([
+    page.waitForNavigation({ waitUntil: 'load' }),
+    page.getByRole('link', { name: 'Manage Promotions' }).click(),
+  ]);
   expect(page.url()).toBe(`${baseURL}/admin/promotions`);
   await expect(page.getByRole('heading', { name: 'firstTime' })).toBeVisible();
   page.once('dialog', async (dialog) => {
@@ -201,7 +218,7 @@ test(`admin delete promotion but change his mind`, async ({ page }) => {
 
 
 test('admin edit promotion', async ({ page }, testInfo) => {
-  testInfo.setTimeout(60000);
+  testInfo.setTimeout(timeout);
   await page.goto(`${baseURL}/login`);
   await page.getByRole('textbox', { name: 'Email Address' }).click();
   await page.getByRole('textbox', { name: 'Email Address' }).fill('chaiwat.duangdee@example.com');
@@ -222,17 +239,21 @@ test('admin edit promotion', async ({ page }, testInfo) => {
   await page.getByRole('spinbutton', { name: 'Min Purchase Amount (฿)' }).fill('01500');
   await page.getByLabel('Select Provider').selectOption('6809bcf551d2828667fa50b5');
   await page.getByRole('textbox', { name: 'Select start date' }).click();
-  await page.getByRole('option', { name: 'Choose Friday, April 25th,' }).click();
+  await page.getByRole('option', { name: 'Choose Thursday, May 1st,' }).click();
   await page.getByRole('textbox', { name: 'Select end date' }).click();
-  await page.getByRole('button', { name: 'Next Month' }).click();
-  await page.getByRole('option', { name: 'Choose Thursday, May 22nd,' }).click();
+  // await page.getByRole('button', { name: 'Next Month' }).click();
+  await page.getByRole('option', { name: 'Choose Saturday, May 3rd,' }).click();
   await page.getByRole('button', { name: 'Create Promotion' }).click();
   expect(page.getByRole('heading', { name:'admin edit promotion'})).toBeVisible();
   await page.getByRole('button', { name: 'Edit' }).nth(2).click();
   await page.getByRole('textbox', { name: 'Title' }).click();
 
   await page.getByRole('textbox', { name: 'Title' }).fill('admin edit promotion law na ja');
-  await page.getByRole('button', { name: 'Update Promotion' }).click();
+  // await page.getByRole('button', { name: 'Update Promotion' }).click();
+  await Promise.all([
+    page.waitForNavigation({ waitUntil: 'load' }),
+    page.getByRole('button', { name: 'Update Promotion' }).click(),
+  ]);
   expect(page.getByRole('heading', { name:'admin edit promotion law na ja'})).toBeVisible();
   page.once('dialog', async (dialog) => {
     expect(dialog.message()).toContain('Are you sure you want to delete this promotion?'); 
@@ -256,7 +277,7 @@ test('admin edit promotion', async ({ page }, testInfo) => {
 // });
 
 test('admin edit promotion missing field', async ({ page }, testInfo) => {
-  testInfo.setTimeout(60000);
+  testInfo.setTimeout(timeout);
   await page.goto(`${baseURL}/login`);
   await page.getByRole('textbox', { name: 'Email Address' }).click();
   await page.getByRole('textbox', { name: 'Email Address' }).fill('chaiwat.duangdee@example.com');
@@ -274,16 +295,24 @@ test('admin edit promotion missing field', async ({ page }, testInfo) => {
 
 
 test('provider create promotion', async ({ page }, testInfo) => {
-  testInfo.setTimeout(60000);
+  testInfo.setTimeout(timeout);
   await page.goto(`${baseURL}/login`);
   await page.getByRole('textbox', { name: 'Email Address' }).click();
   await page.getByRole('textbox', { name: 'Email Address' }).fill('piyanuch.singthong@example.com');
   await page.getByRole('textbox', { name: 'Password' }).click();
   await page.getByRole('textbox', { name: 'Password' }).fill('password123');
   await page.getByRole('button', { name: 'Sign in' }).click();
-  await page.getByRole('link', { name: 'Manage Promotions' }).click();
+  // await page.getByRole('link', { name: 'Manage Promotions' }).click();
+  await Promise.all([
+    page.waitForNavigation({ waitUntil: 'load' }),
+    page.getByRole('link', { name: 'Manage Promotions' }).click(),
+  ]);
   expect(page.url()).toBe(`${baseURL}/admin/promotions`);
-  await page.getByRole('button', { name: 'Create New Promotion' }).click();
+  // await page.getByRole('button', { name: 'Create New Promotion' }).click();
+  await Promise.all([
+    page.waitForNavigation({ waitUntil: 'load' }),
+    page.getByRole('button', { name: 'Create New Promotion' }).click(),
+  ]);
   expect(page.url()).toBe(`${baseURL}/admin/promotions/new`);
   await page.getByRole('textbox', { name: 'Title' }).click();
   await page.getByRole('textbox', { name: 'Title' }).fill('provider create promotion 1');
@@ -298,10 +327,13 @@ test('provider create promotion', async ({ page }, testInfo) => {
   await page.getByRole('spinbutton', { name: 'Available Quantity' }).click();
   await page.getByRole('spinbutton', { name: 'Available Quantity' }).fill('4');
   await page.getByRole('textbox', { name: 'Select start date' }).click();
-  await page.getByRole('option', { name: 'Choose Friday, April 25th,' }).click();
+  await page.getByRole('option', { name: 'Choose Thursday, May 1st,' }).click();
   await page.getByRole('textbox', { name: 'Select end date' }).click();
   await page.getByRole('option', { name: 'Choose Saturday, May 3rd,' }).click();
-  await page.getByRole('button', { name: 'Create Promotion' }).click();
+  await Promise.all([
+    page.waitForNavigation({ waitUntil: 'load' }),
+    page.getByRole('button', { name: 'Create Promotion' }).click(),
+  ])
   await expect(page.url()).toBe(`${baseURL}/admin/promotions`);
   await expect(page.getByRole('heading', { name: 'provider create promotion 1' })).toBeVisible();
   page.once('dialog', async (dialog) => {
@@ -319,9 +351,17 @@ test('provider create promotion missing field' , async ({page}) => {
   await page.getByRole('textbox', { name: 'Password' }).click();
   await page.getByRole('textbox', { name: 'Password' }).fill('password123');
   await page.getByRole('button', { name: 'Sign in' }).click();
-  await page.getByRole('link', { name: 'Manage Promotions' }).click();
+  // await page.getByRole('link', { name: 'Manage Promotions' }).click();
+  await Promise.all([
+    page.waitForNavigation({ waitUntil: 'load' }),
+    page.getByRole('link', { name: 'Manage Promotions' }).click(),
+  ]);
   expect(page.url()).toBe(`${baseURL}/admin/promotions`);
-  await page.getByRole('button', { name: 'Create New Promotion' }).click();
+  // await page.getByRole('button', { name: 'Create New Promotion' }).click();
+  await Promise.all([
+    page.waitForNavigation({ waitUntil: 'load' }),
+    page.getByRole('button', { name: 'Create New Promotion' }).click(),
+  ]);
   expect(page.url()).toBe(`${baseURL}/admin/promotions/new`);
   await page.getByRole('textbox', { name: 'Title' }).click();
   await page.getByRole('textbox', { name: 'Title' }).fill('provider create promotion');
@@ -334,7 +374,7 @@ test('provider create promotion missing field' , async ({page}) => {
   await page.getByRole('spinbutton', { name: 'Available Quantity' }).click();
   await page.getByRole('spinbutton', { name: 'Available Quantity' }).fill('5');
   await page.getByRole('textbox', { name: 'Select start date' }).click();
-  await page.getByRole('option', { name: 'Choose Tuesday, April 29th,' }).click();
+  await page.getByRole('option', { name: 'Choose Thursday, May 1st,' }).click();
   await page.getByRole('textbox', { name: 'Select end date' }).click();
   await page.getByRole('option', { name: 'Choose Saturday, May 3rd,' }).click();
   await page.getByRole('button', { name: 'Create Promotion' }).click();
@@ -350,9 +390,17 @@ test(`provider create promotion provider doesn't exist` , async ({page}) => {
   await page.getByRole('textbox', { name: 'Password' }).click();
   await page.getByRole('textbox', { name: 'Password' }).fill('password123');
   await page.getByRole('button', { name: 'Sign in' }).click();
-  await page.getByRole('link', { name: 'Manage Promotions' }).click();
+  // await page.getByRole('link', { name: 'Manage Promotions' }).click();
+  await Promise.all([
+    page.waitForNavigation({ waitUntil: 'load' }),
+    page.getByRole('link', { name: 'Manage Promotions' }).click(),
+  ]);
   expect(page.url()).toBe(`${baseURL}/admin/promotions`);
-  await page.getByRole('button', { name: 'Create New Promotion' }).click();
+  // await page.getByRole('button', { name: 'Create New Promotion' }).click();
+  await Promise.all([
+    page.waitForNavigation({ waitUntil: 'load' }),
+    page.getByRole('button', { name: 'Create New Promotion' }).click(),
+  ]);
   expect(page.url()).toBe(`${baseURL}/admin/promotions/new`);
   await page.getByRole('textbox', { name: 'Title' }).click();
   await page.getByRole('textbox', { name: 'Title' }).fill('provider create promotion');
@@ -378,9 +426,17 @@ test('provider create promotion invalid field value' , async ({page}) => {
   await page.getByRole('textbox', { name: 'Password' }).click();
   await page.getByRole('textbox', { name: 'Password' }).fill('password123');
   await page.getByRole('button', { name: 'Sign in' }).click();
-  await page.getByRole('link', { name: 'Manage Promotions' }).click();
+  // await page.getByRole('link', { name: 'Manage Promotions' }).click();
+  await Promise.all([
+    page.waitForNavigation({ waitUntil: 'load' }),
+    page.getByRole('link', { name: 'Manage Promotions' }).click(),
+  ]);
   expect(page.url()).toBe(`${baseURL}/admin/promotions`);
-  await page.getByRole('button', { name: 'Create New Promotion' }).click();
+  // await page.getByRole('button', { name: 'Create New Promotion' }).click();
+  await Promise.all([
+    page.waitForNavigation({ waitUntil: 'load' }),
+    page.getByRole('button', { name: 'Create New Promotion' }).click(),
+  ]);
   expect(page.url()).toBe(`${baseURL}/admin/promotions/new`);
   await page.getByRole('textbox', { name: 'Title' }).click();
   await page.getByRole('textbox', { name: 'Title' }).fill('provider create promotion');
@@ -395,7 +451,7 @@ test('provider create promotion invalid field value' , async ({page}) => {
   await page.getByRole('spinbutton', { name: 'Available Quantity' }).click();
   await page.getByRole('spinbutton', { name: 'Available Quantity' }).fill('5');
   await page.getByRole('textbox', { name: 'Select start date' }).click();
-  await page.getByRole('option', { name: 'Choose Tuesday, April 29th,' }).click();
+  await page.getByRole('option', { name: 'Choose Thursday, May 1st,' }).click();
   await page.getByRole('textbox', { name: 'Select end date' }).click();
   await page.getByRole('option', { name: 'Choose Saturday, May 3rd,' }).click();
   await page.getByRole('button', { name: 'Create Promotion' }).click();
@@ -405,14 +461,18 @@ test('provider create promotion invalid field value' , async ({page}) => {
 
 
 test('provider delete promotion', async ({ page }, testInfo) => {
-  testInfo.setTimeout(60000);
+  testInfo.setTimeout(timeout);
   await page.goto(`${baseURL}/login`);
   await page.getByRole('textbox', { name: 'Email Address' }).click();
   await page.getByRole('textbox', { name: 'Email Address' }).fill('piyanuch.singthong@example.com');
   await page.getByRole('textbox', { name: 'Password' }).click();
   await page.getByRole('textbox', { name: 'Password' }).fill('password123');
   await page.getByRole('button', { name: 'Sign in' }).click();
-  await page.getByRole('link', { name: 'Manage Promotions' }).click();
+  // await page.getByRole('link', { name: 'Manage Promotions' }).click();
+  await Promise.all([
+    page.waitForNavigation({ waitUntil: 'load' }),
+    page.getByRole('link', { name: 'Manage Promotions' }).click(),
+  ]);
   expect(page.url()).toBe(`${baseURL}/admin/promotions`);
   await page.getByRole('button', { name: 'Create New Promotion' }).click();
   await page.getByRole('textbox', { name: 'Title' }).click();
@@ -428,7 +488,7 @@ test('provider delete promotion', async ({ page }, testInfo) => {
   await page.getByRole('spinbutton', { name: 'Available Quantity' }).click();
   await page.getByRole('spinbutton', { name: 'Available Quantity' }).fill('4');
   await page.getByRole('textbox', { name: 'Select start date' }).click();
-  await page.getByRole('option', { name: 'Choose Friday, April 25th,' }).click();
+  await page.getByRole('option', { name: 'Choose Thursday, May 1st,' }).click();
   await page.getByRole('textbox', { name: 'Select end date' }).click();
   await page.getByRole('option', { name: 'Choose Saturday, May 3rd,' }).click();
   await page.getByRole('button', { name: 'Create Promotion' }).click();
@@ -463,7 +523,7 @@ test(`provider delete promotion that doesn't belong to them`, async ({ page }) =
 
 
 test('provider edit promotion', async ({ page }, testInfo) => {
-  testInfo.setTimeout(60000);
+  testInfo.setTimeout(timeout);
   await page.goto(`${baseURL}/login`);
   await page.getByRole('textbox', { name: 'Email Address' }).click();
   await page.getByRole('textbox', { name: 'Email Address' }).fill('teerasak.kaewsai@example.com');
@@ -483,10 +543,10 @@ test('provider edit promotion', async ({ page }, testInfo) => {
   await page.getByRole('spinbutton', { name: 'Min Purchase Amount (฿)' }).click();
   await page.getByRole('spinbutton', { name: 'Min Purchase Amount (฿)' }).fill('01500');
   await page.getByRole('textbox', { name: 'Select start date' }).click();
-  await page.getByRole('option', { name: 'Choose Friday, April 25th,' }).click();
+  await page.getByRole('option', { name: 'Choose Thursday, May 1st,' }).click();
   await page.getByRole('textbox', { name: 'Select end date' }).click();
-  await page.getByRole('button', { name: 'Next Month' }).click();
-  await page.getByRole('option', { name: 'Choose Thursday, May 22nd,' }).click();
+  // await page.getByRole('button', { name: 'Next Month' }).click();
+  await page.getByRole('option', { name: 'Choose Saturday, May 3rd,' }).click();
   await page.getByRole('button', { name: 'Create Promotion' }).click();
   expect(page.getByRole('heading', { name:'provider edit promotion'})).toBeVisible();
   await page.getByRole('button', { name: 'Edit' }).nth(2).click();
@@ -503,7 +563,7 @@ test('provider edit promotion', async ({ page }, testInfo) => {
 });
 
 test('provider edit promotion that doesnat belong to them', async ({ page }, testInfo) => {
-  testInfo.setTimeout(60000);
+  testInfo.setTimeout(timeout);
   await page.goto(`${baseURL}/login`);
   await page.getByRole('textbox', { name: 'Email Address' }).click();
   await page.getByRole('textbox', { name: 'Email Address' }).fill('teerasak.kaewsai@example.com');

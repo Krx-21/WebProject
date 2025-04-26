@@ -224,11 +224,11 @@ export default function PromotionsPage() {
 
                   <div className="relative z-10">
                     <h3 className="text-2xl font-bold text-slate-800 dark:text-slate-100 mt-6 group-hover:text-indigo-700 dark:group-hover:text-indigo-400 transition-colors duration-300">
-                      {(promotion as any).title || (promotion as any).name}
+                      {promotion.title}
                     </h3>
                     <div className="h-1 w-12 bg-gradient-to-r from-indigo-500 to-blue-500 dark:from-indigo-400 dark:to-blue-400 mt-2 mb-3 rounded-full group-hover:w-20 transition-all duration-300"></div>
                     <p className="text-slate-600 dark:text-slate-300 line-clamp-2">
-                      {(promotion as any).description || 'No description available'}
+                      {promotion.description || 'No description available'}
                     </p>
                   </div>
                 </div>

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import { getAllRcps } from '@/services/rcp.service';
+import { getAllRcps, getMyRcp } from '@/services/rcp.service';
 import { getUserBookings, deleteBooking } from '@/services/booking.service';
 import BookingList from '@/components/BookingList';
 import RcpManagement from '@/components/RcpManagement';
@@ -17,6 +17,7 @@ export default function Dashboard() {
   const [mounted, setMounted] = useState(false);
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [providers, setProviders] = useState<RentalCarProvider[]>([]);
+  const [myProvider, setMyProvider] = useState<RentalCarProvider[]>([]);
 
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
@@ -24,6 +25,7 @@ export default function Dashboard() {
   const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState('bookings');
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isProvider, setIsProvider] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -38,6 +40,7 @@ export default function Dashboard() {
         return;
       }
       setIsAdmin(user.role === 'admin');
+      setIsProvider(user.role === 'provider');
     };
 
     checkAuth();
@@ -58,6 +61,18 @@ export default function Dashboard() {
           return;
         }
         setError(providersResponse.error || 'Failed to load providers');
+      }
+
+      if (user?.role === 'provider') {
+        console.log('Loading provider data for user:', user);
+        const myProviderResponse = await getMyRcp();
+        console.log('My provider response:', myProviderResponse);
+        if (myProviderResponse.success) {
+          console.log('Setting my provider data:', myProviderResponse.data);
+          setMyProvider(myProviderResponse.data || []);
+        } else {
+          console.error('Failed to load provider data:', myProviderResponse.error);
+        }
       }
 
       const bookingsResponse = await getUserBookings();
@@ -85,10 +100,10 @@ export default function Dashboard() {
     loadData();
 
     const tabParam = searchParams.get('tab');
-    if (tabParam === 'providers' && isAdmin) {
+    if (tabParam === 'providers' && (isAdmin || isProvider)) {
       setActiveTab('providers');
     }
-  }, [mounted, user, searchParams, isAdmin]);
+  }, [mounted, user, searchParams, isAdmin, isProvider]);
 
 
 
@@ -146,6 +161,12 @@ export default function Dashboard() {
               Admin Access
             </div>
           )}
+
+          {isProvider && (
+            <div className="px-4 py-2 bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 rounded-full font-medium text-sm shadow-sm">
+              Provider Access
+            </div>
+          )}
         </div>
 
         {error && (
@@ -176,7 +197,7 @@ export default function Dashboard() {
               >
                 My Bookings
               </button>
-              {isAdmin && (
+              {(isAdmin || isProvider) && (
                 <button
                   onClick={() => setActiveTab('providers')}
                   className={`${
@@ -185,7 +206,7 @@ export default function Dashboard() {
                       : 'border-transparent text-slate-500 hover:text-indigo-500 hover:border-indigo-300 dark:text-slate-400 dark:hover:text-indigo-300'
                   } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200`}
                 >
-                  Manage Providers
+                  {isAdmin ? 'Manage Providers' : 'My Provider Profile'}
                 </button>
               )}
             </nav>
@@ -235,13 +256,24 @@ export default function Dashboard() {
           </div>
         )}
 
-        {activeTab === 'providers' && isAdmin && (
+        {activeTab === 'providers' && (isAdmin || isProvider) && (
           <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-6 border border-slate-200 dark:border-slate-700">
             <h2 className="text-xl font-semibold text-indigo-600 dark:text-indigo-400 mb-6 pb-2 border-b border-slate-200 dark:border-slate-700">
-              Manage Car Providers
+              {isAdmin ? 'Manage Car Providers' : 'My Provider Profile'}
             </h2>
+            {isProvider && (
+              <div className="mb-4">
+                {/* Log provider data */}
+                {(() => { console.log('Rendering provider tab with myProvider:', myProvider); return null; })()}
+                {myProvider.length === 0 && !isLoading && (
+                  <p className="text-amber-600 bg-amber-50 p-3 rounded-md border border-amber-200">
+                    No provider profile found. You can create one below.
+                  </p>
+                )}
+              </div>
+            )}
             <RcpManagement
-              providers={providers}
+              providers={isAdmin ? providers : myProvider}
               refreshProviders={refreshProviders}
               setError={setError}
             />
