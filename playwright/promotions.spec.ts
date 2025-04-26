@@ -545,10 +545,13 @@ test('provider edit promotion', async ({ page }, testInfo) => {
   await page.getByRole('textbox', { name: 'Select start date' }).click();
   await page.getByRole('option', { name: 'Choose Thursday, May 1st,' }).click();
   await page.getByRole('textbox', { name: 'Select end date' }).click();
-  // await page.getByRole('button', { name: 'Next Month' }).click();
   await page.getByRole('option', { name: 'Choose Saturday, May 3rd,' }).click();
-  await page.getByRole('button', { name: 'Create Promotion' }).click();
-  expect(page.getByRole('heading', { name:'provider edit promotion'})).toBeVisible();
+  // await page.getByRole('button', { name: 'Create Promotion' }).click();
+  await Promise.all([
+    page.waitForNavigation({ waitUntil: 'load' }),
+    page.getByRole('button', { name: 'Create Promotion' }).click(),
+  ])
+  await expect(page.getByRole('heading', { name:'provider edit promotion'})).toBeVisible();
   await page.getByRole('button', { name: 'Edit' }).nth(2).click();
   await page.getByRole('textbox', { name: 'Title' }).click();
 
@@ -582,5 +585,80 @@ test('provider edit promotion that doesnat belong to them', async ({ page }, tes
 });
 
 
+test('user use promotion', async ({ page }) => {
+  await page.goto(`${baseURL}/login`);
+  await page.getByRole('textbox', { name: 'Email Address' }).click();
+  await page.getByRole('textbox', { name: 'Email Address' }).fill('kanokporn.thongdee@example.com');
+  await page.getByRole('textbox', { name: 'Password' }).click();
+  await page.getByRole('textbox', { name: 'Password' }).fill('password123');
+  await page.getByRole('button', { name: 'Sign in' }).click();
+  await page.getByRole('link', { name: 'New Booking' }).click();
+  await page.locator('div').filter({ hasText: /^Start Date$/ }).getByRole('textbox').fill('2025-05-01');
+  await page.locator('div').filter({ hasText: /^End Date$/ }).getByRole('textbox').fill('2025-05-03');
+  await page.getByRole('combobox').selectOption('6809bc8251d2828667fa50a7');
+  await page.locator('form div').filter({ hasText: 'Select CarSelect a carToyota' }).getByRole('combobox').selectOption('6809bda4098ee880892ad390');
+  await page.locator('form div').filter({ hasText: 'Apply Promotion (Optional)No' }).getByRole('combobox').selectOption('680c467ecc0f83145836d6e6');
+  const basePriceText = await page.locator('text=Base price:').locator('..').locator('span').nth(1).textContent();
+  const totalPriceText = await page.locator('text=Total price:').locator('..').locator('span').nth(1).textContent();
+  const basePrice = Number(basePriceText?.replace(/[^\d]/g, ''));
+  const totalPrice = Number(totalPriceText?.replace(/[^\d]/g, ''));
+  const discountAmountText = await page.locator('text=Discount Amount').locator('..').locator('div').nth(1).textContent();
+  const discountAmount = Number(discountAmountText?.replace(/[^0-9]/g, ''));
+  expect(basePrice - discountAmount).toBe(totalPrice);
+  await page.getByRole('button', { name: 'Complete Booking' }).click();
+  await page.getByRole('button', { name: 'Simulate Payment (Demo)' }).click();
+  await page.goto(`${baseURL}/dashboard`);
+  page.once('dialog', dialog => {
+    console.log(`Dialog message: ${dialog.message()}`);
+    dialog.dismiss().catch(() => {});
+  });
+  await page.getByRole('button', { name: 'Cancel' }).nth(0).click();
+});
 
 
+
+test('user use expired promotion', async ({ page }) => {
+  await page.goto(`${baseURL}/login`);
+  await page.getByRole('textbox', { name: 'Email Address' }).click();
+  await page.getByRole('textbox', { name: 'Email Address' }).fill('kanokporn.thongdee@example.com');
+  await page.getByRole('textbox', { name: 'Password' }).click();
+  await page.getByRole('textbox', { name: 'Password' }).fill('password123');
+  await page.getByRole('button', { name: 'Sign in' }).click();
+  await page.getByRole('link', { name: 'New Booking' }).click();
+  await page.locator('div').filter({ hasText: /^Start Date$/ }).getByRole('textbox').fill('2025-05-01');
+  await page.locator('div').filter({ hasText: /^End Date$/ }).getByRole('textbox').fill('2025-05-03');
+  await page.getByRole('combobox').selectOption('6809bc8251d2828667fa50a7');
+  await page.locator('form div').filter({ hasText: 'Select CarSelect a carToyota' }).getByRole('combobox').selectOption('6809bda4098ee880892ad390');
+  await page.locator('form div').filter({ hasText: 'Apply Promotion (Optional)No' }).getByRole('combobox').selectOption('6809bf5b0174547db41fca64');
+  const basePriceText = await page.locator('text=Base price:').locator('..').locator('span').nth(1).textContent();
+  const totalPriceText = await page.locator('text=Total price:').locator('..').locator('span').nth(1).textContent();
+  const basePrice = Number(basePriceText?.replace(/[^\d]/g, ''));
+  const totalPrice = Number(totalPriceText?.replace(/[^\d]/g, ''));
+  expect(basePrice).toBe(totalPrice);
+  await page.getByRole('button', { name: 'Complete Booking' }).click();
+  await page.getByRole('button', { name: 'Simulate Payment (Demo)' }).click();
+  await page.goto(`${baseURL}/dashboard`);
+  page.once('dialog', dialog => {
+    console.log(`Dialog message: ${dialog.message()}`);
+    dialog.dismiss().catch(() => {});
+  });
+  await page.getByRole('button', { name: 'Cancel' }).nth(0).click();
+});
+
+
+
+test('user see all promotion', async ({ page }) => {
+  await page.goto('https://web-project-delta-nine.vercel.app/');
+  await page.getByRole('link', { name: 'Promotions' }).click();
+  expect(page.getByRole('heading', { level: 3, name: 'firstTime' })).toBeVisible();
+  expect(page.getByRole('heading', { level: 3, name: 'promotion for user to test' })).toBeVisible();
+  await page.getByRole('button', { name: 'Active' }).click();
+});
+
+test('user see unexpired promotion', async ({ page }) => {
+  await page.goto('https://web-project-delta-nine.vercel.app/');
+  await page.getByRole('link', { name: 'Promotions' }).click();
+  await page.getByRole('button', { name: 'Active' }).click();
+  expect(page.getByRole('heading', { level: 3, name: 'firstTime' })).toBeHidden();
+  expect(page.getByRole('heading', { level: 3, name: 'promotion for user to test' })).toBeVisible();
+});
