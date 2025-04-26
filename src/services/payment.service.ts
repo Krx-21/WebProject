@@ -9,7 +9,8 @@ export const verifyPayment = async (bookingId: string): Promise<{ success: boole
       };
     }
 
-    const response = await fetch(`${API_ENDPOINTS.payments.verify(bookingId)}`, {
+    const endpoint = API_ENDPOINTS.payments.verify(bookingId);
+    const response = await fetch(endpoint, {
       method: 'GET',
       headers: {
         'Accept': 'application/json'
@@ -17,7 +18,7 @@ export const verifyPayment = async (bookingId: string): Promise<{ success: boole
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      throw new Error('Failed to verify payment');
     }
 
     const data = await response.json();
@@ -25,7 +26,7 @@ export const verifyPayment = async (bookingId: string): Promise<{ success: boole
     if (!data.success) {
       return {
         success: false,
-        error: data.message || 'Failed to verify payment'
+        error: 'Failed to verify payment'
       };
     }
 
@@ -34,10 +35,9 @@ export const verifyPayment = async (bookingId: string): Promise<{ success: boole
       data: data.data
     };
   } catch (error: any) {
-    console.error('Error verifying payment:', error);
     return {
       success: false,
-      error: error.message || 'Failed to verify payment'
+      error: 'Failed to verify payment'
     };
   }
 };

@@ -26,7 +26,7 @@ export const createBooking = async (rcpId: string, bookingData: BookingData) => 
       localStorage.removeItem('user');
       return {
         success: false,
-        error: 'Invalid user data'
+        error: `Invalid user data ${error}`
       };
     }
 
@@ -37,10 +37,8 @@ export const createBooking = async (rcpId: string, bookingData: BookingData) => 
         error: 'Authentication required'
       };
     }
-
-    const endpoint = bookingData.carId
-      ? `${API_ENDPOINTS.cars.getOne(bookingData.carId)}/bookings`
-      : `${API_ENDPOINTS.rentalCarProviders.getOne(rcpId)}/bookings`;
+    if(!bookingData.carId) throw new Error('Failed to create booking');
+    const endpoint = API_ENDPOINTS.bookings.bookingthiscar(bookingData.carId);
 
     const response = await fetch(endpoint, {
       method: 'POST',
@@ -52,10 +50,8 @@ export const createBooking = async (rcpId: string, bookingData: BookingData) => 
     });
 
     const data = await response.json();
-    console.log('Create booking response:', data);
-
     if (!response.ok) {
-      throw new Error(data.message || data.msg || 'Failed to create booking');
+      throw new Error('Failed to create booking');
     }
 
     return {
@@ -63,10 +59,9 @@ export const createBooking = async (rcpId: string, bookingData: BookingData) => 
       data: data.data
     };
   } catch (error: any) {
-    console.error('Create booking error:', error);
     return {
       success: false,
-      error: error.message || 'Failed to create booking'
+      error: 'Failed to create booking'
     };
   }
 };
@@ -100,7 +95,8 @@ export const getUserBookings = async () => {
       };
     }
 
-    const response = await fetch(API_ENDPOINTS.bookings.getAll, {
+    const endpoint = API_ENDPOINTS.bookings.getAll
+    const response = await fetch(endpoint, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -115,27 +111,20 @@ export const getUserBookings = async () => {
           error: 'Authentication required'
         };
       }
-      const errorData = await response.json();
-      throw new Error(errorData.message || `Error ${response.status}: Failed to fetch bookings`);
+      throw new Error('Failed to load bookings.');
     }
 
     const data = await response.json();
-
-    if (data.data && data.data.length > 0) {
-      console.log('First booking structure:', JSON.stringify(data.data[0], null, 2));
-    } else {
-      console.log('No bookings found or empty data array');
-    }
 
     return {
       success: true,
       data: data.data || []
     };
   } catch (error: any) {
-    console.error('Error fetching bookings:', error);
+
     return {
       success: false,
-      error: error.message || 'Failed to fetch bookings'
+      error: 'Failed to load bookings.'
     };
   }
 };
@@ -169,7 +158,8 @@ export const updateBooking = async (id: string, bookingData: BookingData) => {
       };
     }
 
-    const response = await fetch(API_ENDPOINTS.bookings.getOne(id), {
+    const endpoint = API_ENDPOINTS.bookings.getOne(id);
+    const response = await fetch(endpoint, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -179,8 +169,7 @@ export const updateBooking = async (id: string, bookingData: BookingData) => {
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || `Error ${response.status}: Failed to update booking`);
+      throw new Error('Failed to edit booking');
     }
 
     const data = await response.json();
@@ -189,10 +178,9 @@ export const updateBooking = async (id: string, bookingData: BookingData) => {
       data: data.data
     };
   } catch (error: any) {
-    console.error('Update booking error:', error);
     return {
       success: false,
-      error: error.message || 'Failed to update booking'
+      error: 'Failed to edit booking'
     };
   }
 };
@@ -226,7 +214,8 @@ export const getBooking = async (id: string) => {
       };
     }
 
-    const response = await fetch(API_ENDPOINTS.bookings.getOne(id), {
+    const endpoint = API_ENDPOINTS.bookings.getOne(id);
+    const response = await fetch(endpoint, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -235,8 +224,7 @@ export const getBooking = async (id: string) => {
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || `Error ${response.status}: Failed to fetch booking`);
+      throw new Error('Failed to load this booking');
     }
 
     const data = await response.json();
@@ -245,10 +233,9 @@ export const getBooking = async (id: string) => {
       data: data.data
     };
   } catch (error: any) {
-    console.error('Get booking error:', error);
     return {
       success: false,
-      error: error.message || 'Failed to fetch booking'
+      error: 'Failed to load this booking'
     };
   }
 };
@@ -284,7 +271,8 @@ export const updateBookingStatus = async (id: string, status: 'pending' | 'proce
 
     const bookingData = { status };
 
-    const response = await fetch(API_ENDPOINTS.bookings.getOne(id), {
+    const endpoint = API_ENDPOINTS.bookings.getOne(id);
+    const response = await fetch(endpoint, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -295,7 +283,7 @@ export const updateBookingStatus = async (id: string, status: 'pending' | 'proce
 
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.message || `Error ${response.status}: Failed to update booking status`);
+      throw new Error('Failed to edit booking status');
     }
 
     const data = await response.json();
@@ -304,10 +292,9 @@ export const updateBookingStatus = async (id: string, status: 'pending' | 'proce
       data: data.data
     };
   } catch (error: any) {
-    console.error('Update booking status error:', error);
     return {
       success: false,
-      error: error.message || 'Failed to update booking status'
+      error: 'Failed to edit booking status'
     };
   }
 };
@@ -341,7 +328,8 @@ export const deleteBooking = async (id: string) => {
       };
     }
 
-    const response = await fetch(API_ENDPOINTS.bookings.getOne(id), {
+    const endpoint = API_ENDPOINTS.bookings.getOne(id);
+    const response = await fetch(endpoint, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
@@ -350,8 +338,7 @@ export const deleteBooking = async (id: string) => {
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || `Error ${response.status}: Failed to delete booking`);
+      throw new Error('Failed to remove booking');
     }
 
     const data = await response.json();
@@ -360,10 +347,9 @@ export const deleteBooking = async (id: string) => {
       data: data.data
     };
   } catch (error: any) {
-    console.error('Delete booking error:', error);
     return {
       success: false,
-      error: error.message || 'Failed to delete booking'
+      error: 'Failed to remove booking'
     };
   }
 };

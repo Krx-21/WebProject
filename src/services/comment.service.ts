@@ -1,21 +1,23 @@
-const baseURL = 'https://backend-six-bay-39.vercel.app';
+import { API_ENDPOINTS } from "@/config/api";
 export const getComments = async (id : string) => {
-
     try {
-        const res = await fetch(`${baseURL}/api/v1/cars/${id}/comments`)
-        if(!res.ok){
-            console.log(id)
-            throw new Error("Failed to fetch comment")
+        const endpoint = API_ENDPOINTS.comments.getAll(id);
+        const response = await fetch(endpoint);
+        if(!response.ok){
+            throw new Error('Failed to load comments')
         }
-        return await res.json()
-    }catch (e){
-        console.log(`get comment fail ${e}`)
+        return await response.json()
+    }catch (error: any){
+        return {
+            success: false,
+            error: 'Failed to load comments'
+        };
     }
 
 
 }
 
-export const createComments = async (cid: string, comment: string, rating: number) => {
+export const createComments = async (id: string, comment: string, rating: number) => {
 
     try {
         const userStr = localStorage.getItem('user');
@@ -27,7 +29,9 @@ export const createComments = async (cid: string, comment: string, rating: numbe
         }
         const userData = JSON.parse(userStr);
         const token = userData.token;
-        const res = await fetch(`${baseURL}/api/v1/cars/${cid}/comments` ,{
+
+        const endpoint = API_ENDPOINTS.comments.create(id);
+        const response = await fetch(endpoint ,{
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -38,11 +42,15 @@ export const createComments = async (cid: string, comment: string, rating: numbe
                 rating: rating
             }),
         })
-        return await res.json()
-
-
-    }catch (e){
-        console.log(`create comment fail ${e}`)
+        if(!response.ok){
+            throw new Error('Failed to create comments')
+        }
+        return await response.json()
+    }catch (error: any){
+        return {
+            success: false,
+            error: 'Failed to create comments'
+        };
     }
 
 
@@ -60,7 +68,9 @@ export const editComments = async (id : string , comment: string, rating: number
         }
         const userData = JSON.parse(userStr);
         const token = userData.token;
-        const res = await fetch(`${baseURL}/api/v1/comments/${id}` ,{
+
+        const endpoint = API_ENDPOINTS.comments.update(id);
+        const response = await fetch(endpoint ,{
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
@@ -71,10 +81,15 @@ export const editComments = async (id : string , comment: string, rating: number
                 rating: rating
             }),
         })
-        return await res.json()
-
-    }catch (e){
-        console.log(`edit comment fail ${e}`)
+        if(!response.ok){
+            throw new Error('Failed to create comments')
+        }
+        return await response.json()
+    }catch (error: any){
+        return {
+            success: false,
+            error: 'Failed to edit comments'
+        };
     }
 
 
@@ -92,14 +107,16 @@ export const deleteComments = async (id : string) => {
         }
         const userData = JSON.parse(userStr);
         const token = userData.token;
-        const res = await fetch(`${baseURL}/api/v1/comments/${id}` ,{
+
+        const endpoint = API_ENDPOINTS.comments.delete(id)
+        const response = await fetch(endpoint ,{
             method: "DELETE",
             headers: {
                 "Content-Type": "application/json",
                 authorization: `Bearer ${token}`,
             },
         })
-        return await res.json()
+        return await response.json()
     }catch (e){
         console.log(`delete comment fail ${e}`)
     }

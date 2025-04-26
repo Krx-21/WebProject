@@ -1,4 +1,4 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://backend-six-bay-39.vercel.app';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
 export const API_ENDPOINTS = {
   promotions: {
@@ -14,8 +14,9 @@ export const API_ENDPOINTS = {
   comments: {
     getAll: (carId: string) => `${API_URL}/api/v1/cars/${carId}/comments/`,
     create: (carId: string) => `${API_URL}/api/v1/cars/${carId}/comments/`,
-    update: (carId:string, commentId: string) => `${API_URL}/api/v1/cars/${carId}/comments/${commentId}`,
-    delete: (carId:string, commentId: string) => `${API_URL}/api/v1/cars/${carId}/comments/${commentId}`
+    update: (commentId: string) => `${API_URL}/api/v1/comments/${commentId}`,
+    delete: (commentId: string) => `${API_URL}/api/v1/comments/${commentId}`
+    
   },
   cars: {
     getAll: `${API_URL}/api/v1/cars`,
@@ -23,6 +24,7 @@ export const API_ENDPOINTS = {
     update: (id: string) => `${API_URL}/api/v1/cars/${id}`,
     delete: (id: string) => `${API_URL}/api/v1/cars/${id}`,
     create: (providerId: string) => `${API_URL}/api/v1/cars/${providerId}`,
+    calPrice:  `${API_URL}/api/v1/cars/calculate-price`
   },
   bookings: {
     getAll: `${API_URL}/api/v1/bookings`,
@@ -30,6 +32,7 @@ export const API_ENDPOINTS = {
     getOne: (id: string) => `${API_URL}/api/v1/bookings/${id}`,
     update: (id: string) => `${API_URL}/api/v1/bookings/${id}`,
     delete: (id: string) => `${API_URL}/api/v1/bookings/${id}`,
+    bookingthiscar: (carId: string) => `${API_ENDPOINTS}/api/v1/cars/${carId}/bookings`
   },
   rentalCarProviders: {
     getAll: `${API_URL}/api/v1/rentalCarProviders`,
@@ -37,13 +40,16 @@ export const API_ENDPOINTS = {
     getPromotions: (providerId: string) => `${API_URL}/api/v1/rentalCarProviders/${providerId}/promotions`,
     getBookings: (ProviderId: string) => `${API_URL}/api/v1/rentalCarProviders/${ProviderId}/bookings`,
     getCars: (providerId: string) => `${API_URL}/api/v1/rentalCarProviders/${providerId}/cars`,
-
+    create: `${API_URL}/api/v1/rentalCarProviders`,
+    update: (id: string) => `${API_URL}/api/v1/rentalCarProviders/${id}`,
+    delete: (id: string) => `${API_URL}/api/v1/rentalCarProviders/${id}`,
   },
   auth: {
     register: `${API_URL}/api/v1/auth/register`,
     login: `${API_URL}/api/v1/auth/login`,
     getme: `${API_URL}/api/v1/auth/me`,
     logout: `${API_URL}/api/v1/auth/logout`
+    update: `${API_URL}/api/v1/auth/updatedetails`
   },
   payments: {
     verify: (bookingId: string) => `${API_URL}/api/v1/payments/verify/${bookingId}`

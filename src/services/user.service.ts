@@ -1,6 +1,5 @@
 import axios from 'axios';
-
-const API_URL = 'https://backend-six-bay-39.vercel.app/api/v1';
+import { API_ENDPOINTS } from "@/config/api";
 
 export const getUserProfile = async () => {
   try {
@@ -22,7 +21,8 @@ export const getUserProfile = async () => {
       };
     }
 
-    const response = await axios.get(`${API_URL}/auth/me`, {
+    const endpoint = API_ENDPOINTS.auth.getme;
+    const response = await axios.get(endpoint, {
       headers: {
         Authorization: `Bearer ${token}`
       }
@@ -33,10 +33,9 @@ export const getUserProfile = async () => {
       data: response.data.data
     };
   } catch (error: any) {
-    console.error('Error fetching user profile:', error);
     return {
       success: false,
-      error: error.response?.data?.message || 'Failed to fetch user profile'
+      error: 'Failed to fetch user profile'
     };
   }
 };
@@ -61,7 +60,9 @@ export const updateUserProfile = async (userData: any) => {
       };
     }
 
-    const response = await axios.put(`${API_URL}/auth/updatedetails`, userData, {
+    const endpoint = API_ENDPOINTS.auth.update
+    const response = await axios.put(endpoint, 
+      userData, {
       headers: {
         Authorization: `Bearer ${token}`
       }
@@ -72,10 +73,9 @@ export const updateUserProfile = async (userData: any) => {
       data: response.data.data
     };
   } catch (error: any) {
-    console.error('Error updating user profile:', error);
     return {
       success: false,
-      error: error.response?.data?.message || 'Failed to update user profile'
+      error: 'Failed to update user profile'
     };
   }
 };

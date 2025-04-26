@@ -1,8 +1,9 @@
-const BASE_URL = 'https://backend-six-bay-39.vercel.app/api/v1';
+import { API_ENDPOINTS } from "@/config/api";
 
 export const getAllRcps = async () => {
   try {
-    const response = await fetch(`${BASE_URL}/rentalCarProviders`, {
+    const endpoint = API_ENDPOINTS.rentalCarProviders.getAll;
+    const response = await fetch(endpoint, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json'
@@ -21,7 +22,6 @@ export const getAllRcps = async () => {
       data: data.data || data
     };
   } catch (error) {
-    console.error('Error fetching RCPs:', error);
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Failed to fetch data'
@@ -31,7 +31,8 @@ export const getAllRcps = async () => {
 
 export const getRcpById = async (id: string) => {
   try {
-    const response = await fetch(`${BASE_URL}/rentalCarProviders/${id}`, {
+    const endpoint = API_ENDPOINTS.rentalCarProviders.getOne(id);
+    const response = await fetch(endpoint, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -41,7 +42,7 @@ export const getRcpById = async (id: string) => {
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      throw new Error('Failed to fetch data');
     }
 
     const rawData = await response.json();
@@ -55,10 +56,9 @@ export const getRcpById = async (id: string) => {
       data: rawData.data || rawData
     };
   } catch (error) {
-    console.error('Error fetching RCP:', error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Failed to fetch data'
+      error: 'Failed to fetch data'
     };
   }
 };
@@ -92,7 +92,8 @@ export const createRcp = async (rcpData: any) => {
       };
     }
 
-    const response = await fetch(`${BASE_URL}/rentalCarProviders`, {
+    const endpoint = API_ENDPOINTS.rentalCarProviders.create;
+    const response = await fetch(endpoint, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -113,7 +114,6 @@ export const createRcp = async (rcpData: any) => {
       data: data.data
     };
   } catch (error: any) {
-    console.error('Create provider error:', error);
     return {
       success: false,
       error: error.message || 'Failed to create provider'
@@ -150,7 +150,8 @@ export const updateRcp = async (id: string, rcpData: any) => {
       };
     }
 
-    const response = await fetch(`${BASE_URL}/rentalCarProviders/${id}`, {
+    const endpoint = API_ENDPOINTS.rentalCarProviders.update(id);
+    const response = await fetch(endpoint, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -163,7 +164,7 @@ export const updateRcp = async (id: string, rcpData: any) => {
     const data = await response.json();
 
     if (!response.ok) {
-      throw new Error(data.message || data.msg || `Error ${response.status}: Failed to update provider`);
+      throw new Error('Failed to update provider');
     }
 
     return {
@@ -171,10 +172,9 @@ export const updateRcp = async (id: string, rcpData: any) => {
       data: data.data
     };
   } catch (error: any) {
-    console.error('Update provider error:', error);
     return {
       success: false,
-      error: error.message || 'Failed to update provider'
+      error: 'Failed to update provider'
     };
   }
 };
@@ -221,17 +221,16 @@ export const getMyRcp = async () => {
     }
 
     const meData = await meResponse.json();
-    console.log('Current user data from API:', meData);
 
     if (!meData.data.myRcpId) {
-      console.log('User has no myRcpId');
       return {
         success: true,
         data: []
       };
     }
 
-    const response = await fetch(`${BASE_URL}/rentalCarProviders/${meData.data.myRcpId}`, {
+    const endpoint = API_ENDPOINTS.rentalCarProviders.getOne(meData.data.myRcpId);
+    const response = await fetch(endpoint, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -243,17 +242,15 @@ export const getMyRcp = async () => {
 
     if (!response.ok) {
       if (response.status === 404) {
-        console.log('Provider not found with ID:', meData.data.myRcpId);
         return {
           success: true,
           data: []
         };
       }
-      throw new Error(`HTTP error! status: ${response.status}`);
+      throw new Error('Failed to fetch data');
     }
 
     const data = await response.json();
-    console.log('My RCP data from API:', data);
 
     if (data.success && data.data) {
       return {
@@ -272,10 +269,9 @@ export const getMyRcp = async () => {
       };
     }
   } catch (error) {
-    console.error('Error fetching my RCP:', error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Failed to fetch data'
+      error: 
     };
   }
 };
@@ -309,7 +305,8 @@ export const deleteRcp = async (id: string) => {
       };
     }
 
-    const response = await fetch(`${BASE_URL}/rentalCarProviders/${id}`, {
+    const endpoint = API_ENDPOINTS.rentalCarProviders.delete(id);
+    const response = await fetch(endpoint, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
@@ -319,8 +316,7 @@ export const deleteRcp = async (id: string) => {
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || `Error ${response.status}: Failed to delete provider`);
+      throw new Error('Failed to delete provider');
     }
 
     const data = await response.json();
@@ -329,10 +325,9 @@ export const deleteRcp = async (id: string) => {
       data: data.data
     };
   } catch (error: any) {
-    console.error('Delete provider error:', error);
     return {
       success: false,
-      error: error.message || 'Failed to delete provider'
+      error: 'Failed to delete provider'
     };
   }
 };

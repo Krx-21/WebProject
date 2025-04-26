@@ -43,17 +43,17 @@ export const getProviderDetails = async (providerId: string): Promise<{ success:
     }
 
     try {
-      const response = await fetch(`${API_ENDPOINTS.rentalCarProviders.getOne(providerId)}`, {
+      const endpoint = API_ENDPOINTS.rentalCarProviders.getOne(providerId);
+      const response = await fetch(endpoint, {
         headers: {
           'Accept': 'application/json'
         },
       });
 
       if (!response.ok) {
-        console.warn(`Provider fetch failed with status: ${response.status}`);
         return {
           success: false,
-          error: `Failed to fetch provider: ${response.status}`
+          error: 'Failed to fetch provider details'
         };
       }
 
@@ -62,7 +62,7 @@ export const getProviderDetails = async (providerId: string): Promise<{ success:
       if (!data.success) {
         return {
           success: false,
-          error: data.message || 'Failed to fetch provider details'
+          error: 'Failed to fetch provider details'
         };
       }
 
@@ -70,32 +70,31 @@ export const getProviderDetails = async (providerId: string): Promise<{ success:
         success: true,
         data: data.data
       };
-    } catch (fetchError) {
-      console.warn('Error fetching provider:', fetchError);
+    } catch (error: any) {
       return {
         success: false,
         error: 'Failed to fetch provider details'
       };
     }
   } catch (error: any) {
-    console.error('Error in getProviderDetails:', error);
     return {
       success: false,
-      error: error.message || 'Failed to fetch provider details'
+      error: 'Failed to fetch provider details'
     };
   }
 };
 
 export const getAllPromotions = async (): Promise<{ success: boolean; data?: Promotion[]; error?: string }> => {
   try {
-    const response = await fetch(API_ENDPOINTS.promotions.getAll, {
+    const endpoint = API_ENDPOINTS.promotions.getAll
+    const response = await fetch(endpoint, {
       headers: {
         'Accept': 'application/json'
       },
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      throw new Error('Failed to fetch promotions');
     }
 
     const data = await response.json();
@@ -103,7 +102,7 @@ export const getAllPromotions = async (): Promise<{ success: boolean; data?: Pro
     if (!data.success) {
       return {
         success: false,
-        error: data.message || 'Failed to fetch promotions'
+        error: 'Failed to fetch promotions'
       };
     }
 
@@ -112,7 +111,6 @@ export const getAllPromotions = async (): Promise<{ success: boolean; data?: Pro
       data: data.data
     };
   } catch (error: any) {
-    console.error('Error fetching promotions:', error);
     return {
       success: false,
       error: error.message || 'Failed to fetch promotions'
@@ -153,7 +151,6 @@ export const getPromotionsByProvider = async (providerId: string): Promise<{ suc
       data: data.data
     };
   } catch (error: any) {
-    console.error('Error fetching promotions:', error);
     return {
       success: false,
       error: error.message || 'Failed to fetch promotions'
@@ -191,7 +188,8 @@ export const calculatePrice = async (
       requestBody.promoId = promoId;
     }
 
-    const response = await fetch(`${API_ENDPOINTS.cars.getAll}/calculate-price`, {
+    const endpoint = API_ENDPOINTS.cars.calPrice;
+    const response = await fetch(endpoint, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${user.token}`,
@@ -202,7 +200,7 @@ export const calculatePrice = async (
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      throw new Error('Failed to calculate price');
     }
 
     const data = await response.json();
@@ -210,7 +208,7 @@ export const calculatePrice = async (
     if (!data.success) {
       return {
         success: false,
-        error: data.message || 'Failed to calculate price'
+        error: 'Failed to calculate price'
       };
     }
 
@@ -219,10 +217,9 @@ export const calculatePrice = async (
       data: data.data
     };
   } catch (error: any) {
-    console.error('Error calculating price:', error);
     return {
       success: false,
-      error: error.message || 'Failed to calculate price'
+      error: 'Failed to calculate price'
     };
   }
 };

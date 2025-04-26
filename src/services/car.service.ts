@@ -19,7 +19,8 @@ export const getCarsByProvider = async (providerId: string): Promise<{ success: 
       };
     }
 
-    const response = await fetch(API_ENDPOINTS.rentalCarProviders.getCars(providerId), {
+    const endpoint = API_ENDPOINTS.rentalCarProviders.getCars(providerId)
+    const response = await fetch(endpoint, {
       headers: {
         'Authorization': `Bearer ${user.token}`,
         'Accept': 'application/json'
@@ -27,7 +28,7 @@ export const getCarsByProvider = async (providerId: string): Promise<{ success: 
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      throw new Error('Failed to load cars');
     }
 
     const data = await response.json();
@@ -35,7 +36,7 @@ export const getCarsByProvider = async (providerId: string): Promise<{ success: 
     if (!data.success) {
       return {
         success: false,
-        error: data.message || 'Failed to fetch cars'
+        error: 'Failed to load cars'
       };
     }
 
@@ -44,10 +45,9 @@ export const getCarsByProvider = async (providerId: string): Promise<{ success: 
       data: data.data
     };
   } catch (error: any) {
-    console.error('Error fetching cars:', error);
     return {
       success: false,
-      error: error.message || 'Failed to fetch cars'
+      error: 'Failed to load cars'
     };
   }
 };
@@ -69,7 +69,8 @@ export const getCarById = async (carId: string): Promise<{ success: boolean; dat
       };
     }
 
-    const response = await fetch(API_ENDPOINTS.cars.getOne(carId), {
+    const endpoint = API_ENDPOINTS.cars.getOne(carId)
+    const response = await fetch(endpoint, {
       headers: {
         'Authorization': `Bearer ${user.token}`,
         'Accept': 'application/json'
@@ -77,7 +78,7 @@ export const getCarById = async (carId: string): Promise<{ success: boolean; dat
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      throw new Error('Failed to load this car');
     }
 
     const data = await response.json();
@@ -85,7 +86,7 @@ export const getCarById = async (carId: string): Promise<{ success: boolean; dat
     if (!data.success) {
       return {
         success: false,
-        error: data.message || 'Failed to fetch car'
+        error: 'Failed to load this car'
       };
     }
 
@@ -94,10 +95,9 @@ export const getCarById = async (carId: string): Promise<{ success: boolean; dat
       data: data.data
     };
   } catch (error: any) {
-    console.error('Error fetching car:', error);
     return {
       success: false,
-      error: error.message || 'Failed to fetch car'
+      error: 'Failed to load this car'
     };
   }
 };
