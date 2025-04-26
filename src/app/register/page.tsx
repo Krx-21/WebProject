@@ -22,12 +22,6 @@ export default function Register() {
     setError('');
     setLoading(true);
 
-    if (!name || !phone || !email || !password) {
-      setError('All fields are required');
-      setLoading(false);
-      return;
-    }
-
     if (password !== confirmPassword) {
       setError('Passwords do not match');
       setLoading(false);

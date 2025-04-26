@@ -1,8 +1,9 @@
-const BASE_URL = 'https://backend-six-bay-39.vercel.app/api/v1';
+import { API_ENDPOINTS } from "@/config/api";
 
 export const getAllRcps = async () => {
   try {
-    const response = await fetch(`${BASE_URL}/rentalCarProviders`, {
+    const endpoint = API_ENDPOINTS.rentalCarProviders.getAll;
+    const response = await fetch(endpoint, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json'
@@ -11,7 +12,7 @@ export const getAllRcps = async () => {
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      throw new Error(`Unable to fetch rental car providers. (Status: ${response.status})`);
     }
 
     const data = await response.json();
@@ -21,17 +22,17 @@ export const getAllRcps = async () => {
       data: data.data || data
     };
   } catch (error) {
-    console.error('Error fetching RCPs:', error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Failed to fetch data'
+      error: error instanceof Error ? error.message : 'Something went wrong while loading the providers. Please try again.'
     };
   }
 };
 
 export const getRcpById = async (id: string) => {
   try {
-    const response = await fetch(`${BASE_URL}/rentalCarProviders/${id}`, {
+    const endpoint = API_ENDPOINTS.rentalCarProviders.getOne(id);
+    const response = await fetch(endpoint, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -41,13 +42,13 @@ export const getRcpById = async (id: string) => {
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      throw new Error('Unable to retrieve provider details.');
     }
 
     const rawData = await response.json();
 
     if (!rawData) {
-      throw new Error('Empty response received');
+      throw new Error('Received an empty response from the server.');
     }
 
     return {
@@ -55,10 +56,9 @@ export const getRcpById = async (id: string) => {
       data: rawData.data || rawData
     };
   } catch (error) {
-    console.error('Error fetching RCP:', error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Failed to fetch data'
+      error: error instanceof Error ? error.message:'Could not load provider details. Please try again later.'
     };
   }
 };
@@ -69,7 +69,7 @@ export const createRcp = async (rcpData: any) => {
     if (!userStr) {
       return {
         success: false,
-        error: 'Authentication required'
+        error: 'You need to be logged in to create a provider.'
       };
     }
 
@@ -80,7 +80,7 @@ export const createRcp = async (rcpData: any) => {
       localStorage.removeItem('user');
       return {
         success: false,
-        error: 'Invalid user data'
+        error: 'Invalid login session. Please log in again.'
       };
     }
 
@@ -88,11 +88,12 @@ export const createRcp = async (rcpData: any) => {
     if (!token) {
       return {
         success: false,
-        error: 'Authentication required'
+        error: 'Authentication token not found. Please log in again.'
       };
     }
 
-    const response = await fetch(`${BASE_URL}/rentalCarProviders`, {
+    const endpoint = API_ENDPOINTS.rentalCarProviders.create;
+    const response = await fetch(endpoint, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -105,18 +106,17 @@ export const createRcp = async (rcpData: any) => {
     const data = await response.json();
 
     if (!response.ok) {
-      throw new Error(data.message || data.msg || `Error ${response.status}: Failed to create provider`);
+      throw new Error('Could not create the provider. Please try again.');
     }
 
     return {
       success: true,
       data: data.data
     };
-  } catch (error: any) {
-    console.error('Create provider error:', error);
+  } catch (error) {
     return {
       success: false,
-      error: error.message || 'Failed to create provider'
+      error: error instanceof Error ? error.message:'Failed to create the provider. Please check your information and try again.'
     };
   }
 };
@@ -127,7 +127,7 @@ export const updateRcp = async (id: string, rcpData: any) => {
     if (!userStr) {
       return {
         success: false,
-        error: 'Authentication required'
+        error: 'You must be logged in to update a provider.'
       };
     }
 
@@ -138,7 +138,7 @@ export const updateRcp = async (id: string, rcpData: any) => {
       localStorage.removeItem('user');
       return {
         success: false,
-        error: 'Invalid user data'
+        error: 'Session expired. Please log in again.'
       };
     }
 
@@ -146,11 +146,12 @@ export const updateRcp = async (id: string, rcpData: any) => {
     if (!token) {
       return {
         success: false,
-        error: 'Authentication required'
+        error: 'Authentication token is missing. Please log in again.'
       };
     }
 
-    const response = await fetch(`${BASE_URL}/rentalCarProviders/${id}`, {
+    const endpoint = API_ENDPOINTS.rentalCarProviders.update(id);
+    const response = await fetch(endpoint, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -163,7 +164,7 @@ export const updateRcp = async (id: string, rcpData: any) => {
     const data = await response.json();
 
     if (!response.ok) {
-      throw new Error(data.message || data.msg || `Error ${response.status}: Failed to update provider`);
+      throw new Error('Unable to update provider. Please try again.');
     }
 
     return {
@@ -171,10 +172,9 @@ export const updateRcp = async (id: string, rcpData: any) => {
       data: data.data
     };
   } catch (error: any) {
-    console.error('Update provider error:', error);
     return {
       success: false,
-      error: error.message || 'Failed to update provider'
+      error: 'Failed to update provider. Please try again later.'
     };
   }
 };
@@ -185,7 +185,7 @@ export const getMyRcp = async () => {
     if (!userStr) {
       return {
         success: false,
-        error: 'Authentication required'
+        error: 'You need to be logged in to access your provider.'
       };
     }
 
@@ -196,7 +196,7 @@ export const getMyRcp = async () => {
       localStorage.removeItem('user');
       return {
         success: false,
-        error: 'Invalid user data'
+        error: 'Invalid session. Please log in again.'
       };
     }
 
@@ -204,11 +204,12 @@ export const getMyRcp = async () => {
     if (!token) {
       return {
         success: false,
-        error: 'Authentication required'
+        error: 'Authentication token not found. Please log in again.'
       };
     }
 
-    const meResponse = await fetch(`${BASE_URL}/auth/me`, {
+    const endpoint1 = API_ENDPOINTS.auth.getme;
+    const meResponse = await fetch(endpoint1, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -217,21 +218,20 @@ export const getMyRcp = async () => {
     });
 
     if (!meResponse.ok) {
-      throw new Error(`Failed to get user data: ${meResponse.status}`);
+      throw new Error(`Unable to fetch user profile.`);
     }
 
     const meData = await meResponse.json();
-    console.log('Current user data from API:', meData);
 
     if (!meData.data.myRcpId) {
-      console.log('User has no myRcpId');
       return {
         success: true,
         data: []
       };
     }
 
-    const response = await fetch(`${BASE_URL}/rentalCarProviders/${meData.data.myRcpId}`, {
+    const endpoint2 = API_ENDPOINTS.rentalCarProviders.getOne(meData.data.myRcpId);
+    const response = await fetch(endpoint2, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -243,17 +243,15 @@ export const getMyRcp = async () => {
 
     if (!response.ok) {
       if (response.status === 404) {
-        console.log('Provider not found with ID:', meData.data.myRcpId);
         return {
           success: true,
           data: []
         };
       }
-      throw new Error(`HTTP error! status: ${response.status}`);
+      throw new Error('Failed to fetch your provider details.');
     }
 
     const data = await response.json();
-    console.log('My RCP data from API:', data);
 
     if (data.success && data.data) {
       return {
@@ -272,10 +270,9 @@ export const getMyRcp = async () => {
       };
     }
   } catch (error) {
-    console.error('Error fetching my RCP:', error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Failed to fetch data'
+      error: error instanceof Error ? error.message:'Could not load your provider information. Please try again later.'
     };
   }
 };
@@ -286,7 +283,7 @@ export const deleteRcp = async (id: string) => {
     if (!userStr) {
       return {
         success: false,
-        error: 'Authentication required'
+        error: 'Please log in to delete a provider.'
       };
     }
 
@@ -297,7 +294,7 @@ export const deleteRcp = async (id: string) => {
       localStorage.removeItem('user');
       return {
         success: false,
-        error: 'Invalid user data'
+        error: 'Session expired. Please log in again.'
       };
     }
 
@@ -305,11 +302,12 @@ export const deleteRcp = async (id: string) => {
     if (!token) {
       return {
         success: false,
-        error: 'Authentication required'
+        error: 'Authentication token missing. Please log in again.'
       };
     }
 
-    const response = await fetch(`${BASE_URL}/rentalCarProviders/${id}`, {
+    const endpoint = API_ENDPOINTS.rentalCarProviders.delete(id);
+    const response = await fetch(endpoint, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
@@ -319,8 +317,7 @@ export const deleteRcp = async (id: string) => {
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || `Error ${response.status}: Failed to delete provider`);
+      throw new Error('Unable to delete the provider. Please try again.');
     }
 
     const data = await response.json();
@@ -328,11 +325,10 @@ export const deleteRcp = async (id: string) => {
       success: true,
       data: data.data
     };
-  } catch (error: any) {
-    console.error('Delete provider error:', error);
+  } catch (error) {
     return {
       success: false,
-      error: error.message || 'Failed to delete provider'
+      error: error instanceof Error ? error.message:'Failed to delete the provider. Please try again later.'
     };
   }
 };
