@@ -15,7 +15,7 @@ export const createBooking = async (rcpId: string, bookingData: BookingData) => 
     if (!userStr) {
       return {
         success: false,
-        error: 'Authentication required'
+        error: 'Please log in to make a booking.'
       };
     }
 
@@ -26,7 +26,7 @@ export const createBooking = async (rcpId: string, bookingData: BookingData) => 
       localStorage.removeItem('user');
       return {
         success: false,
-        error: 'Invalid user data'
+        error: 'Your session has expired. Please log in again.'
       };
     }
 
@@ -34,13 +34,11 @@ export const createBooking = async (rcpId: string, bookingData: BookingData) => 
     if (!token) {
       return {
         success: false,
-        error: 'Authentication required'
+        error: 'You need to be logged in to make a booking. Please log in and try again.'
       };
     }
-
-    const endpoint = bookingData.carId
-      ? `${API_ENDPOINTS.cars.getOne(bookingData.carId)}/bookings`
-      : `${API_ENDPOINTS.rentalCarProviders.getOne(rcpId)}/bookings`;
+    if(!bookingData.carId) throw new Error('Please select a car to book.');
+    const endpoint = API_ENDPOINTS.bookings.bookingthiscar(bookingData.carId);
 
     const response = await fetch(endpoint, {
       method: 'POST',
@@ -52,21 +50,18 @@ export const createBooking = async (rcpId: string, bookingData: BookingData) => 
     });
 
     const data = await response.json();
-    console.log('Create booking response:', data);
-
     if (!response.ok) {
-      throw new Error(data.message || data.msg || 'Failed to create booking');
+      throw new Error('There was an issue completing your booking. Please try again later.');
     }
 
     return {
       success: true,
       data: data.data
     };
-  } catch (error: any) {
-    console.error('Create booking error:', error);
+  } catch (error) {
     return {
       success: false,
-      error: error.message || 'Failed to create booking'
+      error: 'Something went wrong while processing your booking. Please try again.' 
     };
   }
 };
@@ -77,7 +72,7 @@ export const getUserBookings = async () => {
     if (!userStr) {
       return {
         success: false,
-        error: 'Authentication required'
+        error: 'Please log in to view your bookings.'
       };
     }
 
@@ -88,7 +83,7 @@ export const getUserBookings = async () => {
       localStorage.removeItem('user');
       return {
         success: false,
-        error: 'Invalid user data'
+        error: 'Your session is no longer valid. Please log in again.'
       };
     }
 
@@ -96,11 +91,12 @@ export const getUserBookings = async () => {
     if (!token) {
       return {
         success: false,
-        error: 'Authentication required'
+        error: 'You need to be logged in to view your bookings. Please log in and try again.'
       };
     }
 
-    const response = await fetch(API_ENDPOINTS.bookings.getAll, {
+    const endpoint = API_ENDPOINTS.bookings.getAll
+    const response = await fetch(endpoint, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -108,34 +104,19 @@ export const getUserBookings = async () => {
       },
     });
 
-    if (!response.ok) {
-      if (response.status === 401) {
-        return {
-          success: false,
-          error: 'Authentication required'
-        };
-      }
-      const errorData = await response.json();
-      throw new Error(errorData.message || `Error ${response.status}: Failed to fetch bookings`);
-    }
-
     const data = await response.json();
-
-    if (data.data && data.data.length > 0) {
-      console.log('First booking structure:', JSON.stringify(data.data[0], null, 2));
-    } else {
-      console.log('No bookings found or empty data array');
+    if (!response.ok) {
+      throw new Error('Failed to retrieve your bookings. Please try again later.');
     }
 
     return {
       success: true,
       data: data.data || []
     };
-  } catch (error: any) {
-    console.error('Error fetching bookings:', error);
+  } catch (error) {
     return {
       success: false,
-      error: error.message || 'Failed to fetch bookings'
+      error: error instanceof Error ? error.message :'There was an issue loading your bookings. Please try again.'
     };
   }
 };
@@ -146,7 +127,7 @@ export const updateBooking = async (id: string, bookingData: BookingData) => {
     if (!userStr) {
       return {
         success: false,
-        error: 'Authentication required'
+        error: 'Please log in to update your bookings.'
       };
     }
 
@@ -157,7 +138,7 @@ export const updateBooking = async (id: string, bookingData: BookingData) => {
       localStorage.removeItem('user');
       return {
         success: false,
-        error: 'Invalid user data'
+        error: 'Your session has expired. Please log in again.'
       };
     }
 
@@ -165,11 +146,12 @@ export const updateBooking = async (id: string, bookingData: BookingData) => {
     if (!token) {
       return {
         success: false,
-        error: 'Authentication required'
+        error: 'You need to be logged in to update your booking. Please log in and try again.'
       };
     }
 
-    const response = await fetch(API_ENDPOINTS.bookings.getOne(id), {
+    const endpoint = API_ENDPOINTS.bookings.getOne(id);
+    const response = await fetch(endpoint, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -178,21 +160,19 @@ export const updateBooking = async (id: string, bookingData: BookingData) => {
       body: JSON.stringify(bookingData),
     });
 
+    const data = await response.json();
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || `Error ${response.status}: Failed to update booking`);
+      throw new Error('Failed to update your booking. Please try again.');
     }
 
-    const data = await response.json();
     return {
       success: true,
       data: data.data
     };
-  } catch (error: any) {
-    console.error('Update booking error:', error);
+  } catch (error) {
     return {
       success: false,
-      error: error.message || 'Failed to update booking'
+      error: error instanceof Error ? error.message :'Something went wrong while updating your booking. Please try again.'
     };
   }
 };
@@ -203,7 +183,7 @@ export const getBooking = async (id: string) => {
     if (!userStr) {
       return {
         success: false,
-        error: 'Authentication required'
+        error: 'Please log in to view your bookings.'
       };
     }
 
@@ -214,7 +194,7 @@ export const getBooking = async (id: string) => {
       localStorage.removeItem('user');
       return {
         success: false,
-        error: 'Invalid user data'
+        error: 'Your session is no longer valid. Please log in again.'
       };
     }
 
@@ -222,11 +202,12 @@ export const getBooking = async (id: string) => {
     if (!token) {
       return {
         success: false,
-        error: 'Authentication required'
+        error: 'Please log in to view your booking.'
       };
     }
 
-    const response = await fetch(API_ENDPOINTS.bookings.getOne(id), {
+    const endpoint = API_ENDPOINTS.bookings.getOne(id);
+    const response = await fetch(endpoint, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -235,8 +216,7 @@ export const getBooking = async (id: string) => {
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || `Error ${response.status}: Failed to fetch booking`);
+      throw new Error('Failed to load the booking. Please try again later.');
     }
 
     const data = await response.json();
@@ -244,11 +224,10 @@ export const getBooking = async (id: string) => {
       success: true,
       data: data.data
     };
-  } catch (error: any) {
-    console.error('Get booking error:', error);
+  } catch (error) {
     return {
       success: false,
-      error: error.message || 'Failed to fetch booking'
+      error: error instanceof Error ? error.message : 'Something went wrong while fetching your booking details. Please try again.'
     };
   }
 };
@@ -259,7 +238,7 @@ export const updateBookingStatus = async (id: string, status: 'pending' | 'proce
     if (!userStr) {
       return {
         success: false,
-        error: 'Authentication required'
+        error: 'Please log in to update your booking status.'
       };
     }
 
@@ -270,7 +249,7 @@ export const updateBookingStatus = async (id: string, status: 'pending' | 'proce
       localStorage.removeItem('user');
       return {
         success: false,
-        error: 'Invalid user data'
+        error: 'Your session is no longer valid. Please log in again.'
       };
     }
 
@@ -278,13 +257,14 @@ export const updateBookingStatus = async (id: string, status: 'pending' | 'proce
     if (!token) {
       return {
         success: false,
-        error: 'Authentication required'
+        error: 'You need to be logged in to update the booking status. Please log in and try again.'
       };
     }
 
     const bookingData = { status };
 
-    const response = await fetch(API_ENDPOINTS.bookings.getOne(id), {
+    const endpoint = API_ENDPOINTS.bookings.getOne(id);
+    const response = await fetch(endpoint, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -294,8 +274,7 @@ export const updateBookingStatus = async (id: string, status: 'pending' | 'proce
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || `Error ${response.status}: Failed to update booking status`);
+      throw new Error('Failed to update booking status. Please try again.');
     }
 
     const data = await response.json();
@@ -303,11 +282,10 @@ export const updateBookingStatus = async (id: string, status: 'pending' | 'proce
       success: true,
       data: data.data
     };
-  } catch (error: any) {
-    console.error('Update booking status error:', error);
+  } catch (error) {
     return {
       success: false,
-      error: error.message || 'Failed to update booking status'
+      error: error instanceof Error ? error.message :'There was an issue updating the booking status. Please try again.'
     };
   }
 };
@@ -318,7 +296,7 @@ export const deleteBooking = async (id: string) => {
     if (!userStr) {
       return {
         success: false,
-        error: 'Authentication required'
+        error: 'Please log in to delete your booking.'
       };
     }
 
@@ -329,7 +307,7 @@ export const deleteBooking = async (id: string) => {
       localStorage.removeItem('user');
       return {
         success: false,
-        error: 'Invalid user data'
+        error: 'Your session is no longer valid. Please log in again.'
       };
     }
 
@@ -337,11 +315,12 @@ export const deleteBooking = async (id: string) => {
     if (!token) {
       return {
         success: false,
-        error: 'Authentication required'
+        error: 'You need to be logged in to delete a booking. Please log in and try again.'
       };
     }
 
-    const response = await fetch(API_ENDPOINTS.bookings.getOne(id), {
+    const endpoint = API_ENDPOINTS.bookings.getOne(id);
+    const response = await fetch(endpoint, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
@@ -350,8 +329,7 @@ export const deleteBooking = async (id: string) => {
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || `Error ${response.status}: Failed to delete booking`);
+      throw new Error('Failed to delete your booking. Please try again.');
     }
 
     const data = await response.json();
@@ -359,11 +337,10 @@ export const deleteBooking = async (id: string) => {
       success: true,
       data: data.data
     };
-  } catch (error: any) {
-    console.error('Delete booking error:', error);
+  } catch (error) {
     return {
       success: false,
-      error: error.message || 'Failed to delete booking'
+      error: error instanceof Error ? error.message :'An error occurred while trying to delete your booking. Please try again.'
     };
   }
 };

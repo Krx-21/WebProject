@@ -76,7 +76,7 @@ export const getCarsByProvider = async (
     if (!providerId) {
       return {
         success: false,
-        error: 'Provider ID is required'
+        error: 'Please provide a valid provider ID.'
       };
     }
 
@@ -84,9 +84,10 @@ export const getCarsByProvider = async (
     if (!user) {
       return {
         success: false,
-        error: 'Authentication required'
+        error: 'You need to be logged in to view the available cars.'
       };
     }
+
 
     const queryParams = new URLSearchParams();
 
@@ -121,19 +122,7 @@ export const getCarsByProvider = async (
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
-      let errorMessage = `HTTP error! status: ${response.status}`;
-
-      try {
-        const errorData = JSON.parse(errorText);
-        if (errorData.message) {
-          errorMessage = errorData.message;
-        }
-      } catch (e) {
-        // If parsing fails, use the original error message
-      }
-
-      throw new Error(errorMessage);
+      throw new Error('We couldn’t load the cars at the moment. Please try again later.');
     }
 
     const data = await response.json();
@@ -141,7 +130,7 @@ export const getCarsByProvider = async (
     if (!data.success) {
       return {
         success: false,
-        error: data.message || 'Failed to fetch cars'
+        error: 'There was an issue fetching the cars. Please try again.'
       };
     }
 
@@ -151,11 +140,10 @@ export const getCarsByProvider = async (
       count: data.count,
       pagination: data.pagination
     };
-  } catch (error: any) {
-    console.error('Error fetching cars:', error);
+  } catch (error) {
     return {
       success: false,
-      error: error.message || 'Failed to fetch cars'
+      error: error instanceof Error ? error.message : 'An error occurred while fetching the cars. Please try again later.'
     };
   }
 };
@@ -171,7 +159,7 @@ export const getCarById = async (carId: string): Promise<{ success: boolean; dat
     if (!carId) {
       return {
         success: false,
-        error: 'Car ID is required'
+        error: 'Please provide a valid car ID.'
       };
     }
 
@@ -179,11 +167,12 @@ export const getCarById = async (carId: string): Promise<{ success: boolean; dat
     if (!user) {
       return {
         success: false,
-        error: 'Authentication required'
+        error: 'You need to be logged in to view car details.'
       };
     }
 
-    const response = await fetch(API_ENDPOINTS.cars.getOne(carId), {
+    const endpoint = API_ENDPOINTS.cars.getOne(carId)
+    const response = await fetch(endpoint, {
       headers: {
         'Authorization': `Bearer ${user.token}`,
         'Accept': 'application/json'
@@ -203,19 +192,7 @@ export const getCarById = async (carId: string): Promise<{ success: boolean; dat
         };
       }
 
-      const errorText = await response.text();
-      let errorMessage = `HTTP error! status: ${response.status}`;
-
-      try {
-        const errorData = JSON.parse(errorText);
-        if (errorData.message) {
-          errorMessage = errorData.message;
-        }
-      } catch (e) {
-        // If parsing fails, use the original error message
-      }
-
-      throw new Error(errorMessage);
+      throw new Error('We couldn’t load the car details at the moment. Please try again later.');
     }
 
     const data = await response.json();
@@ -223,7 +200,7 @@ export const getCarById = async (carId: string): Promise<{ success: boolean; dat
     if (!data.success) {
       return {
         success: false,
-        error: data.message || 'Failed to fetch car'
+        error: 'There was an issue fetching the car details. Please try again.'
       };
     }
 
@@ -237,27 +214,10 @@ export const getCarById = async (carId: string): Promise<{ success: boolean; dat
       success: true,
       data: data.data
     };
-  } catch (error: any) {
-    console.error('Error fetching car:', error);
-
-    try {
-      const cachedData = sessionStorage.getItem(`car_${carId}`);
-      if (cachedData) {
-        const parsedData = JSON.parse(cachedData);
-        console.log('Retrieved car data from cache');
-        return {
-          success: true,
-          data: parsedData,
-          error: 'Using cached data. ' + error.message
-        };
-      }
-    } catch (cacheError) {
-      console.warn('Failed to retrieve cached car data:', cacheError);
-    }
-
+  } catch (error) {
     return {
       success: false,
-      error: error.message || 'Failed to fetch car'
+      error: error instanceof Error ? error.message: 'An error occurred while fetching the car details. Please try again later.'
     };
   }
 };

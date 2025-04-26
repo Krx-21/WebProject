@@ -105,12 +105,10 @@ export const getUserProfile = async (): Promise<{ success: boolean; data?: UserP
       success: true,
       data: data.data
     };
-  } catch (error: any) {
-    console.error('Error fetching user profile:', error);
+  } catch (error) {
     return {
       success: false,
-      error: error.message || 'Failed to fetch user profile'
+      error: error instanceof Error ? error.message: 'Failed to fetch user profile'
     };
   }
 };
-

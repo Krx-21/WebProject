@@ -1,5 +1,4 @@
-const BASE_URL = 'https://backend-six-bay-39.vercel.app/api/v1';
-
+import { API_ENDPOINTS } from "@/config/api";
 interface LoginCredentials {
   email: string;
   password: string;
@@ -27,7 +26,9 @@ interface LoginResponse {
 
 export const register = async (userData: RegisterData) => {
   try {
-    const response = await fetch(`${BASE_URL}/auth/register`, {
+
+    const endpoint = API_ENDPOINTS.auth.register
+    const response = await fetch(endpoint, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -37,32 +38,30 @@ export const register = async (userData: RegisterData) => {
       mode: 'cors'
     });
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => null);
-      throw new Error(errorData?.message || `HTTP error! status: ${response.status}`);
-    }
-
     const data = await response.json();
 
+    if (!response.ok) {
+      throw new Error('We’re having trouble connecting to the server. Please try again in a moment.');
+    }
+
     if (!data.success) {
-      throw new Error(data.message || 'Registration failed');
+      throw new Error('Registration was unsuccessful. Please check your information and try again.');
     }
 
     return { success: true, data };
-  } catch (error: any) {
-    console.error('Registration error:', error);
+  } catch (error) {
     return {
       success: false,
-      error: error.message || 'Failed to register'
+      error: error instanceof Error ? error.message:'Something went wrong. Please try again later.',
     };
   }
 };
 
 export const login = async (credentials: LoginCredentials) => {
   try {
-    console.log('Sending login request to:', `${BASE_URL}/auth/login`);
 
-    const response = await fetch(`${BASE_URL}/auth/login`, {
+    const endpoint = API_ENDPOINTS.auth.login
+    const response = await fetch(endpoint, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -72,51 +71,26 @@ export const login = async (credentials: LoginCredentials) => {
       mode: 'cors'
     });
 
-    console.log('Login response status:', response.status);
     const headers: { [key: string]: string } = {};
     response.headers.forEach((value, key) => {
       headers[key] = value;
     });
-    console.log('Login response headers:', headers);
+
 
     if (!response.ok) {
-      let errorMessage = `HTTP error! status: ${response.status}`;
-      let errorData = null;
-
-      try {
-        const responseText = await response.text();
-        console.log('Error response text:', responseText);
-
-        if (responseText) {
-          try {
-            errorData = JSON.parse(responseText);
-            console.error('Login error response:', errorData);
-            errorMessage = errorData?.message || errorMessage;
-          } catch (jsonError) {
-            console.error('Error parsing JSON response:', jsonError);
-          }
-        }
-      } catch (textError) {
-        console.error('Could not read response text:', textError);
-      }
-
-      throw new Error(errorMessage);
+      throw new Error('Incorrect email or password. Please double-check and try again.');
     }
 
     let data;
     try {
       const responseText = await response.text();
-      console.log('Response text:', responseText);
       data = JSON.parse(responseText);
-    } catch (parseError) {
-      console.error('Error parsing response:', parseError);
-      throw new Error('Failed to parse login response');
+    } catch (error) {
+      throw new Error('We couldn’t process the server response. Please try again later.');
     }
 
-    console.log('Login API response:', data);
-
     if (!data.success) {
-      throw new Error(data.message || 'Login failed');
+      throw new Error('Login failed. Please try again later.');
     }
 
     const userData = {
@@ -126,15 +100,10 @@ export const login = async (credentials: LoginCredentials) => {
 
     if (data.role) {
       userData.role = data.role;
-      console.log('Found role in data.role:', data.role);
     } else if (data.data?.role) {
       userData.role = data.data.role;
-      console.log('Found role in data.data.role:', data.data.role);
-    } else {
-      console.error('No role found in API response!', data);
     }
 
-    console.log('Final user data with role:', userData);
     localStorage.setItem('user', JSON.stringify(userData));
 
     return {
@@ -142,10 +111,9 @@ export const login = async (credentials: LoginCredentials) => {
       data: userData
     };
   } catch (error) {
-    console.error('Login error:', error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'An error occurred during login'
+      error: error instanceof Error ? error.message : 'Something went wrong during login. Please try again.',
     };
   }
 };
@@ -153,13 +121,10 @@ export const login = async (credentials: LoginCredentials) => {
 export const getCurrentUser = () => {
   try {
     const userStr = localStorage.getItem('user');
-
     if (!userStr) return null;
-
     const user = JSON.parse(userStr);
     return user;
   } catch (error) {
-    console.error('Error getting current user:', error);
     return null;
   }
 };
@@ -167,7 +132,8 @@ export const getCurrentUser = () => {
 export const logout = async () => {
   try {
     const user = getCurrentUser();
-    const response = await fetch(`${BASE_URL}/auth/logout`, {
+    const endpoint = API_ENDPOINTS.auth.logout
+    const response = await fetch(endpoint, {
       method: 'GET',
       headers: {
         'Accept': 'application/json',
@@ -178,25 +144,26 @@ export const logout = async () => {
     });
 
     if (!response.ok) {
-      const errorData = await response.json().catch(() => null);
-      throw new Error(errorData?.message || `HTTP error! status: ${response.status}`);
+      throw new Error('We’re unable to log you out right now. Please try again shortly.');
     }
 
     const data = await response.json();
     if (!data.success) {
-      throw new Error(data.message || 'Failed to logout');
+      throw new Error('Logout was unsuccessful. Please try again.');
     }
 
     localStorage.removeItem('user');
     return { success: true };
   } catch (error) {
-    console.error('Logout error:', error);
     localStorage.removeItem('user');
-    throw error;
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Something went wrong while logging out. Please try again.',
+    };
   }
 };
 
 export const isAuthenticated = () => {
   const user = getCurrentUser();
-  return !!user;
+  return !!user; //user ? true : false;
 };

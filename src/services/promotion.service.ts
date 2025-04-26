@@ -95,22 +95,22 @@ export const getProviderDetails = async (providerId: string): Promise<{ success:
     if (!providerId) {
       return {
         success: false,
-        error: 'Provider ID is required'
+        error: 'Please provide a valid provider ID.'
       };
     }
 
     try {
-      const response = await fetch(`${API_ENDPOINTS.rentalCarProviders.getOne(providerId)}`, {
+      const endpoint = API_ENDPOINTS.rentalCarProviders.getOne(providerId);
+      const response = await fetch(endpoint, {
         headers: {
           'Accept': 'application/json'
         },
       });
 
       if (!response.ok) {
-        console.warn(`Provider fetch failed with status: ${response.status}`);
         return {
           success: false,
-          error: `Failed to fetch provider: ${response.status}`
+          error: 'We couldn’t retrieve the provider details. Please try again later.'
         };
       }
 
@@ -119,7 +119,7 @@ export const getProviderDetails = async (providerId: string): Promise<{ success:
       if (!data.success) {
         return {
           success: false,
-          error: data.message || 'Failed to fetch provider details'
+          error: 'We couldn’t retrieve the provider details. Please check the provider ID and try again.'
         };
       }
 
@@ -127,18 +127,16 @@ export const getProviderDetails = async (providerId: string): Promise<{ success:
         success: true,
         data: data.data
       };
-    } catch (fetchError) {
-      console.warn('Error fetching provider:', fetchError);
+    } catch (error) {
       return {
         success: false,
-        error: 'Failed to fetch provider details'
+        error: error instanceof Error ? error.message:'There was an issue while fetching provider details. Please try again later.'
       };
     }
-  } catch (error: any) {
-    console.error('Error in getProviderDetails:', error);
+  } catch (error) {
     return {
       success: false,
-      error: error.message || 'Failed to fetch provider details'
+      error: error instanceof Error ? error.message:'There was an issue while fetching provider details. Please try again later.'
     };
   }
 };
@@ -188,19 +186,7 @@ export const getAllPromotions = async (
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
-      let errorMessage = `HTTP error! status: ${response.status}`;
-
-      try {
-        const errorData = JSON.parse(errorText);
-        if (errorData.message) {
-          errorMessage = errorData.message;
-        }
-      } catch (e) {
-        // If parsing fails, use the original error message
-      }
-
-      throw new Error(errorMessage);
+      throw new Error('We couldn’t retrieve the promotions at the moment. Please try again later.');
     }
 
     const data = await response.json();
@@ -208,7 +194,7 @@ export const getAllPromotions = async (
     if (!data.success) {
       return {
         success: false,
-        error: data.message || 'Failed to fetch promotions'
+        error: 'We couldn’t retrieve the promotions at the moment. Please try again later.'
       };
     }
 
@@ -230,34 +216,10 @@ export const getAllPromotions = async (
       count: data.count,
       pagination: data.pagination
     };
-  } catch (error: any) {
-    console.error('Error fetching promotions:', error);
-
-    try {
-      const cacheKey = `promotions_${JSON.stringify({paginationParams, filterParams})}`;
-      const cachedData = sessionStorage.getItem(cacheKey);
-      if (cachedData) {
-        const parsed = JSON.parse(cachedData);
-        const cacheAge = Date.now() - parsed.timestamp;
-
-        if (cacheAge < 5 * 60 * 1000) {
-          console.log('Retrieved promotions data from cache');
-          return {
-            success: true,
-            data: parsed.data,
-            count: parsed.count,
-            pagination: parsed.pagination,
-            error: 'Using cached data. ' + error.message
-          };
-        }
-      }
-    } catch (cacheError) {
-      console.warn('Failed to retrieve cached promotions data:', cacheError);
-    }
-
+  } catch (error) {
     return {
       success: false,
-      error: error.message || 'Failed to fetch promotions'
+      error: error instanceof Error ? error.message:'We couldn’t retrieve the promotions at the moment. Please try again later.'
     };
   }
 };
@@ -267,7 +229,7 @@ export const getPromotionsByProvider = async (providerId: string): Promise<{ suc
     if (!providerId) {
       return {
         success: false,
-        error: 'Provider ID is required'
+        error: 'Please provide a valid provider ID.'
       };
     }
 
@@ -278,7 +240,7 @@ export const getPromotionsByProvider = async (providerId: string): Promise<{ suc
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      throw new Error('There was an issue retrieving the promotions for this provider. Please try again later.');
     }
 
     const data = await response.json();
@@ -286,7 +248,7 @@ export const getPromotionsByProvider = async (providerId: string): Promise<{ suc
     if (!data.success) {
       return {
         success: false,
-        error: data.message || 'Failed to fetch promotions'
+        error: 'There was an issue retrieving the promotions for this provider. Please try again later.'
       };
     }
 
@@ -294,11 +256,10 @@ export const getPromotionsByProvider = async (providerId: string): Promise<{ suc
       success: true,
       data: data.data
     };
-  } catch (error: any) {
-    console.error('Error fetching promotions:', error);
+  } catch (error) {
     return {
       success: false,
-      error: error.message || 'Failed to fetch promotions'
+      error: error instanceof Error ? error.message: 'There was an issue retrieving the promotions for this provider. Please try again later.'
     };
   }
 };
@@ -312,7 +273,7 @@ export const calculatePrice = async (
     if (!carId || !numberOfDays) {
       return {
         success: false,
-        error: 'Car ID and number of days are required'
+        error: 'Please provide both the car ID and the number of days.'
       };
     }
 
@@ -320,7 +281,7 @@ export const calculatePrice = async (
     if (!user) {
       return {
         success: false,
-        error: 'Authentication required'
+        error: 'You need to be logged in to calculate the price.'
       };
     }
 
@@ -333,7 +294,8 @@ export const calculatePrice = async (
       requestBody.promoId = promoId;
     }
 
-    const response = await fetch(`${API_ENDPOINTS.cars.getAll}/calculate-price`, {
+    const endpoint = API_ENDPOINTS.cars.calPrice;
+    const response = await fetch(endpoint, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${user.token}`,
@@ -344,7 +306,7 @@ export const calculatePrice = async (
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      throw new Error('We couldn’t calculate the price. Please try again later.');
     }
 
     const data = await response.json();
@@ -352,7 +314,7 @@ export const calculatePrice = async (
     if (!data.success) {
       return {
         success: false,
-        error: data.message || 'Failed to calculate price'
+        error: 'We couldn’t calculate the price. Please check the details and try again.'
       };
     }
 
@@ -360,11 +322,10 @@ export const calculatePrice = async (
       success: true,
       data: data.data
     };
-  } catch (error: any) {
-    console.error('Error calculating price:', error);
+  } catch (error) {
     return {
       success: false,
-      error: error.message || 'Failed to calculate price'
+      error: error instanceof Error ? error.message:'We encountered an issue while calculating the price. Please try again later.'
     };
   }
 };
