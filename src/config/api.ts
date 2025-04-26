@@ -1,4 +1,4 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://backend-six-bay-39.vercel.app';
 
 export const API_ENDPOINTS = {
   promotions: {
