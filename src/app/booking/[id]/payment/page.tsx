@@ -73,16 +73,20 @@ export default function BookingPaymentPage({ params }: { params: { id: string } 
   const handleCompletePayment = async () => {
     try {
       setPaymentStatus('processing');
+      setError(null);
 
+      console.log('Simulating payment for booking:', params.id);
       const response = await updateBookingStatus(params.id, 'completed');
 
       if (response.success) {
+        console.log('Payment simulation successful:', response.data);
         setPaymentStatus('completed');
 
         setTimeout(() => {
           router.push('/dashboard');
         }, 3000);
       } else {
+        console.error('Payment simulation failed:', response.error);
         setPaymentStatus('failed');
         setError(response.error || 'Failed to complete payment');
       }

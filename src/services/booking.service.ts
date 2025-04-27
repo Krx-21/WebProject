@@ -236,8 +236,11 @@ export const getBooking = async (id: string) => {
 
 export const updateBookingStatus = async (id: string, status: 'pending' | 'processing' | 'completed' | 'failed') => {
   try {
+    console.log(`Updating booking ${id} status to ${status}`);
+
     const userStr = localStorage.getItem('user');
     if (!userStr) {
+      console.error('No user found in localStorage');
       return {
         success: false,
         error: 'Please log in to update your booking status.'
@@ -248,6 +251,7 @@ export const updateBookingStatus = async (id: string, status: 'pending' | 'proce
     try {
       userData = JSON.parse(userStr);
     } catch (error) {
+      console.error('Error parsing user data:', error);
       localStorage.removeItem('user');
       return {
         success: false,
@@ -257,15 +261,22 @@ export const updateBookingStatus = async (id: string, status: 'pending' | 'proce
 
     const token = userData.token;
     if (!token) {
+      console.error('No token found in user data');
       return {
         success: false,
         error: 'You need to be logged in to update the booking status. Please log in and try again.'
       };
     }
 
-    const bookingData = { status };
+    const bookingData = {
+      status,
+      statusUpdateOnly: true
+    };
 
+    console.log('Sending booking data:', bookingData);
     const endpoint = API_ENDPOINTS.bookings.getOne(id);
+    console.log('Endpoint:', endpoint);
+
     const response = await fetch(endpoint, {
       method: 'PUT',
       headers: {
@@ -276,6 +287,9 @@ export const updateBookingStatus = async (id: string, status: 'pending' | 'proce
     });
 
     const data = await response.json();
+    console.log('Response status:', response.status);
+    console.log('Response data:', data);
+
     if (!response.ok) {
       console.error('Update booking status error:', data);
       throw new Error(data.message || 'Failed to update booking status. Please try again.');
