@@ -61,7 +61,7 @@ export const createBooking = async (rcpId: string, bookingData: BookingData) => 
   } catch (error) {
     return {
       success: false,
-      error: 'Something went wrong while processing your booking. Please try again.' 
+      error: 'Something went wrong while processing your booking. Please try again.'
     };
   }
 };
@@ -162,7 +162,8 @@ export const updateBooking = async (id: string, bookingData: BookingData) => {
 
     const data = await response.json();
     if (!response.ok) {
-      throw new Error('Failed to update your booking. Please try again.');
+      console.error('Update booking error:', data);
+      throw new Error(data.message || 'Failed to update your booking. Please try again.');
     }
 
     return {
@@ -170,6 +171,7 @@ export const updateBooking = async (id: string, bookingData: BookingData) => {
       data: data.data
     };
   } catch (error) {
+    console.error('Update booking error details:', error);
     return {
       success: false,
       error: error instanceof Error ? error.message :'Something went wrong while updating your booking. Please try again.'
@@ -273,16 +275,18 @@ export const updateBookingStatus = async (id: string, status: 'pending' | 'proce
       body: JSON.stringify(bookingData),
     });
 
+    const data = await response.json();
     if (!response.ok) {
-      throw new Error('Failed to update booking status. Please try again.');
+      console.error('Update booking status error:', data);
+      throw new Error(data.message || 'Failed to update booking status. Please try again.');
     }
 
-    const data = await response.json();
     return {
       success: true,
       data: data.data
     };
   } catch (error) {
+    console.error('Update booking status error details:', error);
     return {
       success: false,
       error: error instanceof Error ? error.message :'There was an issue updating the booking status. Please try again.'
