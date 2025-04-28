@@ -101,7 +101,7 @@ export default function CommentSection({ cid }: { cid: string }) {
                 toast.success('Deleted Successfully');
             }
         } catch (e) {
-            toast.error('Failed to delete comment');
+            toast.error(e);
         }
     };
 
