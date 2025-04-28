@@ -610,7 +610,7 @@ test('user use promotion', async ({ page }) => {
   await page.goto(`${baseURL}/dashboard`);
   page.once('dialog', dialog => {
     console.log(`Dialog message: ${dialog.message()}`);
-    dialog.dismiss().catch(() => {});
+    dialog.accept();
   });
   await page.getByRole('button', { name: 'Cancel' }).nth(0).click();
 });
@@ -640,7 +640,7 @@ test('user use expired promotion', async ({ page }) => {
   await page.goto(`${baseURL}/dashboard`);
   page.once('dialog', dialog => {
     console.log(`Dialog message: ${dialog.message()}`);
-    dialog.dismiss().catch(() => {});
+    dialog.accept();
   });
   await page.getByRole('button', { name: 'Cancel' }).nth(0).click();
 });
