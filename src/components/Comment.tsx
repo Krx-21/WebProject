@@ -120,6 +120,7 @@ export default function CommentSection({ cid }: { cid: string }) {
                 setIsCommentPosted(prev => !prev);
                 toast.success('Comment posted successfully');
             }
+            toast.error('Failed to post comment');
         } catch (e) {
             toast.error('Failed to post comment');
         }
