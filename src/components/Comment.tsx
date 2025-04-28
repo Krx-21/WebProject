@@ -100,6 +100,9 @@ export default function CommentSection({ cid }: { cid: string }) {
                 setIsCommentPosted(prev => !prev);
                 toast.success('Deleted Successfully');
             }
+            if (response.status == 404){
+                toast.success('comment not found');
+            }
         } catch (e) {
             toast.error(`${e}`);
         }

@@ -117,9 +117,13 @@ export const deleteComments = async (id : string) => {
             },
         })
 
-        if (response.status === 404) {
-            throw new Error('comment not found');
+        if (response.status == 404) {
+            return {
+                status: 404,
+                success: false
+            };
         }
+
         if (!response.ok) {
             throw new Error('We couldn’t delete your comment. Please try again later.');
         }
