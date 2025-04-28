@@ -36,7 +36,7 @@ export default function RootLayout({
               <div className="min-h-screen flex flex-col">
                 <Navbar />
                 <Toaster
-                  position="top-center"
+                  position="bottom-right"
                   reverseOrder={false}
                 />
                 <main className="flex-grow pt-16">
