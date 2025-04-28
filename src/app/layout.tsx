@@ -9,6 +9,7 @@ import { DarkModeProvider } from "@/contexts/DarkModeContext";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Providers from "@/components/Providers";
+import { Toaster } from "react-hot-toast";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -34,6 +35,10 @@ export default function RootLayout({
             <AuthProvider>
               <div className="min-h-screen flex flex-col">
                 <Navbar />
+                <Toaster
+                  position="top-center"
+                  reverseOrder={false}
+                />
                 <main className="flex-grow pt-16">
                   {children}
                 </main>
