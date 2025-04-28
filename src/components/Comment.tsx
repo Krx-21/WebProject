@@ -101,7 +101,7 @@ export default function CommentSection({ cid }: { cid: string }) {
                 toast.success('Deleted Successfully');
             }
         } catch (e) {
-            toast.error(e);
+            toast.error(`${e}`);
         }
     };
 
