@@ -1,5 +1,5 @@
 import { Button } from '@mui/material';
-import { test, expect } from '@playwright/test';   
+import { test, expect } from '@playwright/test';
 import path from 'path';
 
 const timeout = 180000
@@ -25,7 +25,7 @@ test('should navigate to the Manage Cars page',async ({ page }) => {
   await page.getByRole('textbox', { name: 'Model' }).fill('X5');
   await page.getByRole('textbox', { name: 'Car Description' }).click();
   await page.getByRole('textbox', { name: 'Car Description' }).fill('good car');
-  await page.getByText('Select Image').setInputFiles('WebProject/playwright/1523688.jpg');
+  await page.getByText('Select Image').setInputFiles('playwright/1523688.jpg');
   await page.getByRole('button', { name: 'Upload Image' }).click();
   await page.getByRole('button', { name: 'Create Car' }).click();
   await expect (page).toHaveURL('https://web-project-delta-nine.vercel.app/admin/cars',{timeout: 100000});
@@ -51,7 +51,7 @@ test('should navigate to the Edit Car page', async ({ page }) => {
     console.log(dialog.message()); // แสดงข้อความจาก popup
     await dialog.accept(); // กดปุ่ม "ตกลง"
   });
-  await expect(page).toHaveURL('https://web-project-delta-nine.vercel.app/admin/cars',{timeout: 100000});  
+  await expect(page).toHaveURL('https://web-project-delta-nine.vercel.app/admin/cars',{timeout: 100000});
 });
 
 //test admin manage cars add new car
@@ -74,7 +74,7 @@ test('admin should navigate to the Manage Cars page', async ({ page }) => {
   await page.getByRole('textbox', { name: 'Model' }).fill('X5');
   await page.getByRole('textbox', { name: 'Car Description' }).click();
   await page.getByRole('textbox', { name: 'Car Description' }).fill('good car');
-  await page.getByText('Select Image').setInputFiles('WebProject/playwright/1523688.jpg');
+  await page.getByText('Select Image').setInputFiles('playwright/1523688.jpg');
   await page.getByRole('button', { name: 'Upload Image' }).click();
   await page.getByRole('button', { name: 'Create Car' }).click();
   await expect (page).toHaveURL('https://web-project-delta-nine.vercel.app/admin/cars',{timeout: 100000});
@@ -100,7 +100,7 @@ test('admin should navigate to the Edit Car page', async ({ page }) => {
     console.log(dialog.message()); // แสดงข้อความจาก popup
     await dialog.accept(); // กดปุ่ม "ตกลง"
   });
-  await expect(page).toHaveURL('https://web-project-delta-nine.vercel.app/admin/cars',{timeout: 100000});  
+  await expect(page).toHaveURL('https://web-project-delta-nine.vercel.app/admin/cars',{timeout: 100000});
 });
 
 //test provider manage cars delete car
@@ -117,8 +117,8 @@ test('should navigate to the Delete Car page', async ({ page }) => {
   await expect(page).toHaveURL('https://web-project-delta-nine.vercel.app/admin/cars');
   await page.locator('.rounded-lg > div:nth-child(4) > button:nth-child(2)').first().click();
   page.on('dialog', async (dialog) => {
-    console.log('OK', dialog.message()); 
-    await dialog.accept(); 
+    console.log('OK', dialog.message());
+    await dialog.accept();
   });
   await page.goto('https://web-project-delta-nine.vercel.app/admin/cars');
   await expect(page.locator('.rounded-lg > div:nth-child(4) > button:nth-child(2)')).not.toBeVisible();
@@ -138,8 +138,8 @@ test('admin should navigate to the Delete Car page', async ({ page }) => {
   await expect(page).toHaveURL('https://web-project-delta-nine.vercel.app/admin/cars',{timeout: 100000});
   await page.locator('.rounded-lg > div:nth-child(4) > button:nth-child(2)').first().click();
   page.on('dialog', async (dialog) => {
-    console.log('OK', dialog.message()); 
-    await dialog.accept(); 
+    console.log('OK', dialog.message());
+    await dialog.accept();
   });
   await page.goto('https://web-project-delta-nine.vercel.app/admin/cars');
   await expect(page.locator('.rounded-lg > div:nth-child(4) > button:nth-child(2)')).not.toBeVisible();
@@ -160,21 +160,21 @@ test.describe('Theme mode switch (Dark/Light)', () => {
     test.beforeEach(async ({ page }) => {
       await page.goto('https://web-project-delta-nine.vercel.app'); // แก้ URL ตามโปรเจกต์ของคุณ
     });
-  
+
     test('should toggle to dark mode and back to light mode', async ({ page }) => {
       const toggleButton = page.getByRole('button', { name: 'Toggle dark mode' });
       // ตรวจสอบ Light Mode
       await expect(page.locator('body')).toHaveCSS('background-color', 'rgb(249, 250, 251)'); // อาจต้องเปลี่ยนตามจริง
-  
+
       // คลิกเพื่อเปิด Dark Mode
       await toggleButton.click();
-  
+
       // ตรวจสอบ Dark Mode
       await expect(page.locator('body')).toHaveCSS('background-color', 'rgb(17, 24, 39)'); // ตัวอย่างสี dark
-  
+
       // คลิกกลับไป Light Mode
       await toggleButton.click();
-  
+
       // ตรวจสอบว่าเปลี่ยนกลับ Light Mode แล้ว
       await expect(page.locator('body')).toHaveCSS('background-color', 'rgb(249, 250, 251)');
     });
